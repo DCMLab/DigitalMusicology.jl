@@ -1,5 +1,5 @@
 module DigitalMusicology
 
-# package code goes here
+include("Slices.jl")
 
 end # module
