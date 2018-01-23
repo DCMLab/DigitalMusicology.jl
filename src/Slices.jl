@@ -1,10 +1,14 @@
 module Slices
 
 import IterTools
+import Base.==, Base.hash, Base.show
 
-export Slice, FiguredPitch, FiguredPitchClass
-export pc, pc_bag, pc_set, p_set, figured_p, figured_pc
-export re_represent_slices, all_as, figured_gram_p, figured_gram_pc
+export Slice, unwrap_slices, slice_skip_cost, slice_onset_cost
+export sg_duration_total, sg_duration_sum
+export FiguredPitch, FiguredPitchClass
+export pc, transpose_equiv
+export re_represent_slice, pc_bag, pc_set, p_set, figured_p, figured_pc
+export re_represent_slice_gram, all_as, figured_gram_p, figured_gram_pc
 
 # general slice structure
 # -----------------------
@@ -15,6 +19,30 @@ struct Slice{T, N<:Number}
     pitches:: T
 end
 
+==(s1::Slice, s2::Slice) =
+    s1.onset == s2.onset && s1.duration == s2.duration && s1.pitches == s2.pitches
+
+hash(s::Slice, x::UInt) = hash(s.onset, hash(s.duration, hash(s.pitches, x)))
+
+"Returns the pitch representations in a vector of slices."
+unwrap_slices(slices) = map(s -> s.pitches, slices)
+
+"Returns the distance between the offset of s1 and the onset of s2."
+slice_skip_cost(s1::Slice, s2::Slice) = s2.onset - (s1.onset + s1.duration)
+
+"Returns the distance between the onsets of s1 and s2."
+slice_onset_cost(s1::Slice, s2::Slice) = s2.onset - s1.onset
+
+# n-grams of slices
+# -----------------
+
+"Returns the total duration of a slice n-gram (including skipped time)"
+sg_duration_total(sg) = sg[end].onset + sg[end].duration - sg[1].onset
+
+"Returns the sum of slice durations in a slice n-gram (excluding skipped time)"
+sg_duration_sum(sg) = sum(map(slice -> slice.duration, sg))
+
+
 # representations of pitch groups
 # -------------------------------
 # 
@@ -22,6 +50,11 @@ end
 
 "Helper: Turns a pitch into a pitch class."
 pc(pitch::Int) = mod(pitch,12)
+
+"Helper: change the pitch representation in a slice.
+Assumes a bag of pitches representations"
+re_represent_slice(f, slice::Slice{Vector{Int}}) =
+    Slice(slice.onset, slice.duration, f(slice.pitches))
 
 # TODO: define types for representations or use standard structures?
 # - standard structures are simpler
@@ -43,6 +76,16 @@ struct FiguredPitch
     figures :: Set{Int}
 end
 
+==(fp1::FiguredPitch, fp2::FiguredPitch) =
+    fp1.bass == fp2.bass && fp1.figures == fp2.figures
+
+hash(fp::FiguredPitch, x::UInt) = hash(fp.bass, hash(fp.figures, x))
+
+function show(io::IO, fp::FiguredPitch)
+    figs = sort!(collect(fp.figures))
+    write(io, string(fp.bass), "^{", join(figs, ", "), "}")
+end
+
 "Represents pitches as a bass pitch and remaining pitch classes \
 relative to the bass."
 figured_p(pitches::Vector{Int}) =
@@ -53,6 +96,16 @@ figured_p(pitches::Vector{Int}) =
 struct FiguredPitchClass
     bass :: Int
     figures :: Set{Int}
+end
+
+==(fp1::FiguredPitchClass, fp2::FiguredPitchClass) =
+    fp1.bass == fp2.bass && fp1.figures == fp2.figures
+
+hash(fp::FiguredPitchClass, x::UInt) = hash(fp.bass, hash(fp.figures, x))
+
+function show(io::IO, fp::FiguredPitchClass)
+    figs = sort!(collect(fp.figures))
+    write(io, "[", string(fp.bass), "]^{", join(figs, ", "), "}")
 end
 
 "Represents pitches as a bass pitch class and remaining pitch classes \
@@ -69,7 +122,7 @@ figured_pc(pitches::Vector{Int}) =
 # and return an iterator over some representation
 
 """
-    re_represent_slices(itr, f)
+    re_represent_slice_gram(itr, f)
 
 Takes an iterator over pitch bag slices `itr`,
 and and a gram rerepresentation function `f`.
@@ -78,9 +131,9 @@ Returns iterator over slices rerepresented according to `f`.
 and return an iterator over some other representation.
 Slice onsets and durations are taken from the original slices.
 """
-function re_represent_slices(itr, f)
+function re_represent_slice_gram(f, gram)
     rerep_slice(slice, repitches) = Slice(slice.onset, slice.duration, repitches)
-    IterTools.imap(rerep_slice, itr, f(IterTools.imap(s -> s.pitches, itr)))
+    map(rerep_slice, gram, f(unwrap_slices(gram)))
 end
 
 "Helper: Returns an n-gram rerepresentation function obtained by mapping `f` over all elements."
@@ -89,28 +142,44 @@ all_as(f::Function) = xs -> IterTools.imap(f, xs)
 "Returns a figured bass n-gram with an absolute initial bass pitch
 and subsequent bass pitches relative to the first."
 function figured_gram_p(gram)
-    fbs = all_as(figured_p)(gram)
+    fbs = collect(all_as(figured_p)(gram))
     fst = first(fbs)
     ref = fst.bass
     relbass(fg) = FiguredPitch(fg.bass - ref, fg.figures)
-    IterTools.chain([fst], IterTools.imap(relbass, Iterators.drop(fbs, 1)))
+    out = map(relbass, collect(fbs))
+    out[1] = fst
+    out
 end
 
 "Returns a figured bass n-gram with an absolute initial bass pitch class
 and subsequent bass pitch classes relative (mod 12) to the first."
 function figured_gram_pc(gram)
-    fbs = all_as(figured_pc)(gram)
+    fbs = collect(all_as(figured_pc)(gram))
     fst = first(fbs)
     ref = fst.bass
     relbass(fg) = FiguredPitchClass(pc(fg.bass - ref), fg.figures)
-    IterTools.chain([fst], IterTools.imap(relbass, Iterators.drop(fbs, 1)))
+    out = map(relbass, collect(fbs))
+    out[1] = fst
+    out
 end
 
 # general methods on music structures
 # -----------------------------------
 
-# "Returns a figured gram with the reference pitch set to 0.
-# This results in transpositional equivalence."
-# transpose_equiv_figured_gram()
+"Returns a figured gram with the reference pitch set to 0.
+This results in transpositional equivalence."
+function transpose_equiv end
+
+function transpose_equiv(gram::Vector{FiguredPitch})
+    new = gram[:]
+    new[1] = FiguredPitch(0, gram[1].figures)
+    new
+end
+
+function transpose_equiv(gram::Vector{FiguredPitchClass})
+    new = gram[:]
+    new[1] = FiguredPitchClass(0, gram[1].figures)
+    new
+end
 
 end #module
