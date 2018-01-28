@@ -16,4 +16,10 @@ include("PitchCollections.jl")
 include("Slices.jl")
 @reexport using .Slices
 
+include("Corpora.jl")
+@reexport using .Corpora
+
+include("External.jl")
+@reexport using .External
+
 end # module
