@@ -10,6 +10,9 @@ include("Pitches.jl")
 include("PitchOps.jl")
 @reexport using .PitchOps
 
+include("PitchCollections.jl")
+@reexport using .PitchCollections
+
 include("Slices.jl")
 @reexport using .Slices
 
