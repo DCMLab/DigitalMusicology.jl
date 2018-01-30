@@ -4,7 +4,7 @@ importall DigitalMusicology.Corpora
 using DigitalMusicology
 
 using CSV: read
-using DataFrames: DataFrame, GroupedDataFrame
+using DataFrames: DataFrame, GroupedDataFrame, groupby
 using IterTools: imap, chain
 using Base.Iterators: flatten
 
@@ -93,7 +93,7 @@ end
 # piece as a Slice iterator
 function _get_piece(id, ::Val{:slices}, corpus::LACCorpus)
     df = get_piece(id, :slices_df, corpus)
-    groups = DataFrames.groupby(df, :onset)
+    groups = groupby(df, :onset)
     groups_to_slices(groups)
 end
 

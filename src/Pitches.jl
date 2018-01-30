@@ -32,6 +32,7 @@ convert(::Type{MidiPitch}, x::N) where {N<:Number} = midi(convert(Int, x))
 +(p1::MidiPitch, p2::MidiPitch) = midi(p1.pitch + p2.pitch)
 
 -(p1::MidiPitch, p2::MidiPitch) = midi(p1.pitch - p2.pitch)
+-(p::MidiPitch) = midi(-p.pitch)
 
 zero(::Type{MidiPitch}) = midi(0)
 zero(::MidiPitch) = midi(0)
