@@ -32,6 +32,12 @@ end
 
 hash(s::Slice, x::UInt) = hash(s.onset, hash(s.duration, hash(s.content, x)))
 
+function show(io::IO, s::Slice)
+    write(io, string("Slice<", onset(s), "-", duration(s), "-", offset(s), ">("))
+    show(io, content(s))
+    write(io, ")")
+end
+
 "Returns the onset of slice s."
 onset{N,T}(s::Slice{N,T})::N = s.onset
 
