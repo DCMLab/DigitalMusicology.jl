@@ -3,7 +3,7 @@ module External
 using DigitalMusicology
 import Base: show
 
-export musescore, HumDrumString, exampleHumDrumString
+export musescore, verovio, HumDrumString, exampleHumDrumString
 
 # Musescore
 # ---------
@@ -46,14 +46,18 @@ show(io::IO, ::MIME"text/plain", hds::HumDrumString) =
 
 scrpath = joinpath(Pkg.dir("DigitalMusicology"), "data", "")
 
-if isdefined(Main, :IJulia)
-    scrpath = joinpath(Pkg.dir("DigitalMusicology"), "data", "")
-    vero = readstring(scrpath * "verovio-toolkit.js")
-    wwm  = readstring(scrpath * "wildwebmidi.js")
-    mp   = readstring(scrpath * "midiplayer.js")
-    main = readstring(scrpath * "julia_verovio.js")
-    map([vero, wwm, mp, main]) do js
-        display(MIME"text/html"(), "<script type=\"text/javascript\">$(js)</script>")
+function verovio()
+    if isdefined(Main, :IJulia)
+        scrpath = joinpath(Pkg.dir("DigitalMusicology"), "data", "")
+        vero = readstring(scrpath * "verovio-toolkit.js")
+        wwm  = readstring(scrpath * "wildwebmidi.js")
+        mp   = readstring(scrpath * "midiplayer.js")
+        main = readstring(scrpath * "julia_verovio.js")
+        map([vero, wwm, mp, main]) do js
+            display(MIME"text/html"(), "<script type=\"text/javascript\">$(js)</script>")
+        end
+    else
+        error("Not in an IJulia session, won't set up verovio viewer.")
     end
 end
 
