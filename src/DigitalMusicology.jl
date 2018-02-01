@@ -16,6 +16,9 @@ include("PitchCollections.jl")
 include("Slices.jl")
 @reexport using .Slices
 
+include("Grams.jl")
+@reexport using .Grams
+
 include("Corpora.jl")
 @reexport using .Corpora
 
