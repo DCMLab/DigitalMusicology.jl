@@ -7,12 +7,14 @@ using CSV: read
 using DataFrames: DataFrame, GroupedDataFrame, groupby
 using IterTools: imap, chain
 using Base.Iterators: flatten
+using Query
+using Missings: ismissing, missing, Missing
 
-export lac, use_lac
+export lac, use_lac, meta, year_bins
 
 struct LACCorpus <: Corpus
     data_dir :: String
-    piece_ids :: Vector{String}
+    # piece_ids :: Vector{String}
     subdirs :: Dict{String}
     dirpieces :: Dict{String}
     meta :: DataFrame
@@ -25,11 +27,11 @@ data_dir(crp::LACCorpus) = crp.data_dir
 
 function lac(dir :: String)
     meta = read(joinpath(dir, meta_file))
-    ids = map(first∘splitext, meta[:file_name])
+    meta[:id] = map(first∘splitext, meta[:file_name])
 
     subdirs = Dict{String, Set{String}}()
     dirpieces = Dict{String, Set{String}}()
-    for id in ids
+    for id in meta[:id]
         parent = ""
         parts = split(id, ['/'])
         for part in parts[1:end-1]
@@ -42,7 +44,7 @@ function lac(dir :: String)
     subdirs["./"] = pop!(subdirs, "", Set{String}())
     dirpieces["./"] = pop!(dirpieces, "", Set{String}())
 
-    LACCorpus(dir, ids, subdirs, dirpieces, meta)
+    LACCorpus(dir, subdirs, dirpieces, meta)
 end
 
 use_lac(dir :: String) = set_corpus(lac(dir))
@@ -50,7 +52,7 @@ use_lac(dir :: String) = set_corpus(lac(dir))
 # piece ids and directories
 # -------------------------
 
-all_pieces(l::LACCorpus) = l.piece_ids
+all_pieces(l::LACCorpus) = l.meta[:id]
 
 function all_pieces(dir, l::LACCorpus)
     ds = dirs(dir)
@@ -69,6 +71,59 @@ end
 
 piece_path(id, cat, ext, crp) =
     joinpath(data_dir(crp), cat, id * ext)
+
+"""
+    meta([LACCorpus])
+
+Returns the corpus' meta-dataframe.
+"""
+meta(c::LACCorpus = get_corpus()) = c.meta
+
+# pieces_where(colum::Symbol, value, c::LACCorpus = get_corpus()) =
+#     @from row in meta(c) begin
+#         @where i[column] == value
+#         @select i.id
+#     end
+
+function parseYear(str) :: Union{Missing,Int}
+    m = match(r"\d\d\d\d", str)
+    if m == nothing
+        missing
+    else
+        parse(m.match)
+    end
+end
+
+"""
+    year_bins(timespan [, reference=0 [, corpus]])
+
+Returns piece ids in a list of bins as named tuples
+`(onset, offset, bin, ids)`.
+The bins are `timespan` years wide and start at `reference`.
+Only pieces with a readable `composition_year` metadata entry
+are returned.
+The year is read from the `composition_year` column by taking the first
+sequence of 4 digits in each row.
+"""
+function year_bins(timespan::Int, reference::Int = 0, c::LACCorpus = get_corpus())
+    df = meta(c)
+    #miny = minimum(df[:composition_year])
+    #maxy = maximum(df[:composition_year])
+    #year_to_bin(year) = fld(year - reference, timespan)
+    bins = @from row in meta(c) begin
+        @where row.composition_year.hasvalue
+        @let year = parseYear(row.composition_year.value)
+        @where !ismissing(year)
+        @group row.id by fld(year - reference, timespan) into g
+        @select {onset=g.key * timespan + reference,
+                 offset=(g.key+1)*timespan + reference - 1,
+                 bin=g.key,
+                 ids=g}
+        @collect
+    end
+    sort(bins, by=(p -> p[3]))
+end
+
 
 # helpers
 # -------
@@ -98,6 +153,6 @@ function _get_piece(id, ::Val{:slices}, corpus::LACCorpus)
 end
 
 _get_piece(id, ::Val{:meta}, corpus::LACCorpus) =
-    filter(r -> r[:file_name] == id*".mid", corpus.meta)[1, :]
+    filter(r -> r[:id] == id, corpus.meta)[1, :]
 
 end #module
