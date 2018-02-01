@@ -1,6 +1,7 @@
 module Corpora
 
 using IterTools: imap, chain
+using Missings: missing, skipmissing
 using Reexport.@reexport
 
 export Corpus, NoCorpus
@@ -149,8 +150,17 @@ get_piece(id, form::Symbol, corpus = get_corpus()) =
 Like `get_piece` but takes multiple ids and returns
 an iterator over the resulting pieces.
 """
-get_pieces(ids, form, corpus = get_corpus()) =
-    imap(id -> get_piece(id, form, corpus), ids)
+get_pieces(ids, form, corpus = get_corpus(); skipmissings=false) = begin
+    pieces = imap(ids) do id
+        try
+            get_piece(id, form, corpus)
+        catch
+            missing
+        end
+    end
+    
+    skipmissings ? skipmissing(pieces) : pieces
+end
 
 """
 _get_piece(id, Val{form}(), corpus)
