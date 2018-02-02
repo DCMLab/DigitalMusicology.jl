@@ -60,7 +60,7 @@ map_scapes(f::Function, arr::A) where {A <: AbstractArray} =
 # ----------
 
 """
-    skipgrams_general(itr, k, n, cost)
+    skipgrams_general(itr, k, n, cost [, pred])
 
 Returns all generalized `k`-skip-`n`-grams.
 
@@ -77,6 +77,9 @@ unfinished gram (prefix) to more than `k`,
 then all following elements will increase the cost at least as much,
 so we can discard the prefix.
 
+An optional predicate function can be provided to test potential neighbors in a skipgram.
+By default, all input elements are allowed to be neighbors.
+
 # Examples
 
 ```julia
@@ -87,7 +90,8 @@ function skipgrams(itr, k, n)
 end
 ```
 """
-function skipgrams_general(itr, k::Float64, n::Int, cost::Function)
+function skipgrams_general(itr, k::Float64, n::Int, cost::Function,
+                           pred::Function = ((x1, x2) -> true))
     # helpers
     mk_prefix(x) = (n-1, 0.0, plist{eltype(itr)}([x]))
     total_cost(pfx, x) = pfx[2] + cost(first(pfx[3]), x)
@@ -104,8 +108,11 @@ function skipgrams_general(itr, k::Float64, n::Int, cost::Function)
         # remove prefixes that cannot be completed anymore
         old_closed = filter(p -> total_cost(p, candidate) <= k, prefixes)
 
+        # check for compatibility with candidate
+        extendable = filter(p -> pred(first(p[3]), candidate), old_closed)
+        
         # extend prefixes
-        extended = map(p -> extend_prefix(p, candidate), old_closed)
+        extended = map(p -> extend_prefix(p, candidate), extendable)
 
         # add complete prefixes to found
         append!(found_grams, map(prefix_to_gram,
@@ -125,7 +132,8 @@ end
 # skip-grams channel
 # ------------------
 
-function skipgrams_channel(itr, k::Float64, n::Int, cost::Function)
+function skipgrams_channel(itr, k::Float64, n::Int, cost::Function,
+                           pred::Function = ((x1, x2) -> true))
     # helpers
     mk_prefix(x) = (n-1, 0.0, plist{eltype(itr)}([x]))
     total_cost(pfx, x) = pfx[2] + cost(first(pfx[3]), x)
@@ -141,8 +149,11 @@ function skipgrams_channel(itr, k::Float64, n::Int, cost::Function)
             # remove prefixes that cannot be completed anymore
             old_closed = filter(p -> total_cost(p, candidate) <= k, prefixes)
 
+            # check for compatibility with candidate
+            extendable = filter(p -> pred(first(p[3]), candidate), old_closed)
+
             # extend prefixes
-            extended = map(p -> extend_prefix(p, candidate), old_closed)
+            extended = map(p -> extend_prefix(p, candidate), extendable)
         
             # add incomplete prefixes to prefixes
             prefixes = append!(old_closed, filter(!prefix_complete, extended))
@@ -164,6 +175,7 @@ struct SkipGramItr{T}
     k :: Float64
     n :: Int
     cost :: Function
+    pred :: Function
 end
 
 const SGPrefix{T} = Tuple{Int, Float64, List{T}}
@@ -181,8 +193,10 @@ end
 Returns a skipgram iterator.
 Otherwise the same as skipgram_general.
 """
-skipgrams_itr(itr, k::Float64, n::Int, cost::Function, t=eltype(itr)) =
-    SkipGramItr{t}(itr, k, n, cost)
+skipgrams_itr(itr, k::Float64, n::Int, cost::Function,
+              pred::Function = ((x1, x2) -> true);
+              element_type=eltype(itr)) =
+    SkipGramItr{element_type}(itr, k, n, cost, pred)
 
 ## helpers for finding ngrams
 
@@ -200,8 +214,11 @@ function process_candidate(itr::SkipGramItr{T}, st::SkipGramItrState{T}) where T
     # 2. remove prefixes that cannot be completed anymore
     old_closed = filter(p -> total_cost(p, candidate) <= itr.k, st.prefixes)
 
+    # check for compatibility with candidate
+    extendable = filter(p -> itr.pred(first(p[3]), candidate), old_closed)
+
     # 3. extend prefixes
-    extended = map(p -> extend_prefix(p, candidate), old_closed)
+    extended = map(p -> extend_prefix(p, candidate), extendable)
 
     # 4. collect completed grams
     # out = plist{Vector{T}}(map(prefix_to_gram, filter(prefix_complete, extended)))
@@ -257,7 +274,7 @@ Base.iteratorsize(itr::SkipGramItr) = Base.SizeUnknown()
 
 Base.iteratoreltype(itr::SkipGramItr) = Base.HasEltype()
 
-Base.eltype(itr::SkipGramItr{T}) where T = T
+Base.eltype(itr::SkipGramItr{T}) where T = Vector{T}
 
 # standard skipgrams
 # ------------------
