@@ -69,7 +69,7 @@ function pieces(dir, l::LACCorpus)
     map(p -> pfx * p, get(l.dirpieces, dir, Set{String}()))
 end
 
-piece_path(id, cat, ext, crp) =
+piece_path(id::String, cat::String, ext::String, crp::LACCorpus) =
     joinpath(data_dir(crp), cat, id * ext)
 
 """
