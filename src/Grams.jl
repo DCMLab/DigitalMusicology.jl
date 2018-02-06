@@ -91,17 +91,18 @@ end
 ```
 """
 function skipgrams_general(itr, k::Float64, n::Int, cost::Function,
-                           pred::Function = ((x1, x2) -> true))
+                           pred::Function = ((x1, x2) -> true);
+                           element_type = eltype(itr))
     # helpers
-    mk_prefix(x) = (n-1, 0.0, plist{eltype(itr)}([x]))
+    mk_prefix(x) = (n-1, 0.0, plist{element_type}([x]))
     total_cost(pfx, x) = pfx[2] + cost(first(pfx[3]), x)
     extend_prefix(pfx, x) = (pfx[1]-1, total_cost(pfx, x), cons(x,pfx[3]))
     prefix_complete(pfx) = pfx[1] <= 0
     prefix_to_gram(pfx) = reverse!(collect(pfx[3]))
 
     # initial values (like ugly, mutable accumulators)
-    prefixes = []
-    found_grams = []
+    prefixes = Vector{Tuple{Int,Float64,PersistentList{element_type}}}()
+    found_grams = Vector{Vector{element_type}}()
     
     # generate candidates
     for candidate in itr
@@ -178,13 +179,13 @@ struct SkipGramItr{T}
     pred :: Function
 end
 
-const SGPrefix{T} = Tuple{Int, Float64, List{T}}
+const SGPrefix{T} = Tuple{Int, Float64, plist{T}}
 
-struct SkipGramItrState{T}
-    instate  # state of input iterator
+struct SkipGramItrState{T,I}
+    instate  :: I # state of input iterator
     prefixes :: Vector{SGPrefix{T}}    # list of prefixes
     out      :: Vector{Vector{T}} #List{Vector{T}} # found grams
-    outstate
+    outstate :: Int
 end
 
 """
@@ -200,7 +201,7 @@ skipgrams_itr(itr, k::Float64, n::Int, cost::Function,
 
 ## helpers for finding ngrams
 
-function process_candidate(itr::SkipGramItr{T}, st::SkipGramItrState{T}) where T
+function process_candidate(itr::SkipGramItr{T}, st::SkipGramItrState{T,I}) where {T, I}
     # define helpers
     mk_prefix(x) = (itr.n-1, 0.0, plist{T}([x]))
     total_cost(pfx, x) = pfx[2] + itr.cost(first(pfx[3]), x)
@@ -232,7 +233,7 @@ function process_candidate(itr::SkipGramItr{T}, st::SkipGramItrState{T}) where T
     push!(nextpfxs, mk_prefix(candidate))
     
     #...
-    SkipGramItrState(nextstate, nextpfxs, out, start(out))
+    SkipGramItrState{T,I}(nextstate, nextpfxs, out, start(out))
 end
 
 new_grams(itr::SkipGramItr{T}, st::SkipGramItrState{T}) where T =
@@ -260,9 +261,9 @@ end
 Base.done(itr::SkipGramItr, st::SkipGramItrState) =
     done(st.out, st.outstate)
 
-function Base.next(itr::SkipGramItr{T}, st::SkipGramItrState{T}) where T
+function Base.next(itr::SkipGramItr{T}, st::SkipGramItrState{T,I}) where {T, I}
     gram, rest = next(st.out, st.outstate)
-    nextst = SkipGramItrState(st.instate, st.prefixes, st.out, rest)
+    nextst = SkipGramItrState{T,I}(st.instate, st.prefixes, st.out, rest)
     if done(st.out, rest) # queue empty now? generate new grams
         gram, new_grams(itr, nextst)
     else # not empty? dequeue
