@@ -82,10 +82,12 @@ transpose_to(coll::PitchCollection{P}, newref::P) where P =
 
 struct PitchBag{P} <: PitchCollection{P}
     bag :: Vector{P}
+
+    PitchBag(bag::Vector{P}) where P = new{P}(sort(bag))
 end
 
 "Represents pitches as a bag of pitches."
-p_bag(pitches) = PitchBag(sort(collect(pitches)))
+p_bag(pitches) = PitchBag(collect(pitches))
 
 inner_iterator(pb::PitchBag) = pb.bag
 
@@ -115,10 +117,12 @@ refpitch(pb::PitchBag) = first(pb.bag)
 
 struct PitchClassBag{P} <: PitchCollection{P}
     bag :: Vector{P}
+
+    PitchClassBag(bag::Vector{P}) where P = new{P}(sort(pc.(bag)))
 end
 
 "Represents pitches as a bag (vector) of pitch classes."
-pc_bag(pitches) = PitchClassBag(sort(collect(map(pc, pitches))))
+pc_bag(pitches) = PitchClassBag(collect(pitches))
 
 inner_iterator(pcb::PitchClassBag) = pcb.bag
 
@@ -179,10 +183,12 @@ pc(ps::PitchSet) = pc_set(collect(ps))
 
 struct PitchClassSet{P} <: PitchCollection{P}
     set :: Set{P}
+
+    PitchClassSet(set::Set{P}) where P = new{P}(map(pc,set))
 end
 
 "Represents pitches as a set of pitch classes."
-pc_set(pitches) = PitchClassSet(Set(map(pc, pitches)))
+pc_set(pitches) = PitchClassSet(Set(pitches))
 
 inner_iterator(pcs::PitchClassSet) = pcs.set
 
@@ -243,8 +249,8 @@ struct FiguredPitch{P} <: FiguredBass{P}
     bass :: P
     figures :: PitchClassSet{P}
     
-    # FiguredPitch{P}(bass::P, figures) where P =
-    #     new(bass, pc_set(map(p -> p - bass, figures)))
+    #FiguredPitch{P}(bass::P, figures) where P =
+    #    new(bass, pc_set(map(p -> p - bass, figures)))
 end
 
 "Represents pitches as a bass pitch and remaining pitch classes \
@@ -294,13 +300,16 @@ transpose_to(fp::FiguredPitch{P}, newref::P) where P =
 struct FiguredPitchClass{P} <: FiguredBass{P}
     bass :: P
     figures :: PitchClassSet{P}
+
+    FiguredPitchClass(bass::P, figures::PitchClassSet{P}) where P =
+        new{P}(pc(bass), figures)
 end
 
 "Represents pitches as a bass pitch class and remaining pitch classes \
 relative to the bass."
 figured_pc(pitches) =
     let figp = figured_p(pitches)
-        FiguredPitchClass(pc(bass(figp)), figures(figp))
+        FiguredPitchClass(bass(figp), figures(figp))
     end
 
 ### FiguredPitch accessors
