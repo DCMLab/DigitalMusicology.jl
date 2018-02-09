@@ -19,6 +19,9 @@ include("Slices.jl")
 include("Grams.jl")
 @reexport using .Grams
 
+include("Schemas.jl")
+@reexport using .Schemas
+
 include("Corpora.jl")
 @reexport using .Corpora
 
