@@ -5,7 +5,7 @@ module Grams
 using FunctionalCollections
 
 export grams, scapes, map_scapes
-export skipgrams, skipgrams_general, skipgrams_itr, skipgrams_channel
+export skipgrams, skipgrams_itr
 
 const List = FunctionalCollections.AbstractList
 
@@ -67,7 +67,7 @@ Returns all generalized `k`-skip-`n`-grams.
 Instead of defining skips as index steps > 1, a general distance function can be supplied.
 `k` is then an upper bound to the sum of all distances between consecutive elements in the gram.
 
-The input iterator needs to be monotonous with respect to the distance to a
+The input needs to be monotonous with respect to the distance to a
 previous element:
 
     ∀ i<j<l: dist(itr[i], itr[j]) ≤ dist(itr[i], itr[l])
@@ -76,6 +76,9 @@ From this we know that if the current element increases the skip cost of some
 unfinished gram (prefix) to more than `k`,
 then all following elements will increase the cost at least as much,
 so we can discard the prefix.
+
+The `input` should be an iterable and will be consumed lazily
+as the skipgram iterator is consumed.
 
 An optional predicate function can be provided to test potential neighbors in a skipgram.
 By default, all input elements are allowed to be neighbors.
@@ -189,10 +192,38 @@ struct SkipGramItrState{T,I}
 end
 
 """
-    skipgrams_itr(itr, k, n, cost)
+    skipgrams_itr(input, k, n, cost, [pred], [element_type=type])
 
-Returns a skipgram iterator.
-Otherwise the same as skipgram_general.
+Returns an iterator over all generalized `k`-skip-`n`-grams found in `input`.
+
+Instead of defining skips as index steps > 1, a general `cost` function is used.
+`k` is then an upper bound to the sum of all distances between consecutive elements in the gram.
+
+The input needs to be iterable and monotonous with respect to the cost to a
+previous element:
+
+    ∀ i<j<l: cost(input[i], input[j]) ≤ cost(input[i], input[l])
+
+From this we know that if the current element increases the skip cost of some
+unfinished gram (prefix) to more than `k`,
+then all following elements will increase the cost at least as much,
+so we can discard the prefix.
+
+An optional predicate function can be provided to test potential neighbors in a skipgram.
+By default, all input elements are allowed to be neighbors.
+
+If `element_type` is provided, the resulting iterator will have a corresponding `eltype`.
+If not, it will try to guess the element type based on the input's `eltype`.
+
+# Examples
+
+```julia
+function skipgrams(itr, k, n)
+    cost(x, y) = y[1] - x[1] - 1
+    grams = skipgrams_itr(enumerate(itr), k, n, cost)
+    map(sg -> map(x -> x[2], sg), grams)
+end
+```
 """
 skipgrams_itr(itr, k::Float64, n::Int, cost::Function,
               pred::Function = ((x1, x2) -> true);
@@ -282,15 +313,24 @@ Base.eltype(itr::SkipGramItr{T}) where T = Vector{T}
 
 index_cost(x::Tuple{Int,T}, y::Tuple{Int,U}) where {T, U} = Float64(y[1] - x[1] - 1)
 
+function skipgramsv(itr, k::Int, n::Int)
+    map(sg -> map(x -> x[2], sg),
+        skipgrams_general(enumerate(itr), # index is used for cost
+                          Float64(k), n,  # as usual
+                          index_cost))    # dist: more than "step" wrt indices
+end
+
+# skipgram iterator test
 """
     skipgrams(itr, k, n)
 
 Return all `k`-skip-`n`-grams over `itr`, with skips based on indices.
+For a custom cost function, use [`skipgrams_itr`](@ref).
 
 # Examples
 
 ```julia-repl
-julia> NGrams.skipgrams([1,2,3,4,5], 2.0, 2)
+julia> skipgrams([1,2,3,4,5], 2, 2)
 9-element Array{Any,1}:
  Any[1, 2]
  Any[1, 3]
@@ -304,14 +344,6 @@ julia> NGrams.skipgrams([1,2,3,4,5], 2.0, 2)
 ```
 """
 function skipgrams(itr, k::Int, n::Int)
-    map(sg -> map(x -> x[2], sg),
-        skipgrams_general(enumerate(itr), # index is used for cost
-                          Float64(k), n,  # as usual
-                          index_cost))    # dist: more than "step" wrt indices
-end
-
-# skipgram iterator test
-function skipgramsi(itr, k::Int, n::Int)
     map(sg -> map(x -> x[2], sg),
         skipgrams_itr(enumerate(itr), # index is used for cost
                       Float64(k), n,  # as usual
