@@ -5,7 +5,7 @@ import DigitalMusicology.PitchOps: pc, transpose_by, transpose_to
 using DigitalMusicology
 
 export PitchCollection
-export transpose_equiv
+export transpose_equiv, refpitch
 
 export PitchBag, p_bag
 export PitchClassBag, pc_bag
@@ -35,6 +35,18 @@ function transpose_equiv end
 transpose_equiv(coll::PitchCollection{P}) where P = transpose_to(coll, zero(P))
 
 """
+    refpitch(pitch_coll)
+
+Returns a unique reference pitch for the pitch collection.
+This reference should behave consistent with `transpose_to` and `transpose_by`
+
+```julia
+transpose_to(coll, 0) == transpose_by(coll, -refpitch(coll))
+```
+"""
+function refpitch end
+
+"""
     inner_iterator(pitch_coll)
 
 Does this already exist?
@@ -58,6 +70,9 @@ eltype(coll::PitchCollection{P}) where P = P
 ## default implementations of PitchOps methods
 
 transpose_by(coll::PitchCollection{P}, int::P) where P = map(p -> p + int, coll)
+
+transpose_to(coll::PitchCollection{P}, newref::P) where P =
+    transpose_by(coll, newref-refpitch(coll))
 
 # Bags and Sets
 # =============
@@ -93,10 +108,7 @@ show(io::IO, pb::PitchBag) =
 
 pc(pb::PitchBag) = pc_bag(collect(pb))
 
-function transpose_to(pb::PitchBag{P}, newref::P) where P
-    ref = first(pb.bag)
-    transpose_by(pb, newref-ref)
-end
+refpitch(pb::PitchBag) = first(pb.bag)
 
 ## Pitch Class Bag
 ## ---------------
@@ -205,6 +217,8 @@ function bass end
 "Returns the figure pitch classes of a figured bass representation.
 (including 0 for the bass note)"
 function figures end
+
+(refpitch(fb::FiguredBass{P})::P) where {P} = bass(fb)
 
 # "Returns a new figured bass with a new bass pitch (class).
 # The figures are adapted to be relative to the new bass pitch"
