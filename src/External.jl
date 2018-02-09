@@ -8,6 +8,12 @@ export musescore, verovio, HumDrumString, exampleHumDrumString
 # Musescore
 # ---------
 
+"""
+    musescore(id, [corpus])
+
+Opens the midi file of the piece that `id` refers to using Musescore.
+If `corpus` is not supplied, the current default corpus is used.
+"""
 musescore(id, corpus = get_corpus()) = begin
     file = piece_path(id, "m", ".mid", corpus)
     run(`musescore $file`)
@@ -46,21 +52,6 @@ show(io::IO, ::MIME"text/plain", hds::HumDrumString) =
 
 scrpath = joinpath(Pkg.dir("DigitalMusicology"), "data", "")
 
-function verovio()
-    if isdefined(Main, :IJulia)
-        scrpath = joinpath(Pkg.dir("DigitalMusicology"), "data", "")
-        vero = readstring(scrpath * "verovio-toolkit.js")
-        wwm  = readstring(scrpath * "wildwebmidi.js")
-        mp   = readstring(scrpath * "midiplayer.js")
-        main = readstring(scrpath * "julia_verovio.js")
-        map([vero, wwm, mp, main]) do js
-            display(MIME"text/html"(), "<script type=\"text/javascript\">$(js)</script>")
-        end
-    else
-        error("Not in an IJulia session, won't set up verovio viewer.")
-    end
-end
-
 kern_html(cellid, content) = """
 <script id="$(cellid)-input" type="text/humdrum">
 $(content)</script>
@@ -80,6 +71,26 @@ verovio_html(cellid) = """
 show(io::IO, ::MIME"text/html", hds::HumDrumString) = begin
     id = string("vero-", rand(Int))
     write(io, kern_html(id, hds.content), verovio_html(id))
+end
+
+"""
+    verovio()
+
+Set up display of [`HumDrumString`](@ref)s in Jupyter Notebooks.
+"""
+function verovio()
+    if isdefined(Main, :IJulia)
+        scrpath = joinpath(Pkg.dir("DigitalMusicology"), "data", "")
+        vero = readstring(scrpath * "verovio-toolkit.js")
+        wwm  = readstring(scrpath * "wildwebmidi.js")
+        mp   = readstring(scrpath * "midiplayer.js")
+        main = readstring(scrpath * "julia_verovio.js")
+        map([vero, wwm, mp, main]) do js
+            display(MIME"text/html"(), "<script type=\"text/javascript\">$(js)</script>")
+        end
+    else
+        error("Not in an IJulia session, won't set up verovio viewer.")
+    end
 end
 
 # example instance
