@@ -2,6 +2,7 @@ module External
 
 using DigitalMusicology
 import Base: show
+using NodeJS: nodejs_cmd
 
 export musescore, verovio, HumDrumString, exampleHumDrumString
 
@@ -58,8 +59,8 @@ $(content)</script>
 """
 
 # TODO:: load wildwebmidi.data from local file, not verovio.org
-verovio_html(cellid) = """
-<div id="$(cellid)-svg-out"></div>
+verovio_html(cellid, svg) = """
+<div id="$(cellid)-svg-out">$(svg)</div>
 <button id="$(cellid)-play-button" type="button">Play</button>
 
 <script type="text/javascript">
@@ -70,7 +71,8 @@ verovio_html(cellid) = """
 
 show(io::IO, ::MIME"text/html", hds::HumDrumString) = begin
     id = string("vero-", rand(Int))
-    write(io, kern_html(id, hds.content), verovio_html(id))
+    svg = verovio_svg(hds)
+    write(io, kern_html(id, hds.content), verovio_html(id, svg))
 end
 
 """
@@ -91,6 +93,17 @@ function verovio()
     else
         error("Not in an IJulia session, won't set up verovio viewer.")
     end
+    return
+end
+
+function verovio_svg(hds::HumDrumString)
+    script = joinpath(Pkg.dir("DigitalMusicology"), "data", "mksvg.js")
+    (proc_out, proc_in, proc) = readandwrite(`$(nodejs_cmd()) $(script)`)
+    write(proc_in, hds.content)
+    close(proc_in)
+    svg = readstring(proc_out)
+    close(proc_out)
+    return svg
 end
 
 # example instance
