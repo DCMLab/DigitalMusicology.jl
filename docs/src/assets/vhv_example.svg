@@ -1,0 +1,151 @@
+<svg class="definition-scale" viewBox="0 0 10000 4100">
+  <g class="page-margin" transform="translate(500, 500)">
+    <g class="system" id="vero--2476130983943800049-system-0000000841743628">
+      <path d="M1097 720 L1097 2880" stroke="#000000" stroke-width="30"></path>
+      <path d="M1052,2860 C692,2320 1142,1980 872,1800 C1207,1980 757,2320 1052,2860" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="20"></path>
+      <path d="M1052,740 C757,1280 1207,1620 872,1800 C1142,1620 692,1280 1052,740" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="20"></path>
+      <g class="label">
+	<text x="812" y="1170" text-anchor="end" font-size="0px">
+	  <tspan class="text" id="vero--2476130983943800049-">
+	    <tspan font-size="405px" class="text"></tspan>
+	  </tspan>
+	</text>
+      </g>
+      <g class="section boundaryStart" id="vero--2476130983943800049-section-0000000883580448"></g>
+      <g class="measure" id="vero--2476130983943800049-measure-L5">
+	<g class="staff" id="vero--2476130983943800049-staff-L5F2N1">
+	  <path d="M1082 720 L5981 720" stroke="#000000" stroke-width="20"></path>
+	  <path d="M1082 900 L5981 900" stroke="#000000" stroke-width="20"></path>
+	  <path d="M1082 1080 L5981 1080" stroke="#000000" stroke-width="20"></path>
+	  <path d="M1082 1260 L5981 1260" stroke="#000000" stroke-width="20"></path>
+	  <path d="M1082 1440 L5981 1440" stroke="#000000" stroke-width="20"></path>
+	  <g class="clef">
+	    <use xlink:href="#vero--2476130983943800049-E050" x="1172" y="1260" height="720px" width="720px"></use>
+	  </g>
+	  <g class="keySig">
+	    <use xlink:href="#vero--2476130983943800049-E262" x="1853" y="720" height="720px" width="720px"></use>
+	  </g>
+	  <g class="meterSig">
+	    <use xlink:href="#vero--2476130983943800049-E084" x="2174" y="900" height="720px" width="720px"></use>
+	    <use xlink:href="#vero--2476130983943800049-E084" x="2174" y="1260" height="720px" width="720px"></use>
+	  </g>
+	  <g class="layer" id="vero--2476130983943800049-layer-L5F2N1">
+	    <g class="beam" id="vero--2476130983943800049-beam-L6F2-L7F2">
+	      <polygon points="2722,1575 3192,1620 3192,1530 2722,1485 "></polygon>
+	      <g class="note" id="vero--2476130983943800049-note-L6F2" fill="#000" stroke="#000">
+		<use xlink:href="#vero--2476130983943800049-E0A4" x="2722" y="900" height="720px" width="720px"></use>
+		<g class="stem" id="vero--2476130983943800049-stem-0000000247120285">
+		  <rect x="2722" y="922" height="633" width="20"></rect>
+		</g>
+		<g class="accid" id="vero--2476130983943800049-accid-0000001733897901"></g>
+	      </g>
+	      <g class="note" id="vero--2476130983943800049-note-L7F2" fill="#000" stroke="#000">
+		<use xlink:href="#vero--2476130983943800049-E0A4" x="3172" y="990" height="720px" width="720px"></use>
+		<g class="stem" id="vero--2476130983943800049-stem-0000001315674875">
+		  <rect x="3172" y="1012" height="588" width="20"></rect>
+		</g>
+		<g class="accid" id="vero--2476130983943800049-accid-0000000683615213"></g>
+	      </g>
+	    </g>
+	    <g class="note" id="vero--2476130983943800049-note-L8F2" fill="#000" stroke="#000">
+	      <use xlink:href="#vero--2476130983943800049-E0A3" x="3622" y="1080" height="720px" width="720px"></use>
+	      <g class="dots" id="vero--2476130983943800049-dots-0000001959358479">
+		<ellipse cx="3938" cy="990" rx="36" ry="36"></ellipse>
+	      </g>
+	      <g class="stem" id="vero--2476130983943800049-stem-0000000642665126">
+		<rect x="3622" y="1102" height="608" width="20"></rect>
+	      </g>
+	      <g class="accid" id="vero--2476130983943800049-accid-0000000232018969"></g>
+	    </g>
+	  </g>
+	</g>
+	<g class="staff" id="vero--2476130983943800049-staff-L5F1N1">
+	  <path d="M1082 2160 L5981 2160" stroke="#000000" stroke-width="20"></path>
+	  <path d="M1082 2340 L5981 2340" stroke="#000000" stroke-width="20"></path>
+	  <path d="M1082 2520 L5981 2520" stroke="#000000" stroke-width="20"></path>
+	  <path d="M1082 2700 L5981 2700" stroke="#000000" stroke-width="20"></path>
+	  <path d="M1082 2880 L5981 2880" stroke="#000000" stroke-width="20"></path>
+	  <g class="clef">
+	    <use xlink:href="#vero--2476130983943800049-E062" x="1172" y="2340" height="720px" width="720px"></use>
+	  </g>
+	  <g class="keySig">
+	    <use xlink:href="#vero--2476130983943800049-E262" x="1853" y="2340" height="720px" width="720px"></use>
+	  </g>
+	  <g class="meterSig">
+	    <use xlink:href="#vero--2476130983943800049-E084" x="2174" y="2340" height="720px" width="720px"></use>
+	    <use xlink:href="#vero--2476130983943800049-E084" x="2174" y="2700" height="720px" width="720px"></use>
+	  </g>
+	  <g class="layer" id="vero--2476130983943800049-layer-L5F1N1">
+	    <g class="beam" id="vero--2476130983943800049-beam-L6F1-L7F1">
+	      <polygon points="2722,2880 3192,2835 3192,2745 2722,2790 "></polygon>
+	      <g class="note" id="vero--2476130983943800049-note-L6F1" fill="#000" stroke="#000">
+		<use xlink:href="#vero--2476130983943800049-E0A4" x="2722" y="2250" height="720px" width="720px"></use>
+		<g class="stem" id="vero--2476130983943800049-stem-0000001420336097">
+		  <rect x="2722" y="2272" height="588" width="20"></rect>
+		</g>
+		<g class="accid" id="vero--2476130983943800049-accid-0000000844083004"></g>
+	      </g>
+	      <g class="note" id="vero--2476130983943800049-note-L7F1" fill="#000" stroke="#000">
+		<use xlink:href="#vero--2476130983943800049-E0A4" x="3172" y="2160" height="720px" width="720px"></use>
+		<g class="stem" id="vero--2476130983943800049-stem-0000001787057499">
+		  <rect x="3172" y="2182" height="633" width="20"></rect>
+		</g>
+		<g class="accid" id="vero--2476130983943800049-accid-0000000674869842"></g>
+	      </g>
+	    </g>
+	    <g class="beam" id="vero--2476130983943800049-beam-L8F1-L11F1">
+	      <polygon points="3622,2921 4590,3015 4590,2925 3622,2831 "></polygon>
+	      <polygon points="3622,2786 4590,2880 4590,2790 3622,2696 "></polygon>
+	      <g class="note" id="vero--2476130983943800049-note-L8F1" fill="#000" stroke="#000">
+		<use xlink:href="#vero--2476130983943800049-E0A4" x="3622" y="2070" height="720px" width="720px"></use>
+		<g class="stem" id="vero--2476130983943800049-stem-0000000396661016">
+		  <rect x="3622" y="2092" height="809" width="20"></rect>
+		</g>
+		<g class="accid" id="vero--2476130983943800049-accid-0000002068421035"></g>
+	      </g>
+	      <g class="note" id="vero--2476130983943800049-note-L9F1" fill="#000" stroke="#000">
+		<use xlink:href="#vero--2476130983943800049-E0A4" x="3938" y="2160" height="720px" width="720px"></use>
+		<g class="stem" id="vero--2476130983943800049-stem-0000001951206883">
+		  <rect x="3938" y="2182" height="750" width="20"></rect>
+		</g>
+		<g class="accid" id="vero--2476130983943800049-accid-0000001479190258"></g>
+	      </g>
+	      <g class="note" id="vero--2476130983943800049-note-L10F1" fill="#000" stroke="#000">
+		<use xlink:href="#vero--2476130983943800049-E0A4" x="4254" y="2250" height="720px" width="720px"></use>
+		<g class="stem" id="vero--2476130983943800049-stem-0000001047767168">
+		  <rect x="4254" y="2272" height="692" width="20"></rect>
+		</g>
+		<g class="accid" id="vero--2476130983943800049-accid-0000001697157764"></g>
+	      </g>
+	      <g class="note" id="vero--2476130983943800049-note-L11F1" fill="#000" stroke="#000">
+		<use xlink:href="#vero--2476130983943800049-E0A4" x="4570" y="2340" height="720px" width="720px"></use>
+		<g class="stem" id="vero--2476130983943800049-stem-0000000937722905">
+		  <rect x="4570" y="2362" height="633" width="20"></rect>
+		</g>
+		<g class="accid" id="vero--2476130983943800049-accid-0000000444748298"></g>
+	      </g>
+	    </g>
+	    <g class="note" id="vero--2476130983943800049-note-L12F1" fill="#000" stroke="#000">
+	      <use xlink:href="#vero--2476130983943800049-E0A3" x="4886" y="2250" height="720px" width="720px"></use>
+	      <g class="stem" id="vero--2476130983943800049-stem-0000000291519729">
+		<rect x="4886" y="2272" height="608" width="20"></rect>
+	      </g>
+	      <g class="accid" id="vero--2476130983943800049-accid-0000001638975590"></g>
+	    </g>
+	  </g>
+	</g>
+	<g class="fermata" id="vero--2476130983943800049-fermata-L8F2">
+	  <use xlink:href="#vero--2476130983943800049-E4C0" x="3517" y="673" height="720px" width="720px"></use>
+	</g>
+	<g class="fermata" id="vero--2476130983943800049-fermata-L12F1">
+	  <use xlink:href="#vero--2476130983943800049-E4C0" x="4781" y="2113" height="720px" width="720px"></use>
+	</g>
+	<g class="barLineAttr" id="vero--2476130983943800049-bline-0000001215531606">
+	  <path d="M5816 720 L5816 2880" stroke="#000000" stroke-width="30"></path>
+	  <path d="M5936 720 L5936 2880" stroke="#000000" stroke-width="90"></path>
+	</g>
+      </g>
+      <g class="boundaryEnd section-0000000883580448" id="vero--2476130983943800049-bdend-0000002044342910"></g>
+    </g>
+  </g>
+</svg>
