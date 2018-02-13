@@ -10,6 +10,8 @@ using Base.Iterators: flatten
 using Query
 using Missings: ismissing, missing, Missing
 
+using DigitalMusicology.Helpers: witheltype
+
 export lac, use_lac, meta, year_bins
 
 struct LACCorpus <: Corpus
@@ -133,7 +135,7 @@ function groups_to_slices(groups::GroupedDataFrame)
         Slice(group[:onset][1],
               group[:duration][1],
               midis(group[:pitch]))
-    imap(mk_slice, groups)
+    witheltype(imap(mk_slice, groups), Slice{Int, Vector{MidiPitch}})
 end
 
 # piece accessors

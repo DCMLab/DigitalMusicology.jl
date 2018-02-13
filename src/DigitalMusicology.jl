@@ -4,6 +4,8 @@ module DigitalMusicology
 # Maybe this should be done selectively in some cases.
 using Reexport
 
+include("Helpers.jl")
+
 include("Pitches.jl")
 @reexport using .Pitches
 
