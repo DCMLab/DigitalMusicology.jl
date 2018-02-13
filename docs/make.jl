@@ -9,3 +9,10 @@ makedocs(
         "Reference" => "reference.md"
     ]
 )
+
+deploydocs(
+    repo = "github.com/DCMLab/DigitalMusicology.jl",
+    target = "build",
+    deps = nothing,
+    make = nothing
+)
