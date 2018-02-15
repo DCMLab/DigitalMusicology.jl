@@ -51,10 +51,10 @@
     end
 
     @testset "Slice cost functions" begin
-        @test slice_skip_cost(s1, s4) == 4
-        @test slice_skip_cost(s3, s4) == 0
-        @test slice_onset_cost(s1, s4) == 14
-        @test slice_onset_cost(s3, s4) == 4
+        @test skip_cost(s1, s4) == 4
+        @test skip_cost(s3, s4) == 0
+        @test onset_cost(s1, s4) == 14
+        @test onset_cost(s3, s4) == 4
     end
 
     @testset "Slice n-gram functions" begin
