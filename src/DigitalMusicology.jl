@@ -4,13 +4,21 @@ module DigitalMusicology
 # Maybe this should be done selectively in some cases.
 using Reexport
 
+# Helpers
+
 include("Helpers.jl")
+
+include("GatedQueues.jl")
+
+# Basics
 
 include("Pitches.jl")
 @reexport using .Pitches
 
 include("PitchOps.jl")
 @reexport using .PitchOps
+
+# Musical Structures
 
 include("PitchCollections.jl")
 @reexport using .PitchCollections
@@ -23,6 +31,8 @@ include("Grams.jl")
 
 include("Schemas.jl")
 @reexport using .Schemas
+
+# Input and Output
 
 include("Corpora.jl")
 @reexport using .Corpora

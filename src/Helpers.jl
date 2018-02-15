@@ -1,8 +1,9 @@
 module Helpers
 
 import Base: iteratoreltype, start, next, done, iteratorsize, eltype, length, size
+using FunctionalCollections
 
-export witheltype
+export witheltype, takewhile, dropwhile
 
 # Iterators
 # =========
@@ -27,5 +28,43 @@ iteratorsize(itr::Type{TypedIterator{I,T}}) where {I,T} = iteratorsize(I)
 length(itr::TypedIterator) = length(itr.inner)
 size(itr::TypedIterator) = size(itr.inner)
 size(itr::TypedIterator, dim...) = size(itr.inner, dim...)
+
+## takewhile
+## ---------
+
+struct TakeWhileItr{T}
+    itr :: T
+    f :: Function
+end
+
+takewhile(f, itr) = TakeWhileItr(itr, f)
+
+start(twi::TakeWhileItr) = start(twi.itr)
+
+next(twi::TakeWhileItr, s) = next(twi.itr, s)
+
+done(twi::TakeWhileItr, s) =
+    done(twi.itr, s) || !twi.f(next(twi.itr, s)[1])
+
+iteratoreltype(::Type{TakeWhileItr{T}}) where T = iteratoreltype(T)
+
+eltype(twi::TakeWhileItr) = eltype(twi.itr)
+
+iteratorsize(::Type{TakeWhileItr{T}}) where T = Base.SizeUnknown()
+
+iteratorsize(::TakeWhileItr{T}) where T = Base.SizeUnknown()
+
+# list operations
+# ===============
+
+## dropwhile
+
+dropwhile(f, lst::EmptyList) = lst
+dropwhile(f, lst::PersistentList) =
+    if f(head(lst))
+        dropwhile(f, tail(lst))
+    else
+        lst
+    end
 
 end # module
