@@ -26,6 +26,13 @@
             [[1,2], [1,3], [2,3], [1,4], [2,4], [3,4], [2,5], [3,5], [4,5]]
     end
 
+    @testset "Skipgrams (stable)" begin
+        unstb = skipgrams(1:10, 3, 2)
+        stb   = skipgrams(1:10, 3, 2, stable=true)
+        @test Set(unstb) == Set(stb)
+        @test issorted(stb, by=first)
+    end
+
     @testset "Skipgrams (Channels)" begin
         @test collect(DigitalMusicology.Grams.skipgrams_channel(
             1:5, 4.0, 2,
