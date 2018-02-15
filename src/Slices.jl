@@ -1,11 +1,11 @@
 module Slices
 
 import Base.==, Base.hash, Base.show
+import DigitalMusicology.Timed: onset, offset, duration, hasonset, hasoffset, hasduration
 
-export Slice, onset, duration, offset, content
+export Slice, content
 export setonset, setduration, setoffset, setcontent
 export update_onset, update_duration, update_offset, update_content
-export slice_skip_cost, slice_onset_cost
 export unwrap_slices, sg_duration_total, sg_duration_sum
 # export re_represent_slice_gram, all_as, figured_gram_p, figured_gram_pc
 
@@ -38,14 +38,15 @@ function show(io::IO, s::Slice)
     write(io, ")")
 end
 
-"Returns the onset of slice s."
 onset(s::Slice{N,T}) where {T, N} = s.onset
 
-"Returns the durations of slices s."
 duration(s::Slice{N,T}) where {T, N} = s.duration
 
-"Returns the offset of slice s."
 offset(s::Slice{N,T}) where {T, N} = s.onset + s.duration
+
+hasonset(::Type{Slice}) = true
+hasoffset(::Type{Slice}) = true
+hasduration(::Type{Slice}) = true
 
 "Returns the content of slice s."
 content(s::Slice{N,T}) where {T, N} = s.content
@@ -73,7 +74,6 @@ Returns a new slice with offset `off`.
 """
 setoffset(s::Slice{N,T}, off::N) where {T, N} =
     setduration(s, off - onset(s))
-
 
 """
     setcontent(ps, s)
@@ -114,15 +114,6 @@ Returns a new slice with content `f(content(s))`.
 """
 update_content(f::Function, s::Slice{N,T}) where {N, T} =
     setcontent(s, f(content(s)))
-
-# cost/distance functions
-# -----------------------
-
-"Returns the distance between the offset of s1 and the onset of s2."
-slice_skip_cost(s1::Slice, s2::Slice) = onset(s2) - offset(s1)
-
-"Returns the distance between the onsets of s1 and s2."
-slice_onset_cost(s1::Slice, s2::Slice) = onset(s2) - onset(s1)
 
 # n-grams of slices
 # -----------------

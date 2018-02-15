@@ -1,8 +1,8 @@
 module Grams
 
-# Depends on: FunctionalCollections.jl
-
+using DigitalMusicology.GatedQueues: GatedQueue, gatedq, release
 using FunctionalCollections
+using IterTools.groupby
 
 export grams, scapes, map_scapes
 export skipgrams, skipgrams_itr
@@ -174,7 +174,11 @@ end
 # skip-grams iterator
 # -------------------
 
-struct SkipGramItr{T}
+abstract type SkipGramItr{T} end
+
+abstract type SkipGramItrState{T,I} end
+
+struct SkipGramFastItr{T} <: SkipGramItr{T}
     input
     k :: Float64
     n :: Int
@@ -184,15 +188,24 @@ end
 
 const SGPrefix{T} = Tuple{Int, Float64, plist{T}}
 
-struct SkipGramItrState{T,I}
+struct SkipGramFastItrState{T,I} <: SkipGramItrState{T,I}
     instate  :: I # state of input iterator
     prefixes :: Vector{SGPrefix{T}}    # list of prefixes
     out      :: Vector{Vector{T}} #List{Vector{T}} # found grams
     outstate :: Int
 end
 
+# exactly the same as SkipGramFastItr{T}
+struct SkipGramStableItr{T} <: SkipGramItr{T}
+    input
+    k :: Float64
+    n :: Int
+    cost :: Function
+    pred :: Function
+end
+
 """
-    skipgrams_itr(input, k, n, cost, [pred], [element_type=type])
+    skipgrams_itr(input, k, n, cost[, pred][, element_type=type][, stable=false])
 
 Returns an iterator over all generalized `k`-skip-`n`-grams found in `input`.
 
@@ -215,6 +228,10 @@ By default, all input elements are allowed to be neighbors.
 If `element_type` is provided, the resulting iterator will have a corresponding `eltype`.
 If not, it will try to guess the element type based on the input's `eltype`.
 
+If `stable` is `true`, then the skipgrams will be ordered with respect to the position
+of their first element in the input stream.
+If `stable` is `false` (default), no particular order is guaranteed.
+
 # Examples
 
 ```julia
@@ -227,12 +244,18 @@ end
 """
 skipgrams_itr(itr, k::Float64, n::Int, cost::Function,
               pred::Function = ((x1, x2) -> true);
-              element_type=eltype(itr)) =
-    SkipGramItr{element_type}(itr, k, n, cost, pred)
+              element_type=eltype(itr),
+              stable=false) =
+                  if stable
+                      SkipGramStableItr{element_type}(itr, k, n, cost, pred)
+                  else
+                      SkipGramFastItr{element_type}(itr, k, n, cost, pred)
+                  end
 
 ## helpers for finding ngrams
 
-function process_candidate(itr::SkipGramItr{T}, st::SkipGramItrState{T,I}) where {T, I}
+function process_candidate(itr::SkipGramFastItr{T},
+                           st::SkipGramFastItrState{T,I}) where {T, I}
     # define helpers
     mk_prefix(x) = (itr.n-1, 0.0, plist{T}([x]))
     total_cost(pfx, x) = pfx[2] + itr.cost(first(pfx[3]), x)
@@ -264,10 +287,10 @@ function process_candidate(itr::SkipGramItr{T}, st::SkipGramItrState{T,I}) where
     push!(nextpfxs, mk_prefix(candidate))
     
     #...
-    SkipGramItrState{T,I}(nextstate, nextpfxs, out, start(out))
+    SkipGramFastItrState{T,I}(nextstate, nextpfxs, out, start(out))
 end
 
-new_grams(itr::SkipGramItr{T}, st::SkipGramItrState{T}) where T =
+new_grams(itr::SkipGramFastItr{T}, st::SkipGramFastItrState{T}) where T =
     if done(itr.input, st.instate)
         st
     else
@@ -281,20 +304,26 @@ new_grams(itr::SkipGramItr{T}, st::SkipGramItrState{T}) where T =
 
 ## iterator interface
 
-function Base.start(itr::SkipGramItr{T}) where T
+function Base.start(itr::SkipGramFastItr{T}) where T
     iout = Vector{Vector{T}}()
-    init = SkipGramItrState(start(itr.input),
-                            Vector{SGPrefix{T}}(), #pset{Tuple{Int, Float64, List{T}}}(),
-                            iout, start(iout))
+    init = SkipGramFastItrState(
+        start(itr.input),
+        Vector{SGPrefix{T}}(),
+        iout,
+        start(iout)
+    )
     new_grams(itr, init)
 end
 
 Base.done(itr::SkipGramItr, st::SkipGramItrState) =
     done(st.out, st.outstate)
 
+nextstate(st::SkipGramFastItrState{T,I}, rest::Int) where {T,I} =
+    SkipGramFastItrState{T,I}(st.instate, st.prefixes, st.out, rest)
+
 function Base.next(itr::SkipGramItr{T}, st::SkipGramItrState{T,I}) where {T, I}
     gram, rest = next(st.out, st.outstate)
-    nextst = SkipGramItrState{T,I}(st.instate, st.prefixes, st.out, rest)
+    nextst = nextstate(st, rest)
     if done(st.out, rest) # queue empty now? generate new grams
         gram, new_grams(itr, nextst)
     else # not empty? dequeue
@@ -307,6 +336,127 @@ Base.iteratorsize(itr::SkipGramItr) = Base.SizeUnknown()
 Base.iteratoreltype(itr::SkipGramItr) = Base.HasEltype()
 
 Base.eltype(itr::SkipGramItr{T}) where T = Vector{T}
+
+## stable skipgram iterator
+## ------------------------
+## This is a bit more complicated than the normal skipgram iterator
+## Instead of just pushing out all generated grams as soon as they are completed,
+## they are held back until no prefixes are left that start before the finished gram.
+## This way, the the first elements of the resulting skipgrams have the
+## same order in the in output stream as in the input stream.
+
+const SGSPrefix{T} = Tuple{Int, Float64, plist{T}, Int}
+
+# like SkipGramFastItrState but with additional information
+struct SkipGramStableItrState{T,I} <: SkipGramItrState{T,I}
+    instate :: I
+    prefixes :: Vector{SGSPrefix{T}}
+    queue :: GatedQueue{Int, Vector{Vector{T}}}
+    index :: Int
+    out
+    outstate
+end
+
+function enqueue_grams(q::GatedQueue{Int,Vector{T}}, xs::Vector) where {T}
+    sort!(xs, by=first) # allows groupby
+    groups = groupby(first, xs)
+
+    # could this be improved wrt. allocation?
+    entries = plist{Tuple{Int, Vector{T}}}([(g[1][1], map(x -> x[2], g)) for g in groups])
+    newq = GatedQueue{Int, Vector{T}}(entries)
+
+    merge(vcat, q, newq)
+end
+
+function process_candidate(itr::SkipGramStableItr{T},
+                           st::SkipGramStableItrState{T,I}) where {T, I}
+    # define helpers
+    mk_prefix(x) = (itr.n-1, 0.0, plist{T}([x]), st.index)
+    total_cost(pfx, x) = pfx[2] + itr.cost(first(pfx[3]), x)
+    extend_prefix(pfx, x) = (pfx[1]-1, total_cost(pfx, x), cons(x,pfx[3]), pfx[4])
+    prefix_complete(pfx) = pfx[1] <= 0
+    prefix_to_gram(pfx::SGSPrefix{T}) :: Pair{Int,Vector{T}} =
+        pfx[4] => reverse!(collect(pfx[3]))
+
+    # 1. generate candidates
+    candidate, nextstate = next(itr.input, st.instate)
+
+    # 2. remove prefixes that cannot be completed anymore
+    old_closed = filter(p -> total_cost(p, candidate) <= itr.k, st.prefixes)
+
+    # check for compatibility with candidate
+    extendable = filter(p -> itr.pred(first(p[3]), candidate), old_closed)
+
+    # 3. extend prefixes
+    extended = map(p -> extend_prefix(p, candidate), extendable)
+
+    # 4. collect completed grams
+    newgrams = map(prefix_to_gram, filter(prefix_complete, extended))
+    # add all new grams to the queue
+    qadd = enqueue_grams(st.queue, newgrams)
+    # why is there no key argument for minimum???
+    gate = st.index
+    for oc in old_closed
+        if oc[4] < gate
+            gate = oc[4]
+        end
+    end
+    # release all safe grams from the queue
+    released, qnew = release(qadd, gate)
+    if isempty(released)
+        out = Vector{Vector{T}}()
+    else
+        out = Iterators.flatten(map(x -> x[2], released))
+    end
+    
+    # 5. collect new prefixes
+    nextpfxs = append!(old_closed, filter!(!prefix_complete, extended))
+    push!(nextpfxs, mk_prefix(candidate))
+    
+    #...
+    SkipGramStableItrState{T,I}(nextstate, nextpfxs, qnew, st.index+1, out, start(out))
+end
+
+function Base.start(itr::SkipGramStableItr{T}) where T
+    iout = Vector{Vector{T}}()
+    init = SkipGramStableItrState(
+        start(itr.input),
+        Vector{SGSPrefix{T}}(),
+        gatedq(Int, Vector{Vector{T}}),
+        1,
+        iout,
+        start(iout)
+    )
+    new_grams(itr, init)
+end
+
+new_grams(itr::SkipGramStableItr{T}, st::SkipGramStableItrState{T,I}) where {T,I} =
+    if done(itr.input, st.instate)
+        if isempty(st.queue)
+            st
+        else
+            released, qnew = release(st.queue, st.index)
+            out = Iterators.flatten(map(x -> x[2], released))
+            SkipGramStableItrState{T,I}(
+                st.instate,
+                st.prefixes,
+                qnew,
+                st.index,
+                out,
+                start(out)
+            )
+        end
+    else
+        new = process_candidate(itr, st)
+        if done(new.out, new.outstate)
+            new_grams(itr, new)
+        else
+            new
+        end
+    end
+
+nextstate(st::SkipGramStableItrState{T,I}, rest) where {T,I} =
+    SkipGramStableItrState{T,I}(st.instate, st.prefixes, st.queue, st.index, st.out, rest)
 
 # standard skipgrams
 # ------------------
@@ -343,11 +493,12 @@ julia> skipgrams([1,2,3,4,5], 2, 2)
  Any[4, 5]
 ```
 """
-function skipgrams(itr, k::Int, n::Int)
+function skipgrams(itr, k::Int, n::Int; stable=false)
     map(sg -> map(x -> x[2], sg),
         skipgrams_itr(enumerate(itr), # index is used for cost
                       Float64(k), n,  # as usual
-                      index_cost))    # dist: more than "step" wrt indices
+                      index_cost,     # dist: more than "step" wrt indices
+                      stable=stable)) # keep order?
 end
 
 # skipgram channel test
