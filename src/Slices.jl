@@ -39,23 +39,23 @@ function show(io::IO, s::Slice)
 end
 
 "Returns the onset of slice s."
-onset{N,T}(s::Slice{N,T})::N = s.onset
+onset(s::Slice{N,T}) where {T, N} = s.onset
 
 "Returns the durations of slices s."
-duration{N,T}(s::Slice{N,T})::N = s.duration
+duration(s::Slice{N,T}) where {T, N} = s.duration
 
 "Returns the offset of slice s."
-offset{N,T}(s::Slice{N,T})::N = s.onset + s.duration
+offset(s::Slice{N,T}) where {T, N} = s.onset + s.duration
 
 "Returns the content of slice s."
-content{N,T}(s::Slice{N,T})::T = s.content
+content(s::Slice{N,T}) where {T, N} = s.content
 
 """
     setonset(s, on)
 
 Returns a new slice with onset `on`.
 """
-setonset{N,T}(s::Slice{N,T}, on::N)::Slice{N,T} =
+setonset(s::Slice{N,T}, on::N) where {T, N} =
     Slice(on, duration(s), content(s))
 
 """
@@ -63,7 +63,7 @@ setonset{N,T}(s::Slice{N,T}, on::N)::Slice{N,T} =
 
 Returns a new slice with duration `dur`.
 """
-setduration{N,T}(s::Slice{N,T}, dur::N)::Slice{N,T} =
+setduration(s::Slice{N,T}, dur::N) where {T, N} =
     Slice(onset(s), dur, content(s))
 
 """
@@ -71,7 +71,7 @@ setduration{N,T}(s::Slice{N,T}, dur::N)::Slice{N,T} =
 
 Returns a new slice with offset `off`.
 """
-setoffset{N,T}(s::Slice{N,T}, off::N)::Slice{N,T} =
+setoffset(s::Slice{N,T}, off::N) where {T, N} =
     setduration(s, off - onset(s))
 
 
@@ -80,7 +80,7 @@ setoffset{N,T}(s::Slice{N,T}, off::N)::Slice{N,T} =
 
 Returns a new slice with content `ps`.
 """
-setcontent{N,T,T2}(s::Slice{N,T}, ps::T2)::Slice{N,T2} =
+setcontent(s::Slice{N,T}, ps) where {N, T} =
     Slice(onset(s), duration(s), ps)
 
 """
@@ -88,7 +88,7 @@ setcontent{N,T,T2}(s::Slice{N,T}, ps::T2)::Slice{N,T2} =
 
 Returns a new slice onset `f(onset(s))`.
 """
-update_onset{N,T}(f::Function, s::Slice{N,T})::Slice{N,T} =
+update_onset(f::Function, s::Slice{N,T}) where {N, T} =
     setonset(s, f(onset(s)))
 
 """
@@ -96,7 +96,7 @@ update_onset{N,T}(f::Function, s::Slice{N,T})::Slice{N,T} =
 
 Returns a new slice with duration `f(duration(s))`.
 """
-update_duration{N,T}(f::Function, s::Slice{N,T})::Slice{N,T} =
+update_duration(f::Function, s::Slice{N,T}) where {N, T} =
     setduration(s, f(duration(s)))
 
 """
@@ -104,7 +104,7 @@ update_duration{N,T}(f::Function, s::Slice{N,T})::Slice{N,T} =
 
 Returns a new slice with offset `f(offset(s))`.
 """
-update_offset{N,T}(f::Function, s::Slice{N,T})::Slice{N,T} =
+update_offset(f::Function, s::Slice{N,T}) where {N, T} =
     setoffset(s, f(offset(s)))
 
 """
@@ -112,7 +112,7 @@ update_offset{N,T}(f::Function, s::Slice{N,T})::Slice{N,T} =
 
 Returns a new slice with content `f(content(s))`.
 """
-update_content{N,T}(f::Function, s::Slice{N,T}) =
+update_content(f::Function, s::Slice{N,T}) where {N, T} =
     setcontent(s, f(content(s)))
 
 # cost/distance functions

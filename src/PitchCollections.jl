@@ -253,8 +253,12 @@ struct FiguredPitch{P} <: FiguredBass{P}
     #    new(bass, pc_set(map(p -> p - bass, figures)))
 end
 
-"Represents pitches as a bass pitch and remaining pitch classes \
-relative to the bass."
+"""
+    figured_p(pitches)
+
+Represents pitches as a bass pitch and remaining pitch classes
+relative to the bass.
+"""
 figured_p(pitches) =
     let bass = minimum(pitches)
         FiguredPitch(bass, pc_set(map(p -> p - bass, pitches)))
@@ -305,8 +309,12 @@ struct FiguredPitchClass{P} <: FiguredBass{P}
         new{P}(pc(bass), figures)
 end
 
-"Represents pitches as a bass pitch class and remaining pitch classes \
-relative to the bass."
+"""
+    figured_pc(pitches)
+
+Represents pitches as a bass pitch class and remaining pitch classes
+relative to the bass.
+"""
 figured_pc(pitches) =
     let figp = figured_p(pitches)
         FiguredPitchClass(bass(figp), figures(figp))
