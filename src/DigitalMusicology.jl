@@ -18,10 +18,16 @@ include("Pitches.jl")
 include("PitchOps.jl")
 @reexport using .PitchOps
 
+include("Timed.jl")
+@reexport using .Timed
+
 # Musical Structures
 
 include("PitchCollections.jl")
 @reexport using .PitchCollections
+
+include("Notes.jl")
+@reexport using .Notes
 
 include("Slices.jl")
 @reexport using .Slices

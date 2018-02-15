@@ -154,6 +154,19 @@ function _get_piece(id, ::Val{:slices}, corpus::LACCorpus)
     groups_to_slices(groups)
 end
 
+function _get_piece(id, ::Val{:notes_df}, crp::LACCorpus)
+    fn = piece_path(id, "notes", ".tsv", crp)
+    read(fn, delim='\t', nullable=false)
+end
+
+function _get_piece(id, ::Val{:notes}, crp::LACCorpus)
+    df = get_piece(id, :notes_df, crp)
+    @from row in df begin
+        @orderby row.Onset
+        @select TimedNote{MidiPitch,Int}(midi(row.Pitch), row.Onset, row.Offset)
+    end
+end
+
 _get_piece(id, ::Val{:meta}, corpus::LACCorpus) =
     filter(r -> r[:id] == id, corpus.meta)[1, :]
 
