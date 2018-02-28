@@ -15,7 +15,6 @@ export piece_path, get_piece, get_pieces, _get_piece
 abstract type Corpus end
 
 struct NoCorpus <: Corpus end
-==(c1::NoCorpus, c2::NoCorpus) = true
 
 global corpus = NoCorpus()
 
@@ -53,6 +52,8 @@ in piece loading functions for the given corpus.
 """
 function supported_forms end
 supported_forms() = supported_forms(get_corpus())
+
+supported_forms(::NoCorpus) = []
 
 ## Piece IDs and Directories
 ## -------------------------
