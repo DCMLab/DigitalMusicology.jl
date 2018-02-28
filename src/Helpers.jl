@@ -2,8 +2,19 @@ module Helpers
 
 import Base: iteratoreltype, start, next, done, iteratorsize, eltype, length, size
 using FunctionalCollections
+using Ratios
 
-export witheltype, takewhile, dropwhile
+export witheltype, takewhile, dropwhile, coprime
+
+# Misc
+# ====
+
+function coprime(r::SimpleRatio{T}) where {T<:Integer}
+    d = gcd(r.num, r.den)
+    SimpleRatio(div(r.num, d), div(r.den, d))
+end
+
+coprime(n) = n
 
 # Iterators
 # =========

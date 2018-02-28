@@ -40,6 +40,9 @@ include("Schemas.jl")
 
 # Input and Output
 
+include("io/MidiFiles.jl")
+@reexport using .MidiFiles
+
 include("Corpora.jl")
 @reexport using .Corpora
 
