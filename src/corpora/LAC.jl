@@ -4,7 +4,7 @@ importall DigitalMusicology.Corpora
 using DigitalMusicology
 
 using CSV: read
-using DataFrames: DataFrame, GroupedDataFrame, groupby
+using DataFrames: DataFrame, GroupedDataFrame, groupby, eachrow
 using IterTools: imap, chain
 using Base.Iterators: flatten
 using Query
@@ -154,17 +154,19 @@ function _get_piece(id, ::Val{:slices}, corpus::LACCorpus)
     groups_to_slices(groups)
 end
 
-function _get_piece(id, ::Val{:notes_df}, crp::LACCorpus)
-    fn = piece_path(id, "notes", ".tsv", crp)
-    read(fn, delim='\t', nullable=false)
+function _get_piece(id, ::Val{:notes}, crp::LACCorpus)
+    fn = piece_path(id, "m", ".mid", crp)
+    midifilenotes(fn)
 end
 
-function _get_piece(id, ::Val{:notes}, crp::LACCorpus)
-    df = get_piece(id, :notes_df, crp)
-    @from row in df begin
-        @orderby row.Onset
-        @select TimedNote{MidiPitch,Int}(midi(row.Pitch), row.Onset, row.Offset)
-    end
+function _get_piece(id, ::Val{:notes_secs}, crp::LACCorpus)
+    df = get_piece(id, :notes, crp)
+    [TimedNote(n[:pitch], n[:onset_secs], n[:offset_secs]) for n in eachrow(df)]
+end
+
+function _get_piece(id, ::Val{:notes_wholes}, crp::LACCorpus)
+    df = get_piece(id, :notes, crp)
+    [TimedNote(n[:pitch], n[:onset_wholes], n[:offset_wholes]) for n in eachrow(df)]
 end
 
 _get_piece(id, ::Val{:meta}, corpus::LACCorpus) =
