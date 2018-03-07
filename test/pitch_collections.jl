@@ -3,86 +3,86 @@
     inc(x) = x+midi(1)
 
     @testset "PitchBag" begin
-        pb = p_bag(pitches)
-        @test pb == p_bag(pitches)
-        @test pb == p_bag(shuffle(pitches))
-        @test hash(pb) == hash(p_bag(shuffle(pitches)))
+        pb = pbag(pitches)
+        @test pb == pbag(pitches)
+        @test pb == pbag(shuffle(pitches))
+        @test hash(pb) == hash(pbag(shuffle(pitches)))
         @test sort(collect(pb)) == sort(pitches)
         @test length(pb) == 6
-        @test map(inc, pb) == p_bag(map(inc, pitches))
-        @test transpose_by(pb, midi(1)) == p_bag(map(inc, pitches))
-        @test transpose_to(pb, midi(0)) == transpose_by(pb, midi(13))
-        @test pc(pb) == pc_bag(pitches)
+        @test map(inc, pb) == pbag(map(inc, pitches))
+        @test transposeby(pb, midi(1)) == pbag(map(inc, pitches))
+        @test transposeto(pb, midi(0)) == transposeby(pb, midi(13))
+        @test pc(pb) == pcbag(pitches)
     end
 
     @testset "PitchClassBag" begin
-        pb = pc_bag(pitches)
-        @test pb == pc_bag(pitches)
-        @test pb == pc_bag(shuffle(pitches))
-        @test pb == pc_bag(map(p->p+midi(12), pitches))
-        @test hash(pb) == hash(pc_bag(shuffle(pitches)))
+        pb = pcbag(pitches)
+        @test pb == pcbag(pitches)
+        @test pb == pcbag(shuffle(pitches))
+        @test pb == pcbag(map(p->p+midi(12), pitches))
+        @test hash(pb) == hash(pcbag(shuffle(pitches)))
         @test sort(collect(pb)) == sort(map(pc, pitches))
         @test all(p -> midi(0)<=p<=midi(11), collect(pb))
         @test length(pb) == 6
-        @test map(inc, pb) == pc_bag(map(inc, pitches))
-        @test transpose_by(pb, midi(1)) == pc_bag(map(inc, pitches))
-        # @test transpose_to(pb, midi(0)) == transpose_by(pb, midi(-3))
+        @test map(inc, pb) == pcbag(map(inc, pitches))
+        @test transposeby(pb, midi(1)) == pcbag(map(inc, pitches))
+        # @test transposeto(pb, midi(0)) == transposeby(pb, midi(-3))
         @test pc(pb) == pb
     end
 
     @testset "PitchSet" begin
-        ps = p_set(pitches)
-        @test ps == p_set(pitches)
-        @test ps == p_set(shuffle(pitches))
-        @test hash(ps) == hash(p_set(shuffle(pitches)))
+        ps = pset(pitches)
+        @test ps == pset(pitches)
+        @test ps == pset(shuffle(pitches))
+        @test hash(ps) == hash(pset(shuffle(pitches)))
         @test sort(collect(ps)) == sort(collect(Set(pitches)))
         @test length(ps) == 5
-        @test map(inc, ps) == p_set(map(inc, pitches))
-        @test transpose_by(ps, midi(1)) == p_set(map(inc, pitches))
-        @test pc(ps) == pc_set(pitches)
+        @test map(inc, ps) == pset(map(inc, pitches))
+        @test transposeby(ps, midi(1)) == pset(map(inc, pitches))
+        @test pc(ps) == pcset(pitches)
     end
 
     @testset "PitchClassSet" begin
-        ps = pc_set(pitches)
-        @test ps == pc_set(pitches)
-        @test ps == pc_set(shuffle(pitches))
-        @test ps == pc_set(map(p->p+midi(12), pitches))
-        @test hash(ps) == hash(pc_set(shuffle(pitches)))
+        ps = pcset(pitches)
+        @test ps == pcset(pitches)
+        @test ps == pcset(shuffle(pitches))
+        @test ps == pcset(map(p->p+midi(12), pitches))
+        @test hash(ps) == hash(pcset(shuffle(pitches)))
         @test sort(collect(ps)) == sort(collect(Set(map(pc, pitches))))
         @test all(p -> midi(0)<=p<=midi(11), collect(ps))
         @test length(ps) == 3
-        @test map(inc, ps) == pc_set(map(inc, pitches))
-        @test transpose_by(ps, midi(1)) == pc_set(map(inc, pitches))
+        @test map(inc, ps) == pcset(map(inc, pitches))
+        @test transposeby(ps, midi(1)) == pcset(map(inc, pitches))
         @test pc(ps) == ps
     end
 
     @testset "FiguredPitch" begin
-        fp = figured_p(pitches)
+        fp = figuredp(pitches)
         @test bass(fp) == midi(-13)
         @test sort(collect(figures(fp))) == map(midi, [0, 4, 6])
-        @test fp == figured_p(pitches)
-        @test fp == figured_p(shuffle(pitches))
-        @test hash(fp) == hash(figured_p(pitches))
+        @test fp == figuredp(pitches)
+        @test fp == figuredp(shuffle(pitches))
+        @test hash(fp) == hash(figuredp(pitches))
         @test sort(collect(fp)) == map(midi, [3, 5, 11])
         @test length(fp) == 3
-        @test transpose_by(fp, midi(1)) == figured_p(map(inc, pitches))
-        @test bass(transpose_to(fp, midi(3))) == midi(3)
-        @test figures(transpose_to(fp, midi(3))) == figures(fp)
-        @test pc(fp) == figured_pc(pitches)
+        @test transposeby(fp, midi(1)) == figuredp(map(inc, pitches))
+        @test bass(transposeto(fp, midi(3))) == midi(3)
+        @test figures(transposeto(fp, midi(3))) == figures(fp)
+        @test pc(fp) == figuredpc(pitches)
     end
 
     @testset "FiguredPitch" begin
-        fp = figured_pc(pitches)
+        fp = figuredpc(pitches)
         @test bass(fp) == midi(11)
         @test sort(collect(figures(fp))) == map(midi, [0, 4, 6])
-        @test fp == figured_pc(pitches)
-        @test fp == figured_pc(shuffle(pitches))
-        @test hash(fp) == hash(figured_pc(pitches))
+        @test fp == figuredpc(pitches)
+        @test fp == figuredpc(shuffle(pitches))
+        @test hash(fp) == hash(figuredpc(pitches))
         @test sort(collect(fp)) == map(midi, [3, 5, 11])
         @test length(fp) == 3
-        @test transpose_by(fp, midi(1)) == figured_pc(map(inc, pitches))
-        @test bass(transpose_to(fp, midi(15))) == midi(3)
-        @test figures(transpose_to(fp, midi(3))) == figures(fp)
+        @test transposeby(fp, midi(1)) == figuredpc(map(inc, pitches))
+        @test bass(transposeto(fp, midi(15))) == midi(3)
+        @test figures(transposeto(fp, midi(3))) == figures(fp)
         @test pc(fp) == fp
     end
 end

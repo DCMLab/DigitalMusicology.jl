@@ -1,7 +1,7 @@
 module Timed
 
 export onset, offset, duration, hasonset, hasoffset, hasduration
-export skip_cost, onset_cost
+export skipcost, onsetcost
 
 """
     onset(x)
@@ -59,16 +59,16 @@ hasduration(x::Any) = hasonset(x) && hasoffset(x)
 ## -----------------------
 
 """
-    skip_cost(timed1, timed2)
+    skipcost(timed1, timed2)
 
 Returns the distance between the offset of timed1 and the onset of timed2.
 """
-skip_cost(s1, s2) = onset(s2) - offset(s1)
+skipcost(s1, s2) = onset(s2) - offset(s1)
 
 """
-    onset_cost(timed1, timed2)
+    onsetcost(timed1, timed2)
 Returns the distance between the onsets of timed1 and timed2.
 """
-onset_cost(s1, s2) = onset(s2) - onset(s1)
+onsetcost(s1, s2) = onset(s2) - onset(s1)
 
 end # module

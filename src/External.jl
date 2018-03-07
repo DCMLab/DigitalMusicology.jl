@@ -53,13 +53,13 @@ show(io::IO, ::MIME"text/plain", hds::HumDrumString) =
 
 scrpath = joinpath(Pkg.dir("DigitalMusicology"), "data", "")
 
-kern_html(cellid, content) = """
+kernhtml(cellid, content) = """
 <script id="$(cellid)-input" type="text/humdrum">
 $(content)</script>
 """
 
 # TODO:: load wildwebmidi.data from local file, not verovio.org
-verovio_html(cellid, svg) = """
+veroviohtml(cellid, svg) = """
 <div id="$(cellid)-svg-out">$(svg)</div>
 <button id="$(cellid)-play-button" type="button">Play</button>
 
@@ -71,8 +71,8 @@ verovio_html(cellid, svg) = """
 
 show(io::IO, ::MIME"text/html", hds::HumDrumString) = begin
     id = string("vero-", rand(Int))
-    svg = verovio_svg(hds)
-    write(io, kern_html(id, hds.content), verovio_html(id, svg))
+    svg = veroviosvg(hds)
+    write(io, kernhtml(id, hds.content), veroviohtml(id, svg))
 end
 
 """
@@ -96,7 +96,7 @@ function verovio()
     return
 end
 
-function verovio_svg(hds::HumDrumString)
+function veroviosvg(hds::HumDrumString)
     script = joinpath(Pkg.dir("DigitalMusicology"), "data", "mksvg.js")
     (proc_out, proc_in, proc) = readandwrite(`$(nodejs_cmd()) $(script)`)
     write(proc_in, hds.content)

@@ -5,9 +5,9 @@ using Missings: missing, skipmissing
 using Reexport.@reexport
 
 export Corpus, NoCorpus
-export get_corpus, set_corpus, unset_corpus
-export supported_forms, all_pieces, top_dir, dirs, pieces, ls, findpieces
-export piece_path, get_piece, get_pieces, _get_piece
+export getcorpus, setcorpus, unsetcorpus
+export supportedforms, allpieces, topdir, dirs, pieces, ls, findpieces
+export piecepath, getpiece, getpieces, _getpiece
 
 # Corpus and current corpus
 # =========================
@@ -23,7 +23,7 @@ Throws an error, if the corpus is not set."
 function getcorpus()
     global corpus
     if isa(corpus, NoCorpus)
-        error("Please set a default corpus with set_corpus(corpus).")
+        error("Please set a default corpus with setcorpus(corpus).")
     else
         corpus
     end

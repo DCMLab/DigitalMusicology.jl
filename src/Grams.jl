@@ -4,10 +4,13 @@ using DigitalMusicology.GatedQueues: GatedQueue, gatedq, release
 using FunctionalCollections
 using IterTools.groupby
 
-export grams, scapes, map_scapes
-export skipgrams, skipgrams_itr
+export grams, scapes, mapscapes
+export skipgrams, indexskipgrams
 
 const List = FunctionalCollections.AbstractList
+
+# Grams and Scapes
+# ================
 
 """
     grams(arr, n)
@@ -49,130 +52,15 @@ scapes(arr::A) where {A <: AbstractArray} =
     [ grams(arr, n) for n=1:size(arr,1) ]
 
 """
-    map_scapes(f, arr)
+    mapscapes(f, arr)
 
 Map `f` over all `n`-grams in arr for `n=1:size(arr, 1)`.
 """
-map_scapes(f::Function, arr::A) where {A <: AbstractArray} =
+mapscapes(f::Function, arr::A) where {A <: AbstractArray} =
     [ map(f, grams(arr, n)) for n=1:size(arr,1) ]
 
-# skip-grams
-# ----------
-
-"""
-    skipgrams_general(itr, k, n, cost [, pred])
-
-Returns all generalized `k`-skip-`n`-grams.
-
-Instead of defining skips as index steps > 1, a general distance function can be supplied.
-`k` is then an upper bound to the sum of all distances between consecutive elements in the gram.
-
-The input needs to be monotonous with respect to the distance to a
-previous element:
-
-    ∀ i<j<l: dist(itr[i], itr[j]) ≤ dist(itr[i], itr[l])
-
-From this we know that if the current element increases the skip cost of some
-unfinished gram (prefix) to more than `k`,
-then all following elements will increase the cost at least as much,
-so we can discard the prefix.
-
-The `input` should be an iterable and will be consumed lazily
-as the skipgram iterator is consumed.
-
-An optional predicate function can be provided to test potential neighbors in a skipgram.
-By default, all input elements are allowed to be neighbors.
-
-# Examples
-
-```julia
-function skipgrams(itr, k, n)
-    cost(x, y) = y[1] - x[1] - 1
-    grams = skipgrams_general(enumerate(itr), k, n, cost)
-    map(sg -> map(x -> x[2], sg), grams)
-end
-```
-"""
-function skipgrams_general(itr, k::Float64, n::Int, cost::Function,
-                           pred::Function = ((x1, x2) -> true);
-                           element_type = eltype(itr))
-    # helpers
-    mk_prefix(x) = (n-1, 0.0, plist{element_type}([x]))
-    total_cost(pfx, x) = pfx[2] + cost(first(pfx[3]), x)
-    extend_prefix(pfx, x) = (pfx[1]-1, total_cost(pfx, x), cons(x,pfx[3]))
-    prefix_complete(pfx) = pfx[1] <= 0
-    prefix_to_gram(pfx) = reverse!(collect(pfx[3]))
-
-    # initial values (like ugly, mutable accumulators)
-    prefixes = Vector{Tuple{Int,Float64,PersistentList{element_type}}}()
-    found_grams = Vector{Vector{element_type}}()
-    
-    # generate candidates
-    for candidate in itr
-        # remove prefixes that cannot be completed anymore
-        old_closed = filter(p -> total_cost(p, candidate) <= k, prefixes)
-
-        # check for compatibility with candidate
-        extendable = filter(p -> pred(first(p[3]), candidate), old_closed)
-        
-        # extend prefixes
-        extended = map(p -> extend_prefix(p, candidate), extendable)
-
-        # add complete prefixes to found
-        append!(found_grams, map(prefix_to_gram,
-                                 filter(prefix_complete, extended)))
-        
-        # add incomplete prefixes to prefixes
-        prefixes = append!(old_closed, filter(!prefix_complete, extended))
-
-        # open new prefix for candidate
-        push!(prefixes, mk_prefix(candidate))
-    end
-
-    # return found skip grams
-    found_grams
-end
-
-# skip-grams channel
-# ------------------
-
-function skipgrams_channel(itr, k::Float64, n::Int, cost::Function,
-                           pred::Function = ((x1, x2) -> true))
-    # helpers
-    mk_prefix(x) = (n-1, 0.0, plist{eltype(itr)}([x]))
-    total_cost(pfx, x) = pfx[2] + cost(first(pfx[3]), x)
-    extend_prefix(pfx, x) = (pfx[1]-1, total_cost(pfx, x), cons(x,pfx[3]))
-    prefix_complete(pfx) = pfx[1] <= 0
-    prefix_to_gram(pfx) = reverse!(collect(pfx[3]))
-    
-    Channel() do c
-        prefixes = []
-
-        # generate candidates
-        for candidate in itr
-            # remove prefixes that cannot be completed anymore
-            old_closed = filter(p -> total_cost(p, candidate) <= k, prefixes)
-
-            # check for compatibility with candidate
-            extendable = filter(p -> pred(first(p[3]), candidate), old_closed)
-
-            # extend prefixes
-            extended = map(p -> extend_prefix(p, candidate), extendable)
-        
-            # add incomplete prefixes to prefixes
-            prefixes = append!(old_closed, filter(!prefix_complete, extended))
-            
-            # open new prefix for candidate
-            push!(prefixes, mk_prefix(candidate))
-
-            # add complete prefixes to found
-            map(p -> put!(c, prefix_to_gram(p)), filter(prefix_complete, extended))
-        end
-    end
-end
-
-# skip-grams iterator
-# -------------------
+# Skipgrams Iterator
+# ==================
 
 abstract type SkipGramItr{T} end
 
@@ -205,7 +93,7 @@ struct SkipGramStableItr{T} <: SkipGramItr{T}
 end
 
 """
-    skipgrams_itr(input, k, n, cost[, pred][, element_type=type][, stable=false])
+    skipgrams(input, k, n, cost[, pred][, element_type=type][, stable=false])
 
 Returns an iterator over all generalized `k`-skip-`n`-grams found in `input`.
 
@@ -238,24 +126,25 @@ If `stable` is `false` (default), no particular order is guaranteed.
 # Examples
 
 ```julia
-function skipgrams(itr, k, n)
+function indexskipgrams(itr, k, n)
     cost(x, y) = y[1] - x[1] - 1
     grams = skipgrams_itr(enumerate(itr), k, n, cost)
     map(sg -> map(x -> x[2], sg), grams)
 end
 ```
 """
-skipgrams_itr(itr, k::Float64, n::Int, cost::Function,
-              pred::Function = (x -> true);
-              element_type=eltype(itr),
-              stable=false) =
-                  if stable
-                      SkipGramStableItr{element_type}(itr, k, n, cost, pred)
-                  else
-                      SkipGramFastItr{element_type}(itr, k, n, cost, pred)
-                  end
+skipgrams(itr, k::Float64, n::Int, cost::Function,
+          pred::Function = (x -> true);
+          element_type=eltype(itr),
+          stable=false) =
+              if stable
+                  SkipGramStableItr{element_type}(itr, k, n, cost, pred)
+              else
+                  SkipGramFastItr{element_type}(itr, k, n, cost, pred)
+              end
 
-## helpers for finding ngrams
+## unstable skipgrams
+## ------------------
 
 function process_candidate(itr::SkipGramFastItr{T},
                            st::SkipGramFastItrState{T,I}) where {T, I}
@@ -464,18 +353,11 @@ nextstate(st::SkipGramStableItrState{T,I}, rest) where {T,I} =
 # standard skipgrams
 # ------------------
 
-index_cost(x::Tuple{Int,T}, y::Tuple{Int,U}) where {T, U} = Float64(y[1] - x[1] - 1)
-
-function skipgramsv(itr, k::Int, n::Int)
-    map(sg -> map(x -> x[2], sg),
-        skipgrams_general(enumerate(itr), # index is used for cost
-                          Float64(k), n,  # as usual
-                          index_cost))    # dist: more than "step" wrt indices
-end
+indexcost(x::Tuple{Int,T}, y::Tuple{Int,U}) where {T, U} = Float64(y[1] - x[1] - 1)
 
 # skipgram iterator test
 """
-    skipgrams(itr, k, n)
+    indexskipgrams(itr, k, n)
 
 Return all `k`-skip-`n`-grams over `itr`, with skips based on indices.
 For a custom cost function, use [`skipgrams_itr`](@ref).
@@ -483,7 +365,7 @@ For a custom cost function, use [`skipgrams_itr`](@ref).
 # Examples
 
 ```julia-repl
-julia> skipgrams([1,2,3,4,5], 2, 2)
+julia> indexskipgrams([1,2,3,4,5], 2, 2)
 9-element Array{Any,1}:
  Any[1, 2]
  Any[1, 3]
@@ -496,21 +378,148 @@ julia> skipgrams([1,2,3,4,5], 2, 2)
  Any[4, 5]
 ```
 """
-function skipgrams(itr, k::Int, n::Int; stable=false)
+function indexskipgrams(itr, k::Int, n::Int; stable=false)
     map(sg -> map(x -> x[2], sg),
-        skipgrams_itr(enumerate(itr), # index is used for cost
-                      Float64(k), n,  # as usual
-                      index_cost,     # dist: more than "step" wrt indices
-                      stable=stable)) # keep order?
-end
-
-# skipgram channel test
-function skipgramsc(itr, k::Int, n::Int)
-    map(sg -> map(x -> x[2], sg),
-        skipgrams_channel(enumerate(itr), # index is used for cost
-                      Float64(k), n,  # as usual
-                      index_cost))    # dist: more than "step" wrt indices
+        skipgrams(enumerate(itr), # index is used for cost
+                  Float64(k), n,  # as usual
+                  indexcost,     # dist: more than "step" wrt indices
+                  stable=stable)) # keep order?
 end
 
 end # module
 
+# Legace Code
+# ===========
+
+# skipgrams on arrays and channels
+# --------------------------------
+
+# """
+#     skipgrams_general(itr, k, n, cost [, pred])
+
+# Returns all generalized `k`-skip-`n`-grams.
+
+# Instead of defining skips as index steps > 1, a general distance function can be supplied.
+# `k` is then an upper bound to the sum of all distances between consecutive elements in the gram.
+
+# The input needs to be monotonous with respect to the distance to a
+# previous element:
+
+#     ∀ i<j<l: dist(itr[i], itr[j]) ≤ dist(itr[i], itr[l])
+
+# From this we know that if the current element increases the skip cost of some
+# unfinished gram (prefix) to more than `k`,
+# then all following elements will increase the cost at least as much,
+# so we can discard the prefix.
+
+# The `input` should be an iterable and will be consumed lazily
+# as the skipgram iterator is consumed.
+
+# An optional predicate function can be provided to test potential neighbors in a skipgram.
+# By default, all input elements are allowed to be neighbors.
+
+# # Examples
+
+# ```julia
+# function skipgrams(itr, k, n)
+#     cost(x, y) = y[1] - x[1] - 1
+#     grams = skipgrams_general(enumerate(itr), k, n, cost)
+#     map(sg -> map(x -> x[2], sg), grams)
+# end
+# ```
+# """
+# function skipgrams_general(itr, k::Float64, n::Int, cost::Function,
+#                            pred::Function = ((x1, x2) -> true);
+#                            element_type = eltype(itr))
+#     # helpers
+#     mk_prefix(x) = (n-1, 0.0, plist{element_type}([x]))
+#     total_cost(pfx, x) = pfx[2] + cost(first(pfx[3]), x)
+#     extend_prefix(pfx, x) = (pfx[1]-1, total_cost(pfx, x), cons(x,pfx[3]))
+#     prefix_complete(pfx) = pfx[1] <= 0
+#     prefix_to_gram(pfx) = reverse!(collect(pfx[3]))
+
+#     # initial values (like ugly, mutable accumulators)
+#     prefixes = Vector{Tuple{Int,Float64,PersistentList{element_type}}}()
+#     found_grams = Vector{Vector{element_type}}()
+    
+#     # generate candidates
+#     for candidate in itr
+#         # remove prefixes that cannot be completed anymore
+#         old_closed = filter(p -> total_cost(p, candidate) <= k, prefixes)
+
+#         # check for compatibility with candidate
+#         extendable = filter(p -> pred(first(p[3]), candidate), old_closed)
+        
+#         # extend prefixes
+#         extended = map(p -> extend_prefix(p, candidate), extendable)
+
+#         # add complete prefixes to found
+#         append!(found_grams, map(prefix_to_gram,
+#                                  filter(prefix_complete, extended)))
+        
+#         # add incomplete prefixes to prefixes
+#         prefixes = append!(old_closed, filter(!prefix_complete, extended))
+
+#         # open new prefix for candidate
+#         push!(prefixes, mk_prefix(candidate))
+#     end
+
+#     # return found skip grams
+#     found_grams
+# end
+
+# # skip-grams channel
+# # ------------------
+
+# function skipgrams_channel(itr, k::Float64, n::Int, cost::Function,
+#                            pred::Function = ((x1, x2) -> true))
+#     # helpers
+#     mk_prefix(x) = (n-1, 0.0, plist{eltype(itr)}([x]))
+#     total_cost(pfx, x) = pfx[2] + cost(first(pfx[3]), x)
+#     extend_prefix(pfx, x) = (pfx[1]-1, total_cost(pfx, x), cons(x,pfx[3]))
+#     prefix_complete(pfx) = pfx[1] <= 0
+#     prefix_to_gram(pfx) = reverse!(collect(pfx[3]))
+    
+#     Channel() do c
+#         prefixes = []
+
+#         # generate candidates
+#         for candidate in itr
+#             # remove prefixes that cannot be completed anymore
+#             old_closed = filter(p -> total_cost(p, candidate) <= k, prefixes)
+
+#             # check for compatibility with candidate
+#             extendable = filter(p -> pred(first(p[3]), candidate), old_closed)
+
+#             # extend prefixes
+#             extended = map(p -> extend_prefix(p, candidate), extendable)
+        
+#             # add incomplete prefixes to prefixes
+#             prefixes = append!(old_closed, filter(!prefix_complete, extended))
+            
+#             # open new prefix for candidate
+#             push!(prefixes, mk_prefix(candidate))
+
+#             # add complete prefixes to found
+#             map(p -> put!(c, prefix_to_gram(p)), filter(prefix_complete, extended))
+#         end
+#     end
+# end
+
+# indexskipgrams on arrays and channels
+# -------------------------------------
+
+# function skipgramsv(itr, k::Int, n::Int)
+#     map(sg -> map(x -> x[2], sg),
+#         skipgrams_general(enumerate(itr), # index is used for cost
+#                           Float64(k), n,  # as usual
+#                           index_cost))    # dist: more than "step" wrt indices
+# end
+
+# # skipgram channel test
+# function skipgramsc(itr, k::Int, n::Int)
+#     map(sg -> map(x -> x[2], sg),
+#         skipgrams_channel(enumerate(itr), # index is used for cost
+#                       Float64(k), n,  # as usual
+#                       index_cost))    # dist: more than "step" wrt indices
+# end

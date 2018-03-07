@@ -1,19 +1,19 @@
 module PitchCollections
 
 import Base: collect, map, ==, hash, start, done, next, eltype, length, show
-import DigitalMusicology.PitchOps: pc, transpose_by, transpose_to
+import DigitalMusicology.PitchOps: pc, transposeby, transposeto
 using DigitalMusicology
 
 export PitchCollection
-export transpose_equiv, refpitch, pitches
+export transposeequiv, refpitch, pitches
 
-export PitchBag, p_bag
-export PitchClassBag, pc_bag
-export PitchSet, p_set
-export PitchClassSet, pc_set
+export PitchBag, pbag
+export PitchClassBag, pcbag
+export PitchSet, pset
+export PitchClassSet, pcset
 export FiguredBass, bass, figures
-#export setbass, setfigures, update_bass, update_figures
-export FiguredPitch, FiguredPitchClass, figured_p, figured_pc
+#export setbass, setfigures, updatebass, updatefigures
+export FiguredPitch, FiguredPitchClass, figuredp, figuredpc
 
 # PitchCollection
 # ===============
@@ -26,28 +26,28 @@ Since a pitch collection should contain only one type of pitches,
 abstract type PitchCollection{P<:Pitch} end
 
 """
-    transpose_equiv(pitch_coll)
+    transposeequiv(pitchcoll)
 
 Turns a pitch collection to a representative of its transpositional equivalence class.
 """
-function transpose_equiv end
+function transposeequiv end
 
-transpose_equiv(coll::PitchCollection{P}) where P = transpose_to(coll, zero(P))
+transposeequiv(coll::PitchCollection{P}) where P = transposeto(coll, zero(P))
 
 """
-    refpitch(pitch_coll)
+    refpitch(pitchcoll)
 
 Returns a unique reference pitch for the pitch collection.
-This reference should behave consistent with `transpose_to` and `transpose_by`
+This reference should behave consistent with `transposeto` and `transposeby`
 
 ```julia
-transpose_to(coll, 0) == transpose_by(coll, -refpitch(coll))
+transposeto(coll, 0) == transposeby(coll, -refpitch(coll))
 ```
 """
 function refpitch end
 
 """
-    pitchiter(pitch_coll)
+    pitchiter(pitchcoll)
 
 Does this already exist?
 If the collection has an inner collection of all pitches,
@@ -77,10 +77,10 @@ eltype(coll::PitchCollection{P}) where P = P
 
 ## default implementations of PitchOps methods
 
-transpose_by(coll::PitchCollection{P}, int::P) where P = map(p -> p + int, coll)
+transposeby(coll::PitchCollection{P}, int::P) where P = map(p -> p + int, coll)
 
-transpose_to(coll::PitchCollection{P}, newref::P) where P =
-    transpose_by(coll, newref-refpitch(coll))
+transposeto(coll::PitchCollection{P}, newref::P) where P =
+    transposeby(coll, newref-refpitch(coll))
 
 # Standard Collections
 # ====================
@@ -102,7 +102,7 @@ struct PitchBag{P} <: PitchCollection{P}
 end
 
 "Represents pitches as a bag of pitches."
-p_bag(pitches) = PitchBag(collect(pitches))
+pbag(pitches) = PitchBag(collect(pitches))
 
 pitchiter(pb::PitchBag) = pb.bag
 
@@ -123,7 +123,7 @@ show(io::IO, pb::PitchBag) =
 
 ### PitchOps methods
 
-pc(pb::PitchBag) = pc_bag(collect(pb))
+pc(pb::PitchBag) = pcbag(collect(pb))
 
 refpitch(pb::PitchBag) = first(pb.bag)
 
@@ -137,7 +137,7 @@ struct PitchClassBag{P} <: PitchCollection{P}
 end
 
 "Represents pitches as a bag (vector) of pitch classes."
-pc_bag(pitches) = PitchClassBag(collect(pitches))
+pcbag(pitches) = PitchClassBag(collect(pitches))
 
 pitchiter(pcb::PitchClassBag) = pcb.bag
 
@@ -160,7 +160,7 @@ show(io::IO, pcb::PitchClassBag) =
 
 pc(pcb::PitchClassBag) = pcb
 
-# TODO: reference pitch for pitch class bag -> transpose_to
+# TODO: reference pitch for pitch class bag -> transposeto
 
 ## Pitch Set
 ## ---------
@@ -170,7 +170,7 @@ struct PitchSet{P} <: PitchCollection{P}
 end
 
 "Represent pitches as a set of absolute pitches."
-p_set(pitches) = PitchSet(Set(pitches))
+pset(pitches) = PitchSet(Set(pitches))
 
 pitchiter(ps::PitchSet) = ps.set
 
@@ -191,7 +191,7 @@ show(io::IO, ps::PitchSet) =
 
 ### PitchOps methods
 
-pc(ps::PitchSet) = pc_set(collect(ps))
+pc(ps::PitchSet) = pcset(collect(ps))
 
 ## Pitch Class Set
 ## ---------------
@@ -203,7 +203,7 @@ struct PitchClassSet{P} <: PitchCollection{P}
 end
 
 "Represents pitches as a set of pitch classes."
-pc_set(pitches) = PitchClassSet(Set(pitches))
+pcset(pitches) = PitchClassSet(Set(pitches))
 
 pitchiter(pcs::PitchClassSet) = pcs.set
 
@@ -251,11 +251,11 @@ function figures end
 # "Applies a function to the bass pitch of a figured bass.
 # Returns a new figured bass with the new bass pitch
 # and adapted figures."
-# function update_bass end
+# function updatebass end
 
 # "Applies a function to the figures of a figured bass.
 # Returns a new figured bass with the new figures."
-# function update_figures end
+# function updatefigures end
 
 ## figured: bass pitch with pitch class figures
 ## --------------------------------------------
@@ -265,18 +265,18 @@ struct FiguredPitch{P} <: FiguredBass{P}
     figures :: PitchClassSet{P}
     
     #FiguredPitch{P}(bass::P, figures) where P =
-    #    new(bass, pc_set(map(p -> p - bass, figures)))
+    #    new(bass, pcset(map(p -> p - bass, figures)))
 end
 
 """
-    figured_p(pitches)
+    figuredp(pitches)
 
 Represents pitches as a bass pitch and remaining pitch classes
 relative to the bass.
 """
-figured_p(pitches) =
+figuredp(pitches) =
     let bass = minimum(pitches)
-        FiguredPitch(bass, pc_set(map(p -> p - bass, pitches)))
+        FiguredPitch(bass, pcset(map(p -> p - bass, pitches)))
     end
 
 ### FiguredPitch accessors
@@ -307,10 +307,10 @@ end
 
 pc(fp::FiguredPitch) = FiguredPitchClass(pc(bass(fp)), figures(fp))
 
-transpose_by(fp::FiguredPitch{P}, int::P) where P =
+transposeby(fp::FiguredPitch{P}, int::P) where P =
     FiguredPitch(bass(fp)+int, figures(fp))
 
-transpose_to(fp::FiguredPitch{P}, newref::P) where P =
+transposeto(fp::FiguredPitch{P}, newref::P) where P =
     FiguredPitch(newref, figures(fp))
 
 ## figured: bass pitch class with pitch class figures
@@ -325,13 +325,13 @@ struct FiguredPitchClass{P} <: FiguredBass{P}
 end
 
 """
-    figured_pc(pitches)
+    figuredpc(pitches)
 
 Represents pitches as a bass pitch class and remaining pitch classes
 relative to the bass.
 """
-figured_pc(pitches) =
-    let figp = figured_p(pitches)
+figuredpc(pitches) =
+    let figp = figuredp(pitches)
         FiguredPitchClass(bass(figp), figures(figp))
     end
 
@@ -361,10 +361,10 @@ end
 
 pc(fpc::FiguredPitchClass) = fpc
 
-transpose_by(fpc::FiguredPitchClass{P}, int::P) where P =
+transposeby(fpc::FiguredPitchClass{P}, int::P) where P =
     FiguredPitchClass(pc(bass(fpc)+int), figures(fpc))
 
-transpose_to(fpc::FiguredPitchClass{P}, newref::P) where P =
+transposeto(fpc::FiguredPitchClass{P}, newref::P) where P =
     FiguredPitch(pc(newref), figures(fpc))
 
 end # module

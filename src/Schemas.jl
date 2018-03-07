@@ -1,12 +1,12 @@
 module Schemas
 
 import Base: ==, hash, collect, length, show, size, getindex
-import DigitalMusicology.PitchOps: pc, transpose_by, transpose_to
+import DigitalMusicology.PitchOps: pc, transposeby, transposeto
 import DigitalMusicology.PitchCollections: refpitch
 using DigitalMusicology
 
 export FlatSchema, stages, nstages, nvoices
-export schema_matches_from, match_schema
+export matchschema
 
 # Schema Interface
 # ================
@@ -33,12 +33,12 @@ Returns the number of voices in `schema`.
 function nvoices end
 
 """
-    match_schema(schema, gram)
+    matchschema(schema, gram)
 
 Returns all reference pitch classes on which `gram` matches `schema`.
 `gram` should be a vector of pitch vectors in voice order (highest to lowest).
 """
-function match_schema end
+function matchschema end
 
 """
     schema_matches_from(schema, gram, ref)
@@ -68,8 +68,10 @@ end
 
 ### Schema interface implementations
 
+getstage(fs::FlatSchema{P}, stage::Int) where P = view(fs.pitches, stage, :)
+
 (stages(fs::FlatSchema{P}) :: Vector{Vector{P}}) where P =
-    [fs.pitches[i,:] for i in size(fs.pitches, 1)]
+    [getstage(fs, i) for i in size(fs.pitches, 1)]
 
 nstages(fs::FlatSchema) = size(fs.pitches, 1)
 
@@ -121,7 +123,6 @@ function schema_matches_from(fs::FlatSchema{P}, gram::Vector{Vector{P}}, ref::P)
     end
 end
 
-function match_schema(fs::FlatSchema{P}, gram::Vector{Vector{P}}) where P
     # test compatibility
     if nstages(fs) != length(gram) return P[] end
     if any(g -> length(g) < nvoices(fs), gram) return P[] end
@@ -130,6 +131,13 @@ function match_schema(fs::FlatSchema{P}, gram::Vector{Vector{P}}) where P
     filter(ref -> schema_matches_from(fs, gram, ref), allpcs(P))
 end
 
+# match schemas on slice grams
+#matchschema(fs::FlatSchema{P}, gram::Vector{Slice{N,Vector{P}}}) where {N,P} =
+#    matchschema(fs, unwrapslices(gram))
+
+# match schemas on unsims
+matchschema(fs::FlatSchema{P}, gram) where P =
+    matchschema(fs, map(schemainst_stagepitches, gram))
 ## Example
 
 #@midi prinner1 = FlatSchema([9 5; 7 4; 5 2; 4 0])

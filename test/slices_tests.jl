@@ -44,23 +44,23 @@
         @test offset(ps) == offset(s1)
         @test content(ps) == [2,3,4]
 
-        @test update_onset(x->2, s3) == setonset(s3, 2)
-        @test update_duration(x->8, s3) == setduration(s3, 8)
-        @test update_offset(x->9, s3) == setoffset(s3, 9)
-        @test update_content(x->[0], s3) == setcontent(s3, [0])
+        @test updateonset(x->2, s3) == setonset(s3, 2)
+        @test updateduration(x->8, s3) == setduration(s3, 8)
+        @test updateoffset(x->9, s3) == setoffset(s3, 9)
+        @test updatecontent(x->[0], s3) == setcontent(s3, [0])
     end
 
     @testset "Slice cost functions" begin
-        @test skip_cost(s1, s4) == 4
-        @test skip_cost(s3, s4) == 0
-        @test onset_cost(s1, s4) == 14
-        @test onset_cost(s3, s4) == 4
+        @test skipcost(s1, s4) == 4
+        @test skipcost(s3, s4) == 0
+        @test onsetcost(s1, s4) == 14
+        @test onsetcost(s3, s4) == 4
     end
 
     @testset "Slice n-gram functions" begin
-        @test unwrap_slices([s1, s3, s4]) ==
+        @test unwrapslices([s1, s3, s4]) ==
             [[1, 2, 3], [0, 3], [1]]
-        @test sg_duration_total([s1, s4]) == 22
-        @test sg_duration_sum([s1, s4]) == 18
+        @test sg_totaldur([s1, s4]) == 22
+        @test sg_sumdur([s1, s4]) == 18
     end
 end

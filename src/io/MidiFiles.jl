@@ -24,18 +24,18 @@ TicksPerSecond(fps::Int, tpf::Int) =
     TicksPerSecond(round(tpf * (fps==29 ? 29.97 : fps)))
 
 """
-    time_ratios(timediv, tempo) -> (w/tick, s/tick)
+    timeratios(timediv, tempo) -> (w/tick, s/tick)
 
 Takes a TimeDiv and a tempo in μs per quarter and returns
 rationals for whole notes per ticks and seconds per ticks.
 Note that quarter based units are converted to whole notes.
 """
-function time_ratios end
+function timeratios end
 
-time_ratios(tdiv::PulsesPerQuarter, μpq) =
+timeratios(tdiv::PulsesPerQuarter, μpq) =
     (coprime(1/(4*tdiv.ppq)), μpq/(1_000_000.0*tdiv.ppq))
 
-time_ratios(tdiv::TicksPerSecond, μpq) =
+timeratios(tdiv::TicksPerSecond, μpq) =
     (coprime(250_000/(tdiv.tps*μpq)), 1.0/tdiv.tps)
 
 # Track Events
@@ -276,7 +276,7 @@ function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, or
     # ticks -> beat or time is linear (but not proportional after a tempo change)
     # => y = a1*ticks + a0
     # coeffs: (a0, a1)
-    ratios = time_ratios(tdiv, 500_000) # default tempo: 120qpm
+    ratios = timeratios(tdiv, 500_000) # default tempo: 120qpm
     wcoeffs = (SimpleRatio(0,1), ratios[1])      # whole notes
     scoeffs = (0.0, ratios[2])      # seconds
     totime(coeffs, x) = coprime(x*coeffs[2] + coeffs[1])
@@ -292,7 +292,7 @@ function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, or
 
         if isa(ev.ev,TempoChangeME)
             # tempo change: update conversion coefficients
-            ratios = time_ratios(tdiv, ev.ev.micro_per_quarter)
+            ratios = timeratios(tdiv, ev.ev.micro_per_quarter)
             wcoeffs = newcoeffs(nowt, noww, ratios[1])
             scoeffs = newcoeffs(nowt, nows, ratios[2]) 
         elseif isa(ev.ev,NoteOn)

@@ -12,7 +12,7 @@
     @test pc(midi(-1)) == midi(11)
     @test pc(midi(-13)) == midi(11)
 
-    @test transpose_by(midi(3), midi(4)) == midi(7)
-    @test transpose_by(midi(3), midi(-4)) == midi(-1)
-    @test transpose_to(midi(8), midi(6)) == midi(6)
+    @test transposeby(midi(3), midi(4)) == midi(7)
+    @test transposeby(midi(3), midi(-4)) == midi(-1)
+    @test transposeto(midi(8), midi(6)) == midi(6)
 end
