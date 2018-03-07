@@ -35,9 +35,6 @@ include("Slices.jl")
 include("Grams.jl")
 @reexport using .Grams
 
-include("Schemas.jl")
-@reexport using .Schemas
-
 # Input and Output
 
 include("io/MidiFiles.jl")
