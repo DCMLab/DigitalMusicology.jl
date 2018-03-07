@@ -3,6 +3,7 @@ module Notes
 using DigitalMusicology
 import Base: hash, ==, show
 import DigitalMusicology.Timed: onset, offset, duration, hasonset, hasoffset, hasduration
+import DigitalMusicology.PitchCollections: pitches
 
 export Note, TimedNote, pitch
 
@@ -20,6 +21,11 @@ abstract type Note{P<:Pitch,T} end
 Returns the pitch of a note
 """
 function pitch end
+
+## implement interfaces
+
+pitches(notes::AbstractVector{N}) where {N<:Note} =
+    map(pitch, notes)
 
 # TimedNote
 # =========
@@ -50,7 +56,7 @@ hasduration(::Type{TimedNote}) = true
 ==(t1::TimedNote{P,T}, t2::TimedNote{P,T}) where {P,T} =
     t1.pitch == t2.pitch && t1.onset == t2.onset && t1.offset == t2.offset
 
-hash(t::TimedNote) = hash(t.pitch, hash(t.onset, hash(t.offset, x)))
+hash(t::TimedNote, x::UInt) = hash(t.pitch, hash(t.onset, hash(t.offset, x)))
 
 show(io::IO, t::TimedNote) =
     write(io, string("Note<", t.onset, "-", t.offset, ">(", t.pitch, ")"))

@@ -2,7 +2,7 @@ module Schemas
 
 import Base: ==, hash, collect, length, show, size, getindex
 import DigitalMusicology.PitchOps: pc, transpose_by, transpose_to
-import DigitalMusicology.PitchCollections: refpitch, inner_iterator
+import DigitalMusicology.PitchCollections: refpitch
 using DigitalMusicology
 
 export FlatSchema, stages, nstages, nvoices

@@ -5,7 +5,7 @@ import DigitalMusicology.PitchOps: pc, transpose_by, transpose_to
 using DigitalMusicology
 
 export PitchCollection
-export transpose_equiv, refpitch
+export transpose_equiv, refpitch, pitches
 
 export PitchBag, p_bag
 export PitchClassBag, pc_bag
@@ -47,7 +47,7 @@ transpose_to(coll, 0) == transpose_by(coll, -refpitch(coll))
 function refpitch end
 
 """
-    inner_iterator(pitch_coll)
+    pitchiter(pitch_coll)
 
 Does this already exist?
 If the collection has an inner collection of all pitches,
@@ -55,15 +55,23 @@ this function returns an iterator over the inner collection.
 The outer collection does not have to implement the iterator interface,
 since the default implementation for `PitchCollection`s falls back to the inner iterator.
 """
-function inner_iterator end
+function pitchiter end
+
+"""
+    pitches(pcoll)
+
+Returns a vector of all pitches in `pcoll`
+to the degree they can be reconstructed from the representation used by `pcoll`.
+"""
+pitches(pcoll) = collect(pitchiter(pcoll))
 
 ## some default implementations of Base methods
 
-start(coll::PitchCollection) = start(inner_iterator(coll))
+start(coll::PitchCollection) = start(pitchiter(coll))
 
-next(coll::PitchCollection, state) = next(inner_iterator(coll), state)
+next(coll::PitchCollection, state) = next(pitchiter(coll), state)
 
-done(coll::PitchCollection, state) = done(inner_iterator(coll), state)
+done(coll::PitchCollection, state) = done(pitchiter(coll), state)
 
 eltype(coll::PitchCollection{P}) where P = P
 
@@ -73,6 +81,13 @@ transpose_by(coll::PitchCollection{P}, int::P) where P = map(p -> p + int, coll)
 
 transpose_to(coll::PitchCollection{P}, newref::P) where P =
     transpose_by(coll, newref-refpitch(coll))
+
+# Standard Collections
+# ====================
+
+pitchiter(ps::AbstractArray{P}) where {P<:Pitch} = ps
+
+pitchiter(ps::Set{P}) where {P<:Pitch} = ps
 
 # Bags and Sets
 # =============
@@ -89,7 +104,7 @@ end
 "Represents pitches as a bag of pitches."
 p_bag(pitches) = PitchBag(collect(pitches))
 
-inner_iterator(pb::PitchBag) = pb.bag
+pitchiter(pb::PitchBag) = pb.bag
 
 ### Base methods
 
@@ -124,7 +139,7 @@ end
 "Represents pitches as a bag (vector) of pitch classes."
 pc_bag(pitches) = PitchClassBag(collect(pitches))
 
-inner_iterator(pcb::PitchClassBag) = pcb.bag
+pitchiter(pcb::PitchClassBag) = pcb.bag
 
 ### Base methods
 
@@ -157,7 +172,7 @@ end
 "Represent pitches as a set of absolute pitches."
 p_set(pitches) = PitchSet(Set(pitches))
 
-inner_iterator(ps::PitchSet) = ps.set
+pitchiter(ps::PitchSet) = ps.set
 
 ### Base methods
 
@@ -190,7 +205,7 @@ end
 "Represents pitches as a set of pitch classes."
 pc_set(pitches) = PitchClassSet(Set(pitches))
 
-inner_iterator(pcs::PitchClassSet) = pcs.set
+pitchiter(pcs::PitchClassSet) = pcs.set
 
 ### Base methods
 

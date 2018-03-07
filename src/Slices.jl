@@ -2,6 +2,7 @@ module Slices
 
 import Base.==, Base.hash, Base.show
 import DigitalMusicology.Timed: onset, offset, duration, hasonset, hasoffset, hasduration
+import DigitalMusicology.PitchCollections: pitchiter
 
 export Slice, content
 export setonset, setduration, setoffset, setcontent
@@ -50,6 +51,8 @@ hasduration(::Type{Slice}) = true
 
 "Returns the content of slice s."
 content(s::Slice{N,T}) where {T, N} = s.content
+
+pitchiter(s::Slice{N,T}) where {T, N} = pitchiter(s.content)
 
 """
     setonset(s, on)
