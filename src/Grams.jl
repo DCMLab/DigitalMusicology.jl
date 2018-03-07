@@ -406,7 +406,7 @@ function process_candidate(itr::SkipGramStableItr{T},
     if isempty(released)
         out = Vector{Vector{T}}()
     else
-        out = Iterators.flatten(map(x -> x[2], released))
+        out = Iterators.flatten(released)
     end
     
     # 5. collect new prefixes
@@ -436,7 +436,7 @@ new_grams(itr::SkipGramStableItr{T}, st::SkipGramStableItrState{T,I}) where {T,I
             st
         else
             released, qnew = release(st.queue, st.index)
-            out = Iterators.flatten(map(x -> x[2], released))
+            out = Iterators.flatten(released)
             SkipGramStableItrState{T,I}(
                 st.instate,
                 st.prefixes,
