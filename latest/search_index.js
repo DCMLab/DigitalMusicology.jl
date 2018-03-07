@@ -52,7 +52,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Pitches.MidiPitch",
     "page": "Reference",
     "title": "DigitalMusicology.Pitches.MidiPitch",
-    "category": "Type",
+    "category": "type",
     "text": "Pitches represented as chromatic integers. 60 is Middle C.\n\n\n\n"
 },
 
@@ -60,7 +60,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Pitches.Pitch",
     "page": "Reference",
     "title": "DigitalMusicology.Pitches.Pitch",
-    "category": "Type",
+    "category": "type",
     "text": "Any pitch type should be a subtype of Pitch.\n\n\n\n"
 },
 
@@ -68,7 +68,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Pitches.midi-Tuple{Int64}",
     "page": "Reference",
     "title": "DigitalMusicology.Pitches.midi",
-    "category": "Method",
+    "category": "method",
     "text": "Creates a MidiPitch from an integer.\n\n\n\n"
 },
 
@@ -76,7 +76,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Pitches.midis-Tuple{Any}",
     "page": "Reference",
     "title": "DigitalMusicology.Pitches.midis",
-    "category": "Method",
+    "category": "method",
     "text": "Maps midi() over a collection of integers.\n\n\n\n"
 },
 
@@ -84,7 +84,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Pitches.@midi-Tuple{Any}",
     "page": "Reference",
     "title": "DigitalMusicology.Pitches.@midi",
-    "category": "Macro",
+    "category": "macro",
     "text": "@midi expr\n\nReplaces all Ints in expr with a call to midi(::Int). This allows the user to write integers where midi pitches are required. Does not work when expr contains integers that should not be converted.\n\n\n\n"
 },
 
@@ -100,7 +100,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchOps.allpcs",
     "page": "Reference",
     "title": "DigitalMusicology.PitchOps.allpcs",
-    "category": "Function",
+    "category": "function",
     "text": "allpcs(P)\n\nReturns a list of all pitch classes of pitch type P.\n\n\n\n"
 },
 
@@ -108,7 +108,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchOps.pc",
     "page": "Reference",
     "title": "DigitalMusicology.PitchOps.pc",
-    "category": "Function",
+    "category": "function",
     "text": "Turn a pitch (or pitch collection) into a pitch class (collection)\n\n\n\n"
 },
 
@@ -116,7 +116,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchOps.transpose_by",
     "page": "Reference",
     "title": "DigitalMusicology.PitchOps.transpose_by",
-    "category": "Function",
+    "category": "function",
     "text": "Transpose a pitch (collection) by some directed interval.\n\n\n\n"
 },
 
@@ -124,7 +124,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchOps.transpose_to",
     "page": "Reference",
     "title": "DigitalMusicology.PitchOps.transpose_to",
-    "category": "Function",
+    "category": "function",
     "text": "Transpose a pitch (collection) to a new reference point.\n\n\n\n"
 },
 
@@ -140,7 +140,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchCollections.FiguredBass",
     "page": "Reference",
     "title": "DigitalMusicology.PitchCollections.FiguredBass",
-    "category": "Type",
+    "category": "type",
     "text": "Represents notes as a bass pitch with (a set of) figures.\n\n\n\n"
 },
 
@@ -148,7 +148,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchCollections.PitchCollection",
     "page": "Reference",
     "title": "DigitalMusicology.PitchCollections.PitchCollection",
-    "category": "Type",
+    "category": "type",
     "text": "An abstract supertype for pitch collections. Since a pitch collection should contain only one type of pitches, PitchCollection is parametric on a subtype of Pitch.\n\n\n\n"
 },
 
@@ -156,7 +156,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchCollections.bass",
     "page": "Reference",
     "title": "DigitalMusicology.PitchCollections.bass",
-    "category": "Function",
+    "category": "function",
     "text": "Returns the bass pitch of a figured bass representation.\n\n\n\n"
 },
 
@@ -164,7 +164,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchCollections.figured_p-Tuple{Any}",
     "page": "Reference",
     "title": "DigitalMusicology.PitchCollections.figured_p",
-    "category": "Method",
+    "category": "method",
     "text": "figured_p(pitches)\n\nRepresents pitches as a bass pitch and remaining pitch classes relative to the bass.\n\n\n\n"
 },
 
@@ -172,7 +172,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchCollections.figured_pc-Tuple{Any}",
     "page": "Reference",
     "title": "DigitalMusicology.PitchCollections.figured_pc",
-    "category": "Method",
+    "category": "method",
     "text": "figured_pc(pitches)\n\nRepresents pitches as a bass pitch class and remaining pitch classes relative to the bass.\n\n\n\n"
 },
 
@@ -180,7 +180,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchCollections.figures",
     "page": "Reference",
     "title": "DigitalMusicology.PitchCollections.figures",
-    "category": "Function",
+    "category": "function",
     "text": "Returns the figure pitch classes of a figured bass representation. (including 0 for the bass note)\n\n\n\n"
 },
 
@@ -188,7 +188,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchCollections.p_bag-Tuple{Any}",
     "page": "Reference",
     "title": "DigitalMusicology.PitchCollections.p_bag",
-    "category": "Method",
+    "category": "method",
     "text": "Represents pitches as a bag of pitches.\n\n\n\n"
 },
 
@@ -196,7 +196,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchCollections.p_set-Tuple{Any}",
     "page": "Reference",
     "title": "DigitalMusicology.PitchCollections.p_set",
-    "category": "Method",
+    "category": "method",
     "text": "Represent pitches as a set of absolute pitches.\n\n\n\n"
 },
 
@@ -204,7 +204,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchCollections.pc_bag-Tuple{Any}",
     "page": "Reference",
     "title": "DigitalMusicology.PitchCollections.pc_bag",
-    "category": "Method",
+    "category": "method",
     "text": "Represents pitches as a bag (vector) of pitch classes.\n\n\n\n"
 },
 
@@ -212,15 +212,23 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchCollections.pc_set-Tuple{Any}",
     "page": "Reference",
     "title": "DigitalMusicology.PitchCollections.pc_set",
-    "category": "Method",
+    "category": "method",
     "text": "Represents pitches as a set of pitch classes.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.PitchCollections.pitches-Tuple{Any}",
+    "page": "Reference",
+    "title": "DigitalMusicology.PitchCollections.pitches",
+    "category": "method",
+    "text": "pitches(pcoll)\n\nReturns a vector of all pitches in pcoll to the degree they can be reconstructed from the representation used by pcoll.\n\n\n\n"
 },
 
 {
     "location": "reference.html#DigitalMusicology.PitchCollections.refpitch",
     "page": "Reference",
     "title": "DigitalMusicology.PitchCollections.refpitch",
-    "category": "Function",
+    "category": "function",
     "text": "refpitch(pitch_coll)\n\nReturns a unique reference pitch for the pitch collection. This reference should behave consistent with transpose_to and transpose_by\n\ntranspose_to(coll, 0) == transpose_by(coll, -refpitch(coll))\n\n\n\n"
 },
 
@@ -228,7 +236,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.PitchCollections.transpose_equiv",
     "page": "Reference",
     "title": "DigitalMusicology.PitchCollections.transpose_equiv",
-    "category": "Function",
+    "category": "function",
     "text": "transpose_equiv(pitch_coll)\n\nTurns a pitch collection to a representative of its transpositional equivalence class.\n\n\n\n"
 },
 
@@ -244,7 +252,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Slices.Slice",
     "page": "Reference",
     "title": "DigitalMusicology.Slices.Slice",
-    "category": "Type",
+    "category": "type",
     "text": "Slice(onset::N, duration::N, content::T) where {N<:Number, T}\n\nA slice of a pitches in a piece. Timing information (type N) is encoded as onset and duration with methods for obtaining and modifying the offset directly. The content of a slice is typically some representation of simultaneously sounding pitches (type T).\n\n\n\n"
 },
 
@@ -252,7 +260,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Slices.content-Union{Tuple{DigitalMusicology.Slices.Slice{N,T}}, Tuple{N}, Tuple{T}} where N where T",
     "page": "Reference",
     "title": "DigitalMusicology.Slices.content",
-    "category": "Method",
+    "category": "method",
     "text": "Returns the content of slice s.\n\n\n\n"
 },
 
@@ -260,7 +268,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Slices.setcontent-Union{Tuple{DigitalMusicology.Slices.Slice{N,T},Any}, Tuple{N}, Tuple{T}} where T where N",
     "page": "Reference",
     "title": "DigitalMusicology.Slices.setcontent",
-    "category": "Method",
+    "category": "method",
     "text": "setcontent(ps, s)\n\nReturns a new slice with content ps.\n\n\n\n"
 },
 
@@ -268,7 +276,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Slices.setduration-Union{Tuple{DigitalMusicology.Slices.Slice{N,T},N}, Tuple{N}, Tuple{T}} where N where T",
     "page": "Reference",
     "title": "DigitalMusicology.Slices.setduration",
-    "category": "Method",
+    "category": "method",
     "text": "setduration(dur::N, s)\n\nReturns a new slice with duration dur.\n\n\n\n"
 },
 
@@ -276,7 +284,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Slices.setoffset-Union{Tuple{DigitalMusicology.Slices.Slice{N,T},N}, Tuple{N}, Tuple{T}} where N where T",
     "page": "Reference",
     "title": "DigitalMusicology.Slices.setoffset",
-    "category": "Method",
+    "category": "method",
     "text": "setoffset(off::N, s)\n\nReturns a new slice with offset off.\n\n\n\n"
 },
 
@@ -284,7 +292,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Slices.setonset-Union{Tuple{DigitalMusicology.Slices.Slice{N,T},N}, Tuple{N}, Tuple{T}} where N where T",
     "page": "Reference",
     "title": "DigitalMusicology.Slices.setonset",
-    "category": "Method",
+    "category": "method",
     "text": "setonset(s, on)\n\nReturns a new slice with onset on.\n\n\n\n"
 },
 
@@ -292,7 +300,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Slices.sg_duration_sum-Tuple{Any}",
     "page": "Reference",
     "title": "DigitalMusicology.Slices.sg_duration_sum",
-    "category": "Method",
+    "category": "method",
     "text": "Returns the sum of slice durations in a slice n-gram (excluding skipped time)\n\n\n\n"
 },
 
@@ -300,7 +308,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Slices.sg_duration_total-Tuple{Any}",
     "page": "Reference",
     "title": "DigitalMusicology.Slices.sg_duration_total",
-    "category": "Method",
+    "category": "method",
     "text": "Returns the total duration of a slice n-gram (including skipped time)\n\n\n\n"
 },
 
@@ -308,7 +316,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Slices.unwrap_slices-Tuple{Any}",
     "page": "Reference",
     "title": "DigitalMusicology.Slices.unwrap_slices",
-    "category": "Method",
+    "category": "method",
     "text": "Returns the pitch representations in a vector of slices.\n\n\n\n"
 },
 
@@ -316,7 +324,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Slices.update_content-Union{Tuple{Function,DigitalMusicology.Slices.Slice{N,T}}, Tuple{N}, Tuple{T}} where T where N",
     "page": "Reference",
     "title": "DigitalMusicology.Slices.update_content",
-    "category": "Method",
+    "category": "method",
     "text": "update_content(f::Function, s::Slice)\n\nReturns a new slice with content f(content(s)).\n\n\n\n"
 },
 
@@ -324,7 +332,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Slices.update_duration-Union{Tuple{Function,DigitalMusicology.Slices.Slice{N,T}}, Tuple{N}, Tuple{T}} where T where N",
     "page": "Reference",
     "title": "DigitalMusicology.Slices.update_duration",
-    "category": "Method",
+    "category": "method",
     "text": "update_duration(f::Function, s)\n\nReturns a new slice with duration f(duration(s)).\n\n\n\n"
 },
 
@@ -332,7 +340,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Slices.update_offset-Union{Tuple{Function,DigitalMusicology.Slices.Slice{N,T}}, Tuple{N}, Tuple{T}} where T where N",
     "page": "Reference",
     "title": "DigitalMusicology.Slices.update_offset",
-    "category": "Method",
+    "category": "method",
     "text": "update_offset(f::Function, s)\n\nReturns a new slice with offset f(offset(s)).\n\n\n\n"
 },
 
@@ -340,7 +348,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Slices.update_onset-Union{Tuple{Function,DigitalMusicology.Slices.Slice{N,T}}, Tuple{N}, Tuple{T}} where T where N",
     "page": "Reference",
     "title": "DigitalMusicology.Slices.update_onset",
-    "category": "Method",
+    "category": "method",
     "text": "update_onset(f::Function, s)\n\nReturns a new slice onset f(onset(s)).\n\n\n\n"
 },
 
@@ -356,7 +364,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Grams.grams-Union{Tuple{A,Int64}, Tuple{A}} where A<:AbstractArray",
     "page": "Reference",
     "title": "DigitalMusicology.Grams.grams",
-    "category": "Method",
+    "category": "method",
     "text": "grams(arr, n)\n\nReturn all n-grams in arr. n must be positive, otherwise an error is thrown.\n\nExamples\n\njulia> grams([1,2,3], 2)\n2-element Array{Array{Int64,1},1}:\n [1, 2]\n [2, 3]\n\n\n\n"
 },
 
@@ -364,7 +372,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Grams.map_scapes-Union{Tuple{A}, Tuple{Function,A}} where A<:AbstractArray",
     "page": "Reference",
     "title": "DigitalMusicology.Grams.map_scapes",
-    "category": "Method",
+    "category": "method",
     "text": "map_scapes(f, arr)\n\nMap f over all n-grams in arr for n=1:size(arr, 1).\n\n\n\n"
 },
 
@@ -372,7 +380,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Grams.scapes-Union{Tuple{A}, Tuple{A}} where A<:AbstractArray",
     "page": "Reference",
     "title": "DigitalMusicology.Grams.scapes",
-    "category": "Method",
+    "category": "method",
     "text": "scapes(arr)\n\nReturn all n-grams in arr for n=1:size(arr, 1).\n\nExamples\n\njulia> scapes([1,2,3])\n3-element Array{Array{Array{Int64,1},1},1}:\n Array{Int64,1}[[1], [2], [3]]\n Array{Int64,1}[[1, 2], [2, 3]]\n Array{Int64,1}[[1, 2, 3]]\n\n\n\n"
 },
 
@@ -380,7 +388,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Grams.skipgrams-Tuple{Any,Int64,Int64}",
     "page": "Reference",
     "title": "DigitalMusicology.Grams.skipgrams",
-    "category": "Method",
+    "category": "method",
     "text": "skipgrams(itr, k, n)\n\nReturn all k-skip-n-grams over itr, with skips based on indices. For a custom cost function, use skipgrams_itr.\n\nExamples\n\njulia> skipgrams([1,2,3,4,5], 2, 2)\n9-element Array{Any,1}:\n Any[1, 2]\n Any[1, 3]\n Any[2, 3]\n Any[1, 4]\n Any[2, 4]\n Any[3, 4]\n Any[2, 5]\n Any[3, 5]\n Any[4, 5]\n\n\n\n"
 },
 
@@ -388,8 +396,8 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.Grams.skipgrams_itr",
     "page": "Reference",
     "title": "DigitalMusicology.Grams.skipgrams_itr",
-    "category": "Function",
-    "text": "skipgrams_itr(input, k, n, cost[, pred][, element_type=type][, stable=false])\n\nReturns an iterator over all generalized k-skip-n-grams found in input.\n\nInstead of defining skips as index steps > 1, a general cost function is used. k is then an upper bound to the sum of all distances between consecutive elements in the gram.\n\nThe input needs to be iterable and monotonous with respect to the cost to a previous element:\n\n∀ i<j<l: cost(input[i], input[j]) ≤ cost(input[i], input[l])\n\nFrom this we know that if the current element increases the skip cost of some unfinished gram (prefix) to more than k, then all following elements will increase the cost at least as much, so we can discard the prefix.\n\nAn optional predicate function can be provided to test potential neighbors in a skipgram. By default, all input elements are allowed to be neighbors.\n\nIf element_type is provided, the resulting iterator will have a corresponding eltype. If not, it will try to guess the element type based on the input\'s eltype.\n\nIf stable is true, then the skipgrams will be ordered with respect to the position of their first element in the input stream. If stable is false (default), no particular order is guaranteed.\n\nExamples\n\nfunction skipgrams(itr, k, n)\n    cost(x, y) = y[1] - x[1] - 1\n    grams = skipgrams_itr(enumerate(itr), k, n, cost)\n    map(sg -> map(x -> x[2], sg), grams)\nend\n\n\n\n"
+    "category": "function",
+    "text": "skipgrams_itr(input, k, n, cost[, pred][, element_type=type][, stable=false])\n\nReturns an iterator over all generalized k-skip-n-grams found in input.\n\nInstead of defining skips as index steps > 1, a general cost function is used. k is then an upper bound to the sum of all distances between consecutive elements in the gram.\n\nThe input needs to be iterable and monotonous with respect to the cost to a previous element:\n\n∀ i<j<l: cost(input[i], input[j]) ≤ cost(input[i], input[l])\n\nFrom this we know that if the current element increases the skip cost of some unfinished gram (prefix) to more than k, then all following elements will increase the cost at least as much, so we can discard the prefix.\n\nAn optional predicate function can be provided to filter potential skipgrams early. The predicate takes a PersistentList of input elements in reverse order (i.e., starting with the element that was added last). The predicate is applied to every prefix, so the list will have <=n elements. By default, all sequences of input elements are valid.\n\nIf element_type is provided, the resulting iterator will have a corresponding eltype. If not, it will try to guess the element type based on the input\'s eltype.\n\nIf stable is true, then the skipgrams will be ordered with respect to the position of their first element in the input stream. If stable is false (default), no particular order is guaranteed.\n\nExamples\n\nfunction skipgrams(itr, k, n)\n    cost(x, y) = y[1] - x[1] - 1\n    grams = skipgrams_itr(enumerate(itr), k, n, cost)\n    map(sg -> map(x -> x[2], sg), grams)\nend\n\n\n\n"
 },
 
 {
@@ -404,7 +412,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.External.HumDrumString",
     "page": "Reference",
     "title": "DigitalMusicology.External.HumDrumString",
-    "category": "Type",
+    "category": "type",
     "text": "HumDrumString(\"some humdrum\")\n\nA wrapper class that enables rendering and midi playback of humdrum code in the browser using verovio. When a HumDrumString is the result of a jupyter notebook cell, its content will be rendered to the output cell automatically.\n\n\n\n"
 },
 
@@ -412,7 +420,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.External.musescore",
     "page": "Reference",
     "title": "DigitalMusicology.External.musescore",
-    "category": "Function",
+    "category": "function",
     "text": "musescore(id, [corpus])\n\nOpens the midi file of the piece that id refers to using Musescore. If corpus is not supplied, the current default corpus is used.\n\n\n\n"
 },
 
@@ -420,7 +428,7 @@ var documenterSearchIndex = {"docs": [
     "location": "reference.html#DigitalMusicology.External.verovio-Tuple{}",
     "page": "Reference",
     "title": "DigitalMusicology.External.verovio",
-    "category": "Method",
+    "category": "method",
     "text": "verovio()\n\nSet up display of HumDrumStrings in Jupyter Notebooks.\n\n\n\n"
 },
 
