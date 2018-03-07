@@ -12,23 +12,23 @@ using Missings: ismissing, missing, Missing
 
 using DigitalMusicology.Helpers: witheltype
 
-export lac, use_lac, meta, year_bins
+export lac, uselac, meta, yearbins
 
 struct LACCorpus <: Corpus
-    data_dir :: String
-    # piece_ids :: Vector{String}
+    datadir :: String
+    # pieceids :: Vector{String}
     subdirs :: Dict{String}
     dirpieces :: Dict{String}
     meta :: DataFrame
 end
 
 # should this point to .tsv? -> adapt `read` in `lac`
-const meta_file = "midi-metadata.csv"
+const metafile = "midi-metadata.csv"
 
-data_dir(crp::LACCorpus) = crp.data_dir
+datadir(crp::LACCorpus) = crp.datadir
 
 function lac(dir :: String)
-    meta = read(joinpath(dir, meta_file))
+    meta = read(joinpath(dir, metafile))
     meta[:id] = map(first∘splitext, meta[:file_name])
 
     subdirs = Dict{String, Set{String}}()
@@ -49,16 +49,16 @@ function lac(dir :: String)
     LACCorpus(dir, subdirs, dirpieces, meta)
 end
 
-use_lac(dir :: String) = set_corpus(lac(dir))
+uselac(dir :: String) = setcorpus(lac(dir))
 
 # piece ids and directories
 # -------------------------
 
-all_pieces(l::LACCorpus) = l.meta[:id]
+allpieces(l::LACCorpus) = l.meta[:id]
 
-function all_pieces(dir, l::LACCorpus)
+function allpieces(dir, l::LACCorpus)
     ds = dirs(dir)
-    isempty(ds) ? pieces(dir) : chain(pieces(dir), flatten(map(all_pieces, ds)))
+    isempty(ds) ? pieces(dir) : chain(pieces(dir), flatten(map(allpieces, ds)))
 end
 
 function dirs(dir, l::LACCorpus)
@@ -71,8 +71,8 @@ function pieces(dir, l::LACCorpus)
     map(p -> pfx * p, get(l.dirpieces, dir, Set{String}()))
 end
 
-piece_path(id::String, cat::String, ext::String, crp::LACCorpus) =
-    joinpath(data_dir(crp), cat, id * ext)
+piecepath(id::String, cat::String, ext::String, crp::LACCorpus) =
+    joinpath(datadir(crp), cat, id * ext)
 
 findpieces(searchstr::AbstractString, crp::LACCorpus) = findpieces(Regex(string(searchstr)), crp)
 
@@ -94,9 +94,9 @@ findpieces(searchstr::Regex, crp::LACCorpus) =
 
 Returns the corpus' meta-dataframe.
 """
-meta(c::LACCorpus = get_corpus()) = c.meta
+meta(c::LACCorpus = getcorpus()) = c.meta
 
-# pieces_where(colum::Symbol, value, c::LACCorpus = get_corpus()) =
+# pieceswhere(colum::Symbol, value, c::LACCorpus = getcorpus()) =
 #     @from row in meta(c) begin
 #         @where i[column] == value
 #         @select i.id
@@ -112,7 +112,7 @@ function parseYear(str) :: Union{Missing,Int}
 end
 
 """
-    year_bins(timespan [, reference=0 [, corpus]])
+    yearbins(timespan [, reference=0 [, corpus]])
 
 Returns piece ids in a list of bins as named tuples
 `(onset, offset, bin, ids)`.
@@ -122,7 +122,7 @@ are returned.
 The year is read from the `composition_year` column by taking the first
 sequence of 4 digits in each row.
 """
-function year_bins(timespan::Int, reference::Int = 0, c::LACCorpus = get_corpus())
+function yearbins(timespan::Int, reference::Int = 0, c::LACCorpus = getcorpus())
     df = meta(c)
     #miny = minimum(df[:composition_year])
     #maxy = maximum(df[:composition_year])
@@ -146,45 +146,45 @@ end
 # -------
 
 function groups_to_slices(groups::GroupedDataFrame)
-    mk_slice(group)::Slice{Int, Vector{MidiPitch}} =
+    mkslice(group)::Slice{Int, Vector{MidiPitch}} =
         Slice(group[:onset][1],
               group[:duration][1],
               midis(group[:pitch]))
-    witheltype(imap(mk_slice, groups), Slice{Int, Vector{MidiPitch}})
+    witheltype(imap(mkslice, groups), Slice{Int, Vector{MidiPitch}})
 end
 
 # piece accessors
 # ---------------
 
 # piece as a slice data frame
-function _get_piece(id, ::Val{:slices_df}, crp::LACCorpus)
-    fn = piece_path(id, "slices", ".tsv", crp)
+function _getpiece(id, ::Val{:slices_df}, crp::LACCorpus)
+    fn = piecepath(id, "slices", ".tsv", crp)
     read(fn, delim='\t', nullable=false)
 end
 
 # piece as a Slice iterator
-function _get_piece(id, ::Val{:slices}, corpus::LACCorpus)
-    df = get_piece(id, :slices_df, corpus)
+function _getpiece(id, ::Val{:slices}, corpus::LACCorpus)
+    df = getpiece(id, :slices_df, corpus)
     groups = groupby(df, :onset)
     groups_to_slices(groups)
 end
 
-function _get_piece(id, ::Val{:notes}, crp::LACCorpus)
-    fn = piece_path(id, "m", ".mid", crp)
+function _getpiece(id, ::Val{:notes}, crp::LACCorpus)
+    fn = piecepath(id, "m", ".mid", crp)
     midifilenotes(fn)
 end
 
-function _get_piece(id, ::Val{:notes_secs}, crp::LACCorpus)
-    df = get_piece(id, :notes, crp)
+function _getpiece(id, ::Val{:notes_secs}, crp::LACCorpus)
+    df = getpiece(id, :notes, crp)
     [TimedNote(n[:pitch], n[:onset_secs], n[:offset_secs]) for n in eachrow(df)]
 end
 
-function _get_piece(id, ::Val{:notes_wholes}, crp::LACCorpus)
-    df = get_piece(id, :notes, crp)
+function _getpiece(id, ::Val{:notes_wholes}, crp::LACCorpus)
+    df = getpiece(id, :notes, crp)
     [TimedNote(n[:pitch], n[:onset_wholes], n[:offset_wholes]) for n in eachrow(df)]
 end
 
-_get_piece(id, ::Val{:meta}, corpus::LACCorpus) =
+_getpiece(id, ::Val{:meta}, corpus::LACCorpus) =
     filter(r -> r[:id] == id, corpus.meta)[1, :]
 
 end #module

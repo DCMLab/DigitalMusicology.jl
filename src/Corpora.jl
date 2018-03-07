@@ -20,7 +20,7 @@ global corpus = NoCorpus()
 
 "Get the currently set corpus.
 Throws an error, if the corpus is not set."
-function get_corpus()
+function getcorpus()
     global corpus
     if isa(corpus, NoCorpus)
         error("Please set a default corpus with set_corpus(corpus).")
@@ -30,13 +30,13 @@ function get_corpus()
 end
 
 "Set the current corpus."
-function set_corpus(crp::Corpus)
+function setcorpus(crp::Corpus)
     global corpus
     corpus = crp
 end
 
 "Reset the current corpus to `NoCorpus()`."
-function unset_corpus()
+function unsetcorpus()
     global corpus
     corpus = NoCorpus()
 end
@@ -45,41 +45,41 @@ end
 # ================
 
 """
-    supported_forms([corpus])
+    supportedforms([corpus])
 
 Returns a list of symbols that can be passed to the `form` parameter
 in piece loading functions for the given corpus.
 """
-function supported_forms end
-supported_forms() = supported_forms(get_corpus())
+function supportedforms end
+supportedforms() = supportedforms(getcorpus())
 
-supported_forms(::NoCorpus) = []
+supportedforms(::NoCorpus) = []
 
 ## Piece IDs and Directories
 ## -------------------------
 
 """
-    all_pieces([corpus])
+    allpieces([corpus])
 
 Returns all piece ids in `corpus`.
 
-    all_pieces(dir, [corpus])
+    allpieces(dir, [corpus])
 
 Returns all piece ids in and below `dir`.
 """
-function all_pieces end
-all_pieces() = all_pieces(get_corpus())
-all_pieces(dir) = all_pieces(dir, get_corpus())
-all_pieces(c::Corpus) = all_pieces(top_dir(c), c)
+function allpieces end
+allpieces() = allpieces(getcorpus())
+allpieces(dir) = allpieces(dir, getcorpus())
+allpieces(c::Corpus) = allpieces(topdir(c), c)
 
 """
-    top_dir([corpus])
+    topdir([corpus])
 
 Returns the main piece directory of `corpus`.
 """
-function top_dir end
-top_dir() = top_dir(get_corpus())
-top_dir(::Corpus) = "./"
+function topdir end
+topdir() = topdir(getcorpus())
+topdir(::Corpus) = "./"
 
 """
     dirs([corpus])
@@ -91,9 +91,9 @@ Returns all top-level piece directories in `corpus`.
 Returns all direct subdirectories of `dir`.
 """
 function dirs end
-dirs() = dirs(get_corpus())
-dirs(dir) = dirs(dir, get_corpus())
-dirs(c::Corpus) = dirs(top_dir(c), c)
+dirs() = dirs(getcorpus())
+dirs(dir) = dirs(dir, getcorpus())
+dirs(c::Corpus) = dirs(topdir(c), c)
 
 """
     pieces(dir, [corpus])
@@ -101,7 +101,7 @@ dirs(c::Corpus) = dirs(top_dir(c), c)
 Returns the piece ids in `dir`.
 """
 function pieces end
-pieces(dir) = pieces(dir, get_corpus())
+pieces(dir) = pieces(dir, getcorpus())
 
 """
     ls([corpus])
@@ -113,9 +113,9 @@ Returns all top-level pieces and directories in `corpus` at once.
 Returns all subdirectories and pieces in `dir` at once.
 """
 function ls end
-ls() = ls(get_corpus())
-ls(dir) = ls(dir, get_corpus())
-ls(c::Corpus) = ls(top_dir(c), c)
+ls() = ls(getcorpus())
+ls(dir) = ls(dir, getcorpus())
+ls(c::Corpus) = ls(topdir(c), c)
 ls(dir, c::Corpus) = collect(chain(dirs(dir, c), pieces(dir, c)))
 
 """
@@ -125,22 +125,22 @@ Searches the corpus for pieces matching searchstring.
 Returns a dataframe of matching rows.
 """
 function findpiece end
-findpieces(searchstr) = findpieces(searchstr, get_corpus())
+findpieces(searchstr) = findpieces(searchstr, getcorpus())
 
 ## Loading Pieces
 ## --------------
 
 """
-    piece_path(id, cat, ext, [corpus])
+    piecepath(id, cat, ext, [corpus])
 
 Returns the full path to the file of piece `id`
 in category `cat` with extension `ext` in `corpus`.
 """
-function piece_path end
-piece_path(id, cat, ext) = piece_path(id, cat, ext, get_corpus())
+function piecepath end
+piecepath(id, cat, ext) = piecepath(id, cat, ext, getcorpus())
 
 """
-    get_piece(id, form, [corpus])
+    getpiece(id, form, [corpus])
 
 Loads a piece in some representation.
 Piece ids are strings, but their exact format depends on the given corpus.
@@ -151,19 +151,19 @@ Forms are identified by keywords, e.g.
 * `:notes`
 but the supported keywords depend on the corpus.
 """
-get_piece(id, form::Symbol, corpus = get_corpus()) =
-    _get_piece(id, Val{form}(), corpus)
+getpiece(id, form::Symbol, corpus = getcorpus()) =
+    _getpiece(id, Val{form}(), corpus)
 
 """
-    get_pieces(ids, form, [data_dir])
+    getpieces(ids, form, [datadir])
 
-Like `get_piece` but takes multiple ids and returns
+Like `getpiece` but takes multiple ids and returns
 an iterator over the resulting pieces.
 """
-get_pieces(ids, form, corpus = get_corpus(); skipmissings=false) = begin
+getpieces(ids, form, corpus = getcorpus(); skipmissings=false) = begin
     pieces = imap(ids) do id
         try
-            get_piece(id, form, corpus)
+            getpiece(id, form, corpus)
         catch
             missing
         end
@@ -173,13 +173,13 @@ get_pieces(ids, form, corpus = get_corpus(); skipmissings=false) = begin
 end
 
 """
-_get_piece(id, Val{form}(), corpus)
+_getpiece(id, Val{form}(), corpus)
 
 This function is responsible for actually loading a piece.
-New corpus implementations should implement this method instead of `get_piece`,
+New corpus implementations should implement this method instead of `getpiece`,
 which is called by the user.
 """
-function _get_piece end
+function _getpiece end
 
 # load submodules
 # ---------------
