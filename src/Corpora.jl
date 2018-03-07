@@ -5,8 +5,8 @@ using Missings: missing, skipmissing
 using Reexport.@reexport
 
 export Corpus, NoCorpus
-export get_corpus, set_corpus
 export supported_forms, all_pieces, top_dir, dirs, pieces, ls
+export get_corpus, set_corpus, unset_corpus
 export piece_path, get_piece, get_pieces, _get_piece
 
 # Corpus and current corpus
