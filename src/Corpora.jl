@@ -5,8 +5,8 @@ using Missings: missing, skipmissing
 using Reexport.@reexport
 
 export Corpus, NoCorpus
-export supported_forms, all_pieces, top_dir, dirs, pieces, ls
 export get_corpus, set_corpus, unset_corpus
+export supported_forms, all_pieces, top_dir, dirs, pieces, ls, findpieces
 export piece_path, get_piece, get_pieces, _get_piece
 
 # Corpus and current corpus
@@ -117,6 +117,15 @@ ls() = ls(get_corpus())
 ls(dir) = ls(dir, get_corpus())
 ls(c::Corpus) = ls(top_dir(c), c)
 ls(dir, c::Corpus) = collect(chain(dirs(dir, c), pieces(dir, c)))
+
+"""
+    findpiece(searchstring[, corpus])
+
+Searches the corpus for pieces matching searchstring.
+Returns a dataframe of matching rows.
+"""
+function findpiece end
+findpieces(searchstr) = findpieces(searchstr, get_corpus())
 
 ## Loading Pieces
 ## --------------

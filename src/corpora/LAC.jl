@@ -74,8 +74,23 @@ end
 piece_path(id::String, cat::String, ext::String, crp::LACCorpus) =
     joinpath(data_dir(crp), cat, id * ext)
 
+findpieces(searchstr::AbstractString, crp::LACCorpus) = findpieces(Regex(string(searchstr)), crp)
+
+findpieces(searchstr::Regex, crp::LACCorpus) =
+    @from row in meta(crp) begin
+        @where ismatch(searchstr, row[:id]) ||
+            ismatch(searchstr, row[:composer]) ||
+            ismatch(searchstr, get(row[:work_category], "")) ||
+            ismatch(searchstr, row[:work_title]) ||
+            ismatch(searchstr, get(row[:composition_year], "")) ||
+            ismatch(searchstr, get(row[:musical_key], "")) ||
+            ismatch(searchstr, get(row[:genre], ""))
+        @select row
+        @collect DataFrame
+    end
+
 """
-    meta([LACCorpus])
+    meta([crp::LACCorpus])
 
 Returns the corpus' meta-dataframe.
 """
