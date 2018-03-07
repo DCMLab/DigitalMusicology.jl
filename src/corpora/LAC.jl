@@ -74,7 +74,7 @@ end
 piecepath(id::String, cat::String, ext::String, crp::LACCorpus) =
     joinpath(datadir(crp), cat, id * ext)
 
-findpieces(searchstr::AbstractString, crp::LACCorpus) = findpieces(Regex(string(searchstr)), crp)
+findpieces(searchstr::AbstractString, crp::LACCorpus) = findpieces(Regex(string(searchstr), "i"), crp)
 
 findpieces(searchstr::Regex, crp::LACCorpus) =
     @from row in meta(crp) begin
