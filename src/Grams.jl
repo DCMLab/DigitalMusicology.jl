@@ -331,11 +331,11 @@ function Base.next(itr::SkipGramItr{T}, st::SkipGramItrState{T,I}) where {T, I}
     end
 end
 
-Base.iteratorsize(itr::SkipGramItr) = Base.SizeUnknown()
+Base.iteratorsize(itrtype::Type{I}) where {I<:SkipGramItr} = Base.SizeUnknown()
 
-Base.iteratoreltype(itr::SkipGramItr) = Base.HasEltype()
+Base.iteratoreltype(itrtype::Type{I}) where {I<:SkipGramItr} = Base.HasEltype()
 
-Base.eltype(itr::SkipGramItr{T}) where T = Vector{T}
+Base.eltype(itrtype::Type{SkipGramItr{T}}) where {T} = Vector{T}
 
 ## stable skipgram iterator
 ## ------------------------
