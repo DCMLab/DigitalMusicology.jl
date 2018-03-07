@@ -222,8 +222,11 @@ unfinished gram (prefix) to more than `k`,
 then all following elements will increase the cost at least as much,
 so we can discard the prefix.
 
-An optional predicate function can be provided to test potential neighbors in a skipgram.
-By default, all input elements are allowed to be neighbors.
+An optional predicate function can be provided to filter potential skipgrams early.
+The predicate takes a `PersistentList` of input elements *in reverse order*
+(i.e., starting with the element that was added last).
+The predicate is applied to every prefix, so the list will have <=n elements.
+By default, all sequences of input elements are valid.
 
 If `element_type` is provided, the resulting iterator will have a corresponding `eltype`.
 If not, it will try to guess the element type based on the input's `eltype`.
@@ -243,7 +246,7 @@ end
 ```
 """
 skipgrams_itr(itr, k::Float64, n::Int, cost::Function,
-              pred::Function = ((x1, x2) -> true);
+              pred::Function = (x -> true);
               element_type=eltype(itr),
               stable=false) =
                   if stable
@@ -270,7 +273,7 @@ function process_candidate(itr::SkipGramFastItr{T},
     old_closed = filter(p -> total_cost(p, candidate) <= itr.k, st.prefixes)
 
     # check for compatibility with candidate
-    extendable = filter(p -> itr.pred(first(p[3]), candidate), old_closed)
+    extendable = filter(p -> itr.pred(cons(candidate, p[3])), old_closed)
 
     # 3. extend prefixes
     extended = map(p -> extend_prefix(p, candidate), extendable)
@@ -385,7 +388,7 @@ function process_candidate(itr::SkipGramStableItr{T},
     old_closed = filter(p -> total_cost(p, candidate) <= itr.k, st.prefixes)
 
     # check for compatibility with candidate
-    extendable = filter(p -> itr.pred(first(p[3]), candidate), old_closed)
+    extendable = filter(p -> itr.pred(cons(candidate, p[3])), old_closed)
 
     # 3. extend prefixes
     extended = map(p -> extend_prefix(p, candidate), extendable)
