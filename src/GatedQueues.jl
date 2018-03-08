@@ -61,11 +61,11 @@ end
 """
     release(q, gate) -> released, q'
 
-Returns all values with a key < `gate`
+Returns all values with a key <= `gate`
 and the queue without these entries.
 """
 function release(q::GatedQueue{K,V}, gate::K) where {K, V}
-    pred(x) = x[1] < gate
+    pred(x) = x[1] <= gate
     newq = GatedQueue{K,V}(dropwhile(pred, q.entries))
     released = takewhile(pred, q.entries)
     (map(x->x[2], released), newq)

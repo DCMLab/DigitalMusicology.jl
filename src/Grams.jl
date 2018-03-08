@@ -276,6 +276,23 @@ function process_candidate(itr::SkipGramStableItr{T},
     # 2. remove prefixes that cannot be completed anymore
     old_closed = filter(p -> total_cost(p, candidate) <= itr.k, st.prefixes)
 
+    # release grams that cannot be preceded
+    # why is there no key argument for minimum???
+    gate = st.index
+    for oc in old_closed
+        if oc[4] < gate
+            gate = oc[4]
+        end
+    end
+    # release all safe grams from the queue
+    released, qrel = release(st.queue, gate)
+    if isempty(released)
+        out = Vector{Vector{T}}()
+    else
+        out = Iterators.flatten(released)
+    end
+
+
     # check for compatibility with candidate
     extendable = filter(p -> itr.pred(cons(candidate, p[3])), old_closed)
 
@@ -285,21 +302,7 @@ function process_candidate(itr::SkipGramStableItr{T},
     # 4. collect completed grams
     newgrams = map(prefix_to_gram, filter(prefix_complete, extended))
     # add all new grams to the queue
-    qadd = enqueue_grams(st.queue, newgrams)
-    # why is there no key argument for minimum???
-    gate = st.index
-    for oc in old_closed
-        if oc[4] < gate
-            gate = oc[4]
-        end
-    end
-    # release all safe grams from the queue
-    released, qnew = release(qadd, gate)
-    if isempty(released)
-        out = Vector{Vector{T}}()
-    else
-        out = Iterators.flatten(released)
-    end
+    qnew = enqueue_grams(qrel, newgrams)
     
     # 5. collect new prefixes
     nextpfxs = append!(old_closed, filter!(!prefix_complete, extended))
