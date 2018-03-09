@@ -14,7 +14,7 @@ using DigitalMusicology.GatedQueues
     q3 = reenqueue(q3, 3, "d")
     @test values(q3) == ["a", "b", "d"]
 
-    rel, q4 = release(q3, 3)
+    rel, q4 = release(q3, 2)
     @test rel == ["a", "b"]
     @test values(q4) == ["d"]
 
