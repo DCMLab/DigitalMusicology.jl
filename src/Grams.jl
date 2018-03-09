@@ -72,6 +72,7 @@ struct SkipGramFastItr{T} <: SkipGramItr{T}
     n :: Int
     cost :: Function
     pred :: Function
+    bias :: Float64
 end
 
 const SGPrefix{T} = Tuple{Int, Float64, plist{T}}
@@ -90,10 +91,11 @@ struct SkipGramStableItr{T} <: SkipGramItr{T}
     n :: Int
     cost :: Function
     pred :: Function
+    bias :: Float64
 end
 
 """
-    skipgrams(input, k, n, cost[, pred][, element_type=type][, stable=false])
+    skipgrams(input, k, n, cost [, pred] [, element_type=type] [, stable=false] [, p=1.0])
 
 Returns an iterator over all generalized `k`-skip-`n`-grams found in `input`.
 
@@ -123,6 +125,14 @@ If `stable` is `true`, then the skipgrams will be ordered with respect to the po
 of their first element in the input stream.
 If `stable` is `false` (default), no particular order is guaranteed.
 
+The parameter `p` allows to decide randomly (with probability p) whether a skipgram is
+included in the output in cases where the full list of skipgrams is to long.
+A coin with bias p^(1/n) will be flipped for every prefix applying to all completions
+of that prefix.
+Only if the coin flip for every prefix is positive, the skipgram will be included.
+This allows to save computation time by throwing away all completions of a discarded prefix,
+but it might introduce artifacts for the same reason.
+
 # Examples
 
 ```julia
@@ -133,15 +143,18 @@ function indexskipgrams(itr, k, n)
 end
 ```
 """
-skipgrams(itr, k::Float64, n::Int, cost::Function,
-          pred::Function = (x -> true);
-          element_type=eltype(itr),
-          stable=false) =
-              if stable
-                  SkipGramStableItr{element_type}(itr, k, n, cost, pred)
-              else
-                  SkipGramFastItr{element_type}(itr, k, n, cost, pred)
-              end
+function skipgrams(itr, k::Float64, n::Int, cost::Function,
+                   pred::Function = (x -> true);
+                   element_type=eltype(itr),
+                   stable=false,
+                   p=1.0)
+    bias = p^(1/n)
+    if stable
+        SkipGramStableItr{element_type}(itr, k, n, cost, pred, p)
+    else
+        SkipGramFastItr{element_type}(itr, k, n, cost, pred, p)
+    end
+end
 
 ## unstable skipgrams
 ## ------------------
@@ -162,7 +175,11 @@ function process_candidate(itr::SkipGramFastItr{T},
     old_closed = filter(p -> total_cost(p, candidate) <= itr.k, st.prefixes)
 
     # check for compatibility with candidate
-    extendable = filter(p -> itr.pred(cons(candidate, p[3])), old_closed)
+    extendable = if itr.bias==1.0 # stochastic?
+        filter(p -> itr.pred(cons(candidate, p[3])), old_closed)
+    else # flip coin before extending
+        filter(p -> itr.pred(cons(candidate, p[3])) && rand() < itr.bias, old_closed)
+    end
 
     # 3. extend prefixes
     extended = map(p -> extend_prefix(p, candidate), extendable)
@@ -292,9 +309,12 @@ function process_candidate(itr::SkipGramStableItr{T},
         out = Iterators.flatten(released)
     end
 
-
     # check for compatibility with candidate
-    extendable = filter(p -> itr.pred(cons(candidate, p[3])), old_closed)
+    extendable = if itr.bias==1.0 # stochastic?
+        filter(p -> itr.pred(cons(candidate, p[3])), old_closed)
+    else # flip coin before extending
+        filter(p -> itr.pred(cons(candidate, p[3])) && rand() < itr.bias, old_closed)
+    end
 
     # 3. extend prefixes
     extended = map(p -> extend_prefix(p, candidate), extendable)
