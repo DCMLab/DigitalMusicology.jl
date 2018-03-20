@@ -148,11 +148,11 @@ function skipgrams(itr, k::Float64, n::Int, cost::Function,
                    element_type=eltype(itr),
                    stable=false,
                    p=1.0)
-    bias = p^(1/n)
+    bias = p^(1/(n-1))
     if stable
-        SkipGramStableItr{element_type}(itr, k, n, cost, pred, p)
+        SkipGramStableItr{element_type}(itr, k, n, cost, pred, bias)
     else
-        SkipGramFastItr{element_type}(itr, k, n, cost, pred, p)
+        SkipGramFastItr{element_type}(itr, k, n, cost, pred, bias)
     end
 end
 
