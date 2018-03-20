@@ -199,17 +199,16 @@ function process_candidate(itr::SkipGramFastItr{T},
     SkipGramFastItrState{T,I}(nextstate, nextpfxs, out, start(out))
 end
 
-new_grams(itr::SkipGramFastItr{T}, st::SkipGramFastItrState{T}) where T =
-    if done(itr.input, st.instate)
-        st
-    else
-        new = process_candidate(itr, st)
-        if done(new.out, new.outstate)
-            new_grams(itr, new)
+function new_grams(itr::SkipGramFastItr{T}, st::SkipGramFastItrState{T}) where T
+    while done(st.out, st.outstate)
+        if done(itr.input, st.instate)
+            return st
         else
-            new
+            st = process_candidate(itr, st)
         end
     end
+    st
+end
 
 ## iterator interface
 
@@ -345,30 +344,29 @@ function Base.start(itr::SkipGramStableItr{T}) where T
     new_grams(itr, init)
 end
 
-new_grams(itr::SkipGramStableItr{T}, st::SkipGramStableItrState{T,I}) where {T,I} =
-    if done(itr.input, st.instate)
-        if isempty(st.queue)
-            st
+function new_grams(itr::SkipGramStableItr{T}, st::SkipGramStableItrState{T,I}) where {T,I}
+    while done(st.out, st.outstate)
+        if done(itr.input, st.instate)
+            if isempty(st.queue)
+                return st
+            else
+                released, qnew = release(st.queue, st.index)
+                out = Iterators.flatten(released)
+                return SkipGramStableItrState{T,I}(
+                    st.instate,
+                    st.prefixes,
+                    qnew,
+                    st.index,
+                    out,
+                    start(out)
+                )
+            end
         else
-            released, qnew = release(st.queue, st.index)
-            out = Iterators.flatten(released)
-            SkipGramStableItrState{T,I}(
-                st.instate,
-                st.prefixes,
-                qnew,
-                st.index,
-                out,
-                start(out)
-            )
-        end
-    else
-        new = process_candidate(itr, st)
-        if done(new.out, new.outstate)
-            new_grams(itr, new)
-        else
-            new
+            st = process_candidate(itr, st)
         end
     end
+    st
+end
 
 nextstate(st::SkipGramStableItrState{T,I}, rest) where {T,I} =
     SkipGramStableItrState{T,I}(st.instate, st.prefixes, st.queue, st.index, st.out, rest)

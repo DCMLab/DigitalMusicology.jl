@@ -59,7 +59,7 @@ done(twi::TakeWhileItr, s) =
 
 iteratoreltype(::Type{TakeWhileItr{T}}) where T = iteratoreltype(T)
 
-eltype(twi::TakeWhileItr) = eltype(twi.itr)
+eltype(::Type{TakeWhileItr{T}}) where T = eltype(T)
 
 iteratorsize(::Type{TakeWhileItr{T}}) where T = Base.SizeUnknown()
 
@@ -71,11 +71,11 @@ iteratorsize(::TakeWhileItr{T}) where T = Base.SizeUnknown()
 ## dropwhile
 
 dropwhile(f, lst::EmptyList) = lst
-dropwhile(f, lst::PersistentList) =
-    if f(head(lst))
-        dropwhile(f, tail(lst))
-    else
-        lst
+function dropwhile(f, lst::PersistentList)
+    while !isempty(lst) && f(head(lst))
+        lst = tail(lst)
     end
+    lst
+end
 
 end # module
