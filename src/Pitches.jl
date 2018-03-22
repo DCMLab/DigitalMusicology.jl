@@ -45,6 +45,8 @@ show(io::IO, p::MidiPitch) = show(io, p.pitch)
 
 convert(::Type{MidiPitch}, x::N) where {N<:Number} = midi(convert(Int, x))
 convert(::Type{Pitch}, x::N) where {N<:Number} = midi(convert(Int, x))
+convert(::Type{Int}, p::MidiPitch) = p.pitch
+convert(::Type{N}, p::MidiPitch) where {N<:Number} = convert(N, p.pitch)
 
 +(p1::MidiPitch, p2::MidiPitch) = midi(p1.pitch + p2.pitch)
 
