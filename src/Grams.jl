@@ -183,6 +183,7 @@ function process_candidate(itr::SkipGramFastItr{T},
 
     # 3. extend prefixes
     extended = map(p -> extend_prefix(p, candidate), extendable)
+    push!(extended, mk_prefix(candidate))
 
     # 4. collect completed grams
     # out = plist{Vector{T}}(map(prefix_to_gram, filter(prefix_complete, extended)))
@@ -193,7 +194,6 @@ function process_candidate(itr::SkipGramFastItr{T},
     # incomplete = filter(!prefix_complete, extended)
     # nextpfxs   = conj(old_closed ∪ incomplete, newpfx)
     nextpfxs = append!(old_closed, filter!(!prefix_complete, extended))
-    push!(nextpfxs, mk_prefix(candidate))
     
     #...
     SkipGramFastItrState{T,I}(nextstate, nextpfxs, out, start(out))
@@ -317,6 +317,7 @@ function process_candidate(itr::SkipGramStableItr{T},
 
     # 3. extend prefixes
     extended = map(p -> extend_prefix(p, candidate), extendable)
+    push!(extended, mk_prefix(candidate))
 
     # 4. collect completed grams
     newgrams = map(prefix_to_gram, filter(prefix_complete, extended))
@@ -325,7 +326,6 @@ function process_candidate(itr::SkipGramStableItr{T},
     
     # 5. collect new prefixes
     nextpfxs = append!(old_closed, filter!(!prefix_complete, extended))
-    push!(nextpfxs, mk_prefix(candidate))
     
     #...
     SkipGramStableItrState{T,I}(nextstate, nextpfxs, qnew, st.index+1, out, start(out))
