@@ -184,8 +184,10 @@ function _getpiece end
 # load submodules
 # ---------------
 
-
 include("corpora/LAC.jl")
 @reexport using .LAC
+
+include("corpora/Kern.jl")
+@reexport using .Kern
 
 end # module
