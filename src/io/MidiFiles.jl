@@ -350,7 +350,7 @@ function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, or
         key_sharps=key_sharps,
         key_major=key_major
     )
-    sort!(out, cols=[:onset_ticks, :track, :channel])
+    sort!(out, [:onset_ticks, :track, :channel])
     out
 end
 
