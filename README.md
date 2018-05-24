@@ -7,3 +7,27 @@
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://dcmlab.github.io/DigitalMusicology.jl/latest)
 
 This is the Julia toolbox of the Digital and Cognitive Musicology Lab (DCML) at the [École polytechnique fédérale de Lausanne (EPFL)](https://www.epfl.ch/index.en.html). 
+
+Some ideas:
+- a common interface for loading data organized in corpora
+  - identifies (+ ability to look up / search them)
+  - `getpiece(id, :fmt)`
+- no single data structure for representing everything
+  - use representation appropriate to problem
+  - allow lossless conversion where possible
+  - allow lossy conversion or conversion with additional info where possible
+  - implement algorithms generically to work on different representations
+- separate plotting library (to be published)
+
+What's there:
+- basic representations (pitches, notes, some collections)
+- grams and skipgrams
+- MIDI import
+- Various corpus formats (MIDI archive, csapp kern corpora, ABC Project)
+
+What's missing:
+- good documentation with introduction
+- more advanced represenations
+- import / export formats
+- score plotting in notebooks (output works, generation missing)
+- all kinds of general functionality
