@@ -21,6 +21,8 @@ include("PitchOps.jl")
 include("Timed.jl")
 @reexport using .Timed
 
+include("Meter.jl")
+@reexport using .Meter
 # Musical Structures
 
 include("PitchCollections.jl")
