@@ -29,7 +29,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Introduction",
     "title": "Documentation",
     "category": "section",
-    "text": "Take a look at the referenceTutorials and explanations will follow."
+    "text": "Take a look at the reference.Tutorials and explanations will follow."
 },
 
 {
@@ -249,19 +249,59 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#DigitalMusicology.Meter.TimeSignature",
+    "page": "Reference",
+    "title": "DigitalMusicology.Meter.TimeSignature",
+    "category": "type",
+    "text": "TimeSignature(num, denom)\n\nA simple time signature consisting of numerator and denomenator.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Meter.defaultmeter-Tuple{DigitalMusicology.Meter.TimeSignature}",
+    "page": "Reference",
+    "title": "DigitalMusicology.Meter.defaultmeter",
+    "category": "method",
+    "text": "defaultmeter(timesig [, warning=true])\n\nFor a time signature with sufficiently clear meter, returns the meter of the time signature. The meter is given as a list of group sizes in beats, i.e., only the numerator matters. For example, 2/2 -> [1], 4/4 -> [2,2], 3/4 -> [3], 3/8 -> 3, 6/8 -> [3,3], 12/8 -> [3,3,3,3].\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Meter.metricweight-Tuple{Rational{Int64},Array{Int64,1},Rational{Int64}}",
+    "page": "Reference",
+    "title": "DigitalMusicology.Meter.metricweight",
+    "category": "method",
+    "text": "metricweight(barpos, meter, beat)\n\nReturns the metric weight of a note starting at barpos from the beginning of a bar according to a meter. The meter is provided as a vector of group sizes in beats. E.g., a 4/4 meter consists of 2 groups of two quarters, so meter would be [2,2] and beat would be 1/4. The total length of the bar should be a multiple of beat. Each onset on a beat gets weight 1, the first beat of each group gets weight 2, and the first beat of the bar gets weight 4 (except if there is only one group, then 2). The weight of each subbeat is 1/2^p, where p is the number of prime factors needed to express the subbeat relative to its preceding beat and the beat unit. This way, tuplet divisions can be handled properly.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Meter.metricweight-Tuple{Rational{Int64},DigitalMusicology.Meter.TimeSignature}",
+    "page": "Reference",
+    "title": "DigitalMusicology.Meter.metricweight",
+    "category": "method",
+    "text": "metricweight(barpos, timesig)\n\nTries to guess meter and beat from timesig. Otherwise identical to metricweight(barpos, meter, beat).\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Meter.@time_str-Tuple{Any}",
+    "page": "Reference",
+    "title": "DigitalMusicology.Meter.@time_str",
+    "category": "macro",
+    "text": "time\"num/denom\"\n\nCreates a TimeSignature object with numerator num and denominator denom.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#Meter-1",
+    "page": "Reference",
+    "title": "Meter",
+    "category": "section",
+    "text": "Time signatures and MeterModules = [DigitalMusicology.Meter]"
+},
+
+{
     "location": "reference.html#DigitalMusicology.Slices.Slice",
     "page": "Reference",
     "title": "DigitalMusicology.Slices.Slice",
     "category": "type",
     "text": "Slice(onset::N, duration::N, content::T) where {N<:Number, T}\n\nA slice of a pitches in a piece. Timing information (type N) is encoded as onset and duration with methods for obtaining and modifying the offset directly. The content of a slice is typically some representation of simultaneously sounding pitches (type T).\n\n\n\n"
-},
-
-{
-    "location": "reference.html#DigitalMusicology.Slices.content-Union{Tuple{DigitalMusicology.Slices.Slice{N,T}}, Tuple{N}, Tuple{T}} where N where T",
-    "page": "Reference",
-    "title": "DigitalMusicology.Slices.content",
-    "category": "method",
-    "text": "Returns the content of slice s.\n\n\n\n"
 },
 
 {
@@ -358,6 +398,62 @@ var documenterSearchIndex = {"docs": [
     "title": "Slices",
     "category": "section",
     "text": "A piece of music might be represented as a list of slices by \"cutting\" it whenever a note starts or ends. A slice then has and onset, an offset, and a duration, and contains a collection of pitches that sound during the slice.Modules = [DigitalMusicology.Slices]\nPrivate = false"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Events.IntervalEvent",
+    "page": "Reference",
+    "title": "DigitalMusicology.Events.IntervalEvent",
+    "category": "type",
+    "text": "IntervalEvent(onset::T, offset::T, content::C)\n\nAn event that spans a time interval. Has onset, offset, and duration.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Events.PointEvent",
+    "page": "Reference",
+    "title": "DigitalMusicology.Events.PointEvent",
+    "category": "type",
+    "text": "PointEvent(time::T, content::C)\n\nAn event that happens at a certain point in time. Has an onset but no offset or duration.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Events.TimePartition",
+    "page": "Reference",
+    "title": "DigitalMusicology.Events.TimePartition",
+    "category": "type",
+    "text": "TimePartition(breaks::Vector{T}, contents::Vector{C}\n\nPartitions a time span into half-open intervals [t0,t1), [t1,t2), ..., [tn-1,tn), where each interval has a content. The default constructor takes vectors of time points [t0...tn] and content [c1...cn]. There must be one more time point than content items. The whole partition has a total onset, offset, and duration.\n\nA TimePartition may be iterated over (as IntervalEvents) and subintervals can be accessed by their indices. While getting an index returns a complete IntervalEvent, setting an index sets only the content of the corresponding interval.\n\ntp[2] -> IEv<0.5-1.0>(\"foo\")\ntp[2] = \"bar\"\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Events.content",
+    "page": "Reference",
+    "title": "DigitalMusicology.Events.content",
+    "category": "function",
+    "text": "content(event)\n\nReturns the event\'s content.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Events.events-Tuple{DigitalMusicology.Events.TimePartition}",
+    "page": "Reference",
+    "title": "DigitalMusicology.Events.events",
+    "category": "method",
+    "text": "events(timepartition)\n\nReturns a vector of time-interval events that correspond to the subintervals and their content in timepartition.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Events.split!-Union{Tuple{C}, Tuple{DigitalMusicology.Events.TimePartition{T,C},T,C,C}, Tuple{T}} where C where T",
+    "page": "Reference",
+    "title": "DigitalMusicology.Events.split!",
+    "category": "method",
+    "text": "split!(timepartition, at, before, after)\n\nSplits the subinterval [ti,ti+1) of timepartition that contains at into [ti,at) with content before and [at,t2] with content after.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#Events-1",
+    "page": "Reference",
+    "title": "Events",
+    "category": "section",
+    "text": "General containers for eventsModules = [DigitalMusicology.Events]\nPrivate = false"
 },
 
 {
