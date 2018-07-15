@@ -37,6 +37,14 @@ Modules = [DigitalMusicology.PitchCollections]
 Private = false
 ```
 
+## Meter
+
+Time signatures and Meter
+
+```@autodocs
+Modules = [DigitalMusicology.Meter]
+```
+
 ## Slices
 
 A piece of music might be represented as a list of slices by "cutting" it
@@ -47,6 +55,15 @@ that sound during the slice.
 
 ```@autodocs
 Modules = [DigitalMusicology.Slices]
+Private = false
+```
+
+## Events
+
+General containers for events
+
+```@autodocs
+Modules = [DigitalMusicology.Events]
 Private = false
 ```
 

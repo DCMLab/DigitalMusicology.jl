@@ -48,6 +48,6 @@ pitches, so a disambiguation rule must be provided
 
 ## Documentation
 
-Take a look at the [reference](reference.md)
+Take a look at the [reference](reference.md).
 
 Tutorials and explanations will follow.

@@ -8,7 +8,7 @@ using Primes: factor
 
 export AbstractTimeSignature
 export TimeSignature, @time_str
-export metricweight
+export metricweight, defaultmeter
 
 abstract type AbstractTimeSignature end
 
@@ -92,7 +92,7 @@ defaultmeter(ts::TimeSignature; warning=true) =
 ## Time Maps
 ## =========
 
-# const TimeMap = Vector{IntervalEvent{Rational{Int},TimeSignature}}
+const TimeMap{T} = TimePartition{T,TimeSignature}
 
 ## Meter
 ## =====

@@ -73,18 +73,18 @@ TempoChangeME(ev::MetaEvent) = begin
     TempoChangeME(ntoh(reinterpret(UInt32, [0x00, ev.data...])[1]))
 end
 
-struct TimeSig
-    num :: Int
-    denom :: Int
-end
+# struct TimeSig
+#     num :: Int
+#     denom :: Int
+# end
 
 struct TimeSignatureME <: TrackEvent
-    sig :: TimeSig
+    sig :: TimeSignature
     metroticks :: Int
     beatlen_in_32 :: Int
 end
 TimeSignatureME(ev::MetaEvent) =
-    TimeSignatureME(TimeSig(ev.data[1], 2^ev.data[2]), ev.data[3], ev.data[4])
+    TimeSignatureME(TimeSignature(ev.data[1], 2^ev.data[2]), ev.data[3], ev.data[4])
 
 struct KeySig
     sharps :: Int
@@ -265,8 +265,10 @@ function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, or
     onset_bar = sizehint!(Int[], total)
     onset_beat = sizehint!(Int[], total)
     onset_subbeat = sizehint!(Rational{Int}[], total)
-    # track, channel, pitch -> onset_ticks, onset_wholes, onset_secs, velocity, keysig
-    OnsVal = Tuple{Int,SimpleRatio{Int},Float64,Int,KeySig,Int,Int,Rational{Int}}
+    timesig = sizehint!(TimeSignature[], total)
+    # track, channel, pitch ->
+    # onset_ticks, onset_wholes, onset_secs, velocity, keysig, bar, beat, subbeat, timesig
+    OnsVal = Tuple{Int,SimpleRatio{Int},Float64,Int,KeySig,Int,Int,Rational{Int},TimeSignature}
     ons = Dict{Tuple{Int,Int,Int},
                Union{Vector{OnsVal},OnsVal}}()
     # ons = Dict{Tuple{Int,Int,Int}, Tuple{Int,SimpleRatio{Int},Float64,Int,KeySig}}()
@@ -275,6 +277,8 @@ function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, or
     tdiv = PulsesPerQuarter(midifile.tpq) # time division
     # TODO: check for TicksPerSecond case
 
+    nowtimesig = TimeSignature(4,4)
+    
     # conversion coefficients
     # ticks -> beat or time is linear (but not proportional after a tempo change)
     # => y = a1*ticks + a0
@@ -311,12 +315,14 @@ function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, or
         elseif isa(ev.ev,TimeSignatureME)
             baroff = noww
             barref = inbar == 0 ? nowbar : nowbar + 1 # allows incomplete bars
-            barlen = ev.ev.sig.num // ev.ev.sig.denom
-            beatlen = 1 // ev.ev.sig.denom
+            barlen = numerator(ev.ev.sig) // denominator(ev.ev.sig)
+            beatlen = 1 // denominator(ev.ev.sig)
+            nowtimesig = ev.ev.sig
         elseif isa(ev.ev,NoteOn)
             # note on: register in `ons`
             notek = (trackid, ev.ev.channel, ev.ev.pitch)
-            notev = (nowt, noww, nows, ev.ev.velocity, keysig, nowbar, nowbeat, nowsubb)
+            notev = (nowt, noww, nows, ev.ev.velocity, keysig,
+                     nowbar, nowbeat, nowsubb, nowtimesig)
             if !haskey(ons, notek)
                 ons[notek] = notev
             elseif isa(ons[notek], Tuple)
@@ -351,6 +357,7 @@ function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, or
                 push!(onset_bar, on[6])
                 push!(onset_beat, on[7])
                 push!(onset_subbeat, on[8])
+                push!(timesig, on[9])
             elseif warnings
                 warn("orphan note-off: ", notek)
             end
@@ -372,10 +379,20 @@ function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, or
         key_major=key_major,
         onset_bar=onset_bar,
         onset_beat=onset_beat,
-        onset_subbeat=onset_subbeat
+        onset_subbeat=onset_subbeat,
+        timesig=timesig
     )
     sort!(out, [:onset_ticks, :track, :channel])
     out
+end
+
+"""
+    midifiletimesigs(file [, offset=0] [, unit=:wholes])
+
+Returns a vector of time-point events
+"""
+function midifiletimesigs(file::AbstractString; offset=0, unit=:wholes)
+    
 end
 
 end # module
