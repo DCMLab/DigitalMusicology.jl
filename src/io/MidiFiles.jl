@@ -1,6 +1,6 @@
 module MidiFiles
 
-export midifilenotes
+export midifilenotes, midifiletimesigs
 
 using MIDI
 using DataFrames
@@ -207,7 +207,7 @@ end
 # TODO: output datastream instead of dataframe?
 # TODO: different ways of handling orphans
 """
-    midifilenotes(file; warnings=false, overlaps=:queue, orphans=:skip)
+    midifilenotes(file; warnings=false, overlaps=:queue, orphans=:skip, upbeat=0)
 
 Reads a midi file and returns a `DataFrame` with one row per note.
 On- and offset times are given in ticks, whole notes, and seconds.
@@ -234,8 +234,13 @@ If two notes overlap on the same channel and track
 
 `orphans` determines what happens to on and off events without counterpart.
 Currently, its value is ignored and orphan events are always skipped.
+
+If the piece is known to start with an upbeat,
+`upbeat` should be set to the length of the upbeat in whole notes (as a `Rational{Int}`),
+as there is no safe way to infer upbeats from MIDI files.
 """
-function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, orphans=:skip)
+function midifilenotes(file::AbstractString;
+                       warnings=false, overlaps=:queue, orphans=:skip, upbeat=0)
     if overlaps == :queue
         takenote! = shift!
     elseif overlaps == :stack
@@ -290,8 +295,8 @@ function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, or
     # a0 = y - a1*ticks
     newcoeffs(ticks, time, ratio) = (coprime(time - ratio * ticks), ratio)
 
-    baroff = 0//1
-    barref = 0
+    baroff = convert(Rational{Int}, upbeat)
+    barref = 1
     barlen = 1//1
     beatlen = 1//4
 
@@ -303,7 +308,7 @@ function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, or
         nows = totime(scoeffs, nowt)
         relbar = (noww - baroff) / barlen
         nowbar = barref + floor(Int, relbar)
-        inbar = relbar % 1
+        inbar = mod(relbar, 1)
         nowbeat = floor(Int, inbar / beatlen)
         nowsubb = (inbar / beatlen) % 1
 
@@ -313,8 +318,10 @@ function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, or
             wcoeffs = newcoeffs(nowt, noww, ratios[1])
             scoeffs = newcoeffs(nowt, nows, ratios[2])
         elseif isa(ev.ev,TimeSignatureME)
-            baroff = noww
-            barref = inbar == 0 ? nowbar : nowbar + 1 # allows incomplete bars
+            if nowt > 0 # actually noww, but noww==0 <-> nowt==0
+                baroff = noww
+                barref = inbar == 0 ? nowbar : nowbar + 1 # allows incomplete bars
+            end
             barlen = numerator(ev.ev.sig) // denominator(ev.ev.sig)
             beatlen = 1 // denominator(ev.ev.sig)
             nowtimesig = ev.ev.sig
@@ -387,12 +394,69 @@ function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, or
 end
 
 """
-    midifiletimesigs(file [, offset=0] [, unit=:wholes])
+    midifiletimesigs(file [, unit=:wholes])
 
-Returns a vector of time-point events
+Returns a `TimePartition` containing time signatures.
+`unit` may be `:ticks`, `:wholes`, or `:seconds`.
 """
-function midifiletimesigs(file::AbstractString; offset=0, unit=:wholes)
+function midifiletimesigs(file::AbstractString, unit=:wholes)    
+    midifile = readMIDIfile(file)
+    evs = bigeventlist(midifile)
+
+    tdiv = PulsesPerQuarter(midifile.tpq) # time division
+    # TODO: check for TicksPerSecond case
+
+    ratios = timeratios(tdiv, 500_000) # default tempo: 120qpm
+    wcoeffs = (SimpleRatio(0,1), ratios[1])      # whole notes
+    scoeffs = (0.0, ratios[2])      # seconds
+    totime(coeffs, x) = coprime(x*coeffs[2] + coeffs[1])
+    # a0 = y - a1*ticks
+    newcoeffs(ticks, time, ratio) = (coprime(time - ratio * ticks), ratio)
+
+    nowt = 0
+    nows = 0.0
+    noww = 0//1
+
+    if unit == :ticks
+        timesigs = TimePartition{Int,TimeSignature}(Int[0], TimeSignature[])
+        gettime = () -> nowt
+    elseif unit == :seconds
+        timesigs = TimePartition{Float64,TimeSignature}(Float64[0.0], TimeSignature[])
+        gettime = () -> nows
+    elseif unit == :wholes
+        timesigs = TimePartition{Rational{Int},TimeSignature}(Rational{Int}[0//1],
+                                                             TimeSignature[])
+        gettime = () -> Rational{Int}(noww)
+    else
+        error("unknown unit: ", unit)
+    end
     
+    nowtimesig = TimeSignature(4,4)
+    #timesigs = TimePartition([gettime()], TimeSignature[])
+    
+    for (trackid, keysig, ev) in evs
+        nowt = ev.dT
+        noww = totime(wcoeffs, nowt)
+        nows = totime(scoeffs, nowt)
+
+        if isa(ev.ev,TempoChangeME)
+            # tempo change: update conversion coefficients
+            ratios = timeratios(tdiv, ev.ev.micro_per_quarter)
+            wcoeffs = newcoeffs(nowt, noww, ratios[1])
+            scoeffs = newcoeffs(nowt, nows, ratios[2])
+        elseif isa(ev.ev,TimeSignatureME)
+            if nowt > 0
+                split!(timesigs, gettime(), nowtimesig, nowtimesig)
+            end
+            nowtimesig = ev.ev.sig
+        end
+    end
+    
+    if gettime() > offset(timesigs)
+        split!(timesigs, gettime(), nowtimesig, nowtimesig)
+    end
+    
+    return timesigs
 end
 
 end # module
