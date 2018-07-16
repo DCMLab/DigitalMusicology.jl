@@ -10,7 +10,7 @@ This is the Julia toolbox of the Digital and Cognitive Musicology Lab (DCML) at 
 
 Some ideas:
 - a common interface for loading data organized in corpora
-  - identifies (+ ability to look up / search them)
+  - identifiers (+ ability to look up / search them)
   - `getpiece(id, :fmt)`
 - no single data structure for representing everything
   - use representation appropriate to problem
@@ -23,7 +23,7 @@ What's there:
 - basic representations (pitches, notes, some collections)
 - grams and skipgrams
 - MIDI import
-- Various corpus formats (MIDI archive, csapp kern corpora, ABC Project)
+- Various corpus formats (MIDI archive, kern corpora)
 
 What's missing:
 - good documentation with introduction
