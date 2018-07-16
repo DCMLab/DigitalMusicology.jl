@@ -821,7 +821,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Reference",
     "title": "Kern Corpus (WIP)",
     "category": "section",
-    "text": "A Kern corpus provides access to the Humdrum **kern corpora provided by Craig Sapp like the Mozart Piano Sonatas. Note that running some extra commands like make midi-norep might be required first.Currently, the files can only be read from MIDI, not directly from Humdrum, but this is being worked on.Modules = [DigitalMusicology.Corpora.Kern]\nPrivate = false<!– ### Annotated Beethoven Corpus (WIP) –><!– The \"ABC\" contains harmonic annotations for the beethoven string quartets. –> <!– The format is general and can be used to create harmonic annotations for other sets of pieces. –><!– @autodocs --> <!-- Modules = [DigitalMusicology.Corpora.ABC] --> <!-- Private = false --> <!-- –>"
+    "text": "A Kern corpus provides access to the Humdrum **kern corpora provided by Craig Sapp like the Mozart Piano Sonatas. Note that running some extra commands like make midi-norep might be required first.Currently, the files can only be read from MIDI, not directly from Humdrum, but this is being worked on.Modules = [DigitalMusicology.Corpora.Kern]\nPrivate = false"
 },
 
 ]}
