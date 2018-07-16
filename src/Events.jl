@@ -139,7 +139,7 @@ Returns a vector of time-interval events that correspond to the
 subintervals and their content in `timepartition`.
 """
 events(tp::TimePartition) =
-    [IntervalEvent(breaks[i], breaks[i+1], contents[i]) for i in 1:length(contents)]
+    [IntervalEvent(tp.breaks[i], tp.breaks[i+1], tp.contents[i]) for i in 1:length(tp.contents)]
 
 """
     findevent(timepartition, time)
@@ -177,7 +177,19 @@ hash(tp::TimePartition, x::UInt) = hash(tp.breaks, hash(tp.contents, x))
     tp1.breaks == tp2.breaks &&
     tp1.contents == tp2.contents
 
-show(io::IO, tp::TimePartition) = show(io, events(tp))
+function show(io::IO, tp::TimePartition)
+    print(io, "TimePartition:")
+    halfinters = [string(t, "<", c, ">") for (t,c) in zip(tp.breaks[1:end-1], tp.contents)]
+    print(io, join(halfinters, ""))
+    print(io, string(tp.breaks[end]))
+end
+
+function show(io::IO, ::MIME"text/plain", tp::TimePartition{T,C}) where {T,C}
+    print(io, "TimePartition{", T, ',', C, '\n')
+    for i in 1:length(tp.contents)
+        print(io, " ", tp.breaks[i], " - ", tp.breaks[i+1], ":\t", tp.contents[i], '\n')
+    end
+end
 
 convert(::Type{TimePartition}, ie::IntervalEvent) =
     TimePartition([onset(ie), offset(ie)], [content(ie)])
