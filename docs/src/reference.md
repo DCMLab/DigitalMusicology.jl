@@ -212,13 +212,3 @@ but this is being worked on.
 Modules = [DigitalMusicology.Corpora.Kern]
 Private = false
 ```
-
-<!-- ### Annotated Beethoven Corpus (WIP) -->
-
-<!-- The "ABC" contains harmonic annotations for the beethoven string quartets. -->
-<!-- The format is general and can be used to create harmonic annotations for other sets of pieces. -->
-
-<!-- ```@autodocs -->
-<!-- Modules = [DigitalMusicology.Corpora.ABC] -->
-<!-- Private = false -->
-<!-- ``` -->
