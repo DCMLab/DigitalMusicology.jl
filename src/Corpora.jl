@@ -119,12 +119,12 @@ ls(c::Corpus) = ls(topdir(c), c)
 ls(dir, c::Corpus) = collect(chain(dirs(dir, c), pieces(dir, c)))
 
 """
-    findpiece(searchstring[, corpus])
+    findpieces(searchstring[, corpus])
 
 Searches the corpus for pieces matching searchstring.
 Returns a dataframe of matching rows.
 """
-function findpiece end
+function findpieces end
 findpieces(searchstr) = findpieces(searchstr, getcorpus())
 
 ## Loading Pieces

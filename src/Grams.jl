@@ -381,7 +381,7 @@ indexcost(x::Tuple{Int,T}, y::Tuple{Int,U}) where {T, U} = Float64(y[1] - x[1] -
     indexskipgrams(itr, k, n)
 
 Return all `k`-skip-`n`-grams over `itr`, with skips based on indices.
-For a custom cost function, use [`skipgrams_itr`](@ref).
+For a custom cost function, use [`skipgrams`](@ref).
 
 # Examples
 

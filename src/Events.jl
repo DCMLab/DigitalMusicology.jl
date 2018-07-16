@@ -6,7 +6,7 @@ import Base: ==, hash, show, convert,
 import DigitalMusicology: onset, offset, duration, hasonset, hasoffset, hasduration
 
 export PointEvent, IntervalEvent, content
-export TimePartition, split!, events, findinterval
+export TimePartition, split!, events, findevent
 
 abstract type Event end
 

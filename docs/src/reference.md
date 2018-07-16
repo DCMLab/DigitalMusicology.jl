@@ -37,6 +37,33 @@ Modules = [DigitalMusicology.PitchCollections]
 Private = false
 ```
 
+## Notes
+
+Notes are pitches with some kind of time information.
+In its most simple form, a note consists of a pitch, an onset, and an offset.
+In a more complicated context, time information might be represented differently.
+
+```@autodocs
+Modules = [DigitalMusicology.Notes]
+Private = false
+```
+
+## Timing
+
+The timing interface provides methods for querying information on timed objects.
+A timed object may have an `onset`, an `offset`, and a `duration`.
+As not every object has all of these properties,
+`hasonset`, `hasoffset`, and `hasduration` should be used to indicate,
+which pieces of information are available.
+It is usually sufficient to define either `onset` and `offset` or `onset` and `duration`.
+
+Furthermore, simple distance measures based on time are provided as `skipcost` and `onsetcost`.
+
+```@autodocs
+Modules = [DigitalMusicology.Timed]
+Private = false
+```
+
 ## Meter
 
 Time signatures and Meter
@@ -60,7 +87,9 @@ Private = false
 
 ## Events
 
-General containers for events
+General containers for events.
+Events can be either based on time points or on time intervals.
+Both types of intervals 
 
 ```@autodocs
 Modules = [DigitalMusicology.Events]
@@ -71,8 +100,8 @@ Private = false
 
 Functions for generating n-grams, scapes, and skipgrams on streams.
 
-In order to generate classical skipgrams, use [`skipgrams`](@ref).
-[`skipgrams_itr`](@ref) provides more general variant,
+In order to generate classical skipgrams, use [`indexskipgrams`](@ref).
+[`skipgrams`](@ref) provides more general variant,
 which allows a custom cost function and
 a compatibility predicate over pairs of input tokens.
 While the cost function generalizes the `amount of skip` from indices to arbitrary costs,
@@ -128,3 +157,68 @@ corresponding types might be added in the future.
 Modules = [DigitalMusicology.External]
 Private = false
 ```
+
+## Corpora
+
+Musical corpora contain pieces in various file formats and additional metadata.
+As different corpora have a different internal layout, DM.jl provides an interface
+that can be implemented for each type of corups that is used.
+A single piece is identified by a piece id and can be loaded in different representations
+that may contain different pieces of information about the piece,
+e.g. as a note list from MIDI files or as Metadata from JSON or CSV files.
+The implementation of a corpus must provide methods to list all possible piece ids.
+Piece ids may be organized hierarchically,
+e.g., in order to reflect the directory structure of the corpus.
+
+Each corpus implements its own subtype of `Corpus`,
+on which the implementation of the general interface dispatches.
+For convenience, a currently active corpus can be set using `setcorpus`.
+Corpus interface methods called without the corpus argument default to this
+currently active corpus.
+Each corpus implementation should provide a convenience function `useX` that creates
+a corpus object and sets it as active.
+
+```@autodocs
+Modules = [DigitalMusicology.Corpora]
+Private = false
+```
+
+### Large Archive Corpus
+
+A "LAC" contains an index CSV file and a set of toplevel directories
+according to different representations of the content of the corpus.
+Each of these "type"-directories contains the same folder hierarchy below it,
+including the names of the actual data files, except the file extension.
+The id of a piece is therefore its path in this common substructure,
+separated with `/` and ending in the filename without extension.
+The actual file of a certain type can then be retrieved from the id
+by prepending the name of the type-directory and appending the appropriate file extension.
+
+```@autodocs
+Modules = [DigitalMusicology.Corpora.LAC]
+Private = false
+```
+
+### Kern Corpus (WIP)
+
+A Kern corpus provides access to the Humdrum `**kern` corpora provided by Craig Sapp
+like the [Mozart Piano Sonatas](https://github.com/craigsapp/mozart-piano-sonatas).
+Note that running some extra commands like `make midi-norep` might be required first.
+
+Currently, the files can only be read from MIDI, not directly from Humdrum,
+but this is being worked on.
+
+```@autodocs
+Modules = [DigitalMusicology.Corpora.Kern]
+Private = false
+```
+
+<!-- ### Annotated Beethoven Corpus (WIP) -->
+
+<!-- The "ABC" contains harmonic annotations for the beethoven string quartets. -->
+<!-- The format is general and can be used to create harmonic annotations for other sets of pieces. -->
+
+<!-- ```@autodocs -->
+<!-- Modules = [DigitalMusicology.Corpora.ABC] -->
+<!-- Private = false -->
+<!-- ``` -->

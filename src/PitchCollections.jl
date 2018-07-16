@@ -5,7 +5,7 @@ import DigitalMusicology.PitchOps: pc, transposeby, transposeto
 using DigitalMusicology
 
 export PitchCollection
-export transposeequiv, refpitch, pitches
+export transposeequiv, refpitch, pitches, pitchiter
 
 export PitchBag, pbag
 export PitchClassBag, pcbag
@@ -49,7 +49,6 @@ function refpitch end
 """
     pitchiter(pitchcoll)
 
-Does this already exist?
 If the collection has an inner collection of all pitches,
 this function returns an iterator over the inner collection.
 The outer collection does not have to implement the iterator interface,
