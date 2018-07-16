@@ -217,6 +217,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#DigitalMusicology.PitchCollections.pitchiter",
+    "page": "Reference",
+    "title": "DigitalMusicology.PitchCollections.pitchiter",
+    "category": "function",
+    "text": "pitchiter(pitchcoll)\n\nIf the collection has an inner collection of all pitches, this function returns an iterator over the inner collection. The outer collection does not have to implement the iterator interface, since the default implementation for PitchCollections falls back to the inner iterator.\n\n\n\n"
+},
+
+{
     "location": "reference.html#DigitalMusicology.PitchCollections.pset-Tuple{Any}",
     "page": "Reference",
     "title": "DigitalMusicology.PitchCollections.pset",
@@ -246,6 +254,110 @@ var documenterSearchIndex = {"docs": [
     "title": "Pitch Collections",
     "category": "section",
     "text": "The module PitchCollections provides structurs build out of pitches and pitch classes.Modules = [DigitalMusicology.PitchCollections]\nPrivate = false"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Notes.Note",
+    "page": "Reference",
+    "title": "DigitalMusicology.Notes.Note",
+    "category": "type",
+    "text": "Notes are combinations of pitch and time information.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Notes.TimedNote",
+    "page": "Reference",
+    "title": "DigitalMusicology.Notes.TimedNote",
+    "category": "type",
+    "text": "A simple timed note. Pitch + onset + offset.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Notes.pitch",
+    "page": "Reference",
+    "title": "DigitalMusicology.Notes.pitch",
+    "category": "function",
+    "text": "pitch(note)\n\nReturns the pitch of a note\n\n\n\n"
+},
+
+{
+    "location": "reference.html#Notes-1",
+    "page": "Reference",
+    "title": "Notes",
+    "category": "section",
+    "text": "Notes are pitches with some kind of time information. In its most simple form, a note consists of a pitch, an onset, and an offset. In a more complicated context, time information might be represented differently.Modules = [DigitalMusicology.Notes]\nPrivate = false"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Timed.duration",
+    "page": "Reference",
+    "title": "DigitalMusicology.Timed.duration",
+    "category": "function",
+    "text": "duration(x)\n\nReturns the duration of some timed object x.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Timed.hasduration",
+    "page": "Reference",
+    "title": "DigitalMusicology.Timed.hasduration",
+    "category": "function",
+    "text": "hasduration(T)\n\nReturns true if T is a timed object with a duration.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Timed.hasoffset",
+    "page": "Reference",
+    "title": "DigitalMusicology.Timed.hasoffset",
+    "category": "function",
+    "text": "hasoffset(T)\n\nReturns true if T is a timed object with an offset.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Timed.hasonset",
+    "page": "Reference",
+    "title": "DigitalMusicology.Timed.hasonset",
+    "category": "function",
+    "text": "hasonset(T)\n\nReturns true if T is a timed object with an onset.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Timed.offset",
+    "page": "Reference",
+    "title": "DigitalMusicology.Timed.offset",
+    "category": "function",
+    "text": "offset(x)\n\nReturns the offset of some timed object x.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Timed.onset",
+    "page": "Reference",
+    "title": "DigitalMusicology.Timed.onset",
+    "category": "function",
+    "text": "onset(x)\n\nReturns the onset of some timed object x.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Timed.onsetcost-Tuple{Any,Any}",
+    "page": "Reference",
+    "title": "DigitalMusicology.Timed.onsetcost",
+    "category": "method",
+    "text": "onsetcost(timed1, timed2)\n\nReturns the distance between the onsets of timed1 and timed2.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Timed.skipcost-Tuple{Any,Any}",
+    "page": "Reference",
+    "title": "DigitalMusicology.Timed.skipcost",
+    "category": "method",
+    "text": "skipcost(timed1, timed2)\n\nReturns the distance between the offset of timed1 and the onset of timed2.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#Timing-1",
+    "page": "Reference",
+    "title": "Timing",
+    "category": "section",
+    "text": "The timing interface provides methods for querying information on timed objects. A timed object may have an onset, an offset, and a duration. As not every object has all of these properties, hasonset, hasoffset, and hasduration should be used to indicate, which pieces of information are available. It is usually sufficient to define either onset and offset or onset and duration.Furthermore, simple distance measures based on time are provided as skipcost and onsetcost.Modules = [DigitalMusicology.Timed]\nPrivate = false"
 },
 
 {
@@ -441,6 +553,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#DigitalMusicology.Events.findevent-Union{Tuple{C}, Tuple{DigitalMusicology.Events.TimePartition{T,C},T}, Tuple{T}} where C where T",
+    "page": "Reference",
+    "title": "DigitalMusicology.Events.findevent",
+    "category": "method",
+    "text": "findevent(timepartition, time)\n\nReturns the index of the interval in timepartition that contains the timepoint time.\n\n\n\n"
+},
+
+{
     "location": "reference.html#DigitalMusicology.Events.split!-Union{Tuple{C}, Tuple{DigitalMusicology.Events.TimePartition{T,C},T,C,C}, Tuple{T}} where C where T",
     "page": "Reference",
     "title": "DigitalMusicology.Events.split!",
@@ -453,7 +573,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Reference",
     "title": "Events",
     "category": "section",
-    "text": "General containers for eventsModules = [DigitalMusicology.Events]\nPrivate = false"
+    "text": "General containers for events. Events can be either based on time points or on time intervals. Both types of intervals Modules = [DigitalMusicology.Events]\nPrivate = false"
 },
 
 {
@@ -469,7 +589,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Reference",
     "title": "DigitalMusicology.Grams.indexskipgrams",
     "category": "method",
-    "text": "indexskipgrams(itr, k, n)\n\nReturn all k-skip-n-grams over itr, with skips based on indices. For a custom cost function, use skipgrams_itr.\n\nExamples\n\njulia> indexskipgrams([1,2,3,4,5], 2, 2)\n9-element Array{Any,1}:\n Any[1, 2]\n Any[1, 3]\n Any[2, 3]\n Any[1, 4]\n Any[2, 4]\n Any[3, 4]\n Any[2, 5]\n Any[3, 5]\n Any[4, 5]\n\n\n\n"
+    "text": "indexskipgrams(itr, k, n)\n\nReturn all k-skip-n-grams over itr, with skips based on indices. For a custom cost function, use skipgrams.\n\nExamples\n\njulia> indexskipgrams([1,2,3,4,5], 2, 2)\n9-element Array{Any,1}:\n Any[1, 2]\n Any[1, 3]\n Any[2, 3]\n Any[1, 4]\n Any[2, 4]\n Any[3, 4]\n Any[2, 5]\n Any[3, 5]\n Any[4, 5]\n\n\n\n"
 },
 
 {
@@ -501,7 +621,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Reference",
     "title": "Grams",
     "category": "section",
-    "text": "Functions for generating n-grams, scapes, and skipgrams on streams.In order to generate classical skipgrams, use skipgrams. skipgrams_itr provides more general variant, which allows a custom cost function and a compatibility predicate over pairs of input tokens. While the cost function generalizes the amount of skip from indices to arbitrary costs, the compatibility predicate allows, for example, to ensure non-overlapping skipgrams on overlapping input or early filtering of undesired skipgrams.Modules = [DigitalMusicology.Grams]\nPrivate = false"
+    "text": "Functions for generating n-grams, scapes, and skipgrams on streams.In order to generate classical skipgrams, use indexskipgrams. skipgrams provides more general variant, which allows a custom cost function and a compatibility predicate over pairs of input tokens. While the cost function generalizes the amount of skip from indices to arbitrary costs, the compatibility predicate allows, for example, to ensure non-overlapping skipgrams on overlapping input or early filtering of undesired skipgrams.Modules = [DigitalMusicology.Grams]\nPrivate = false"
 },
 
 {
@@ -534,6 +654,174 @@ var documenterSearchIndex = {"docs": [
     "title": "Viewing",
     "category": "section",
     "text": "Helpers for viewing music.Midi files in a corpus can be viewed using MuseScore. (This function will probably be moved to the corpora package.)In Jupyter notebooks, Humdrum **kern strings can be viewed (and played) using Verovio (in fact, the branch of Verovio that is used in the Verovio HumDrum Viewer). Therefore, a musical structure can be visualized by translating it to a HumDrumString.For example, the Humdrum string**kern	**kern\n*clefF4	*clefG2\n*k[f#]	*k[f#]\n*M4/4	*M4/4\n=-	=-\n8GL	8ddL\n8AJ	8ccJ\n16BLL	2.b;\n16A	.\n16G	.\n16F#JJ	.\n2G;	.\n==	==\n*-	*-will be displayed as(Image: verovio svg)As Verovio can display other formats than Humdrum, corresponding types might be added in the future.Modules = [DigitalMusicology.External]\nPrivate = false"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora._getpiece",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora._getpiece",
+    "category": "function",
+    "text": "_getpiece(id, Val{form}(), corpus)\n\nThis function is responsible for actually loading a piece. New corpus implementations should implement this method instead of getpiece, which is called by the user.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.allpieces",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.allpieces",
+    "category": "function",
+    "text": "allpieces([corpus])\n\nReturns all piece ids in corpus.\n\nallpieces(dir, [corpus])\n\nReturns all piece ids in and below dir.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.dirs",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.dirs",
+    "category": "function",
+    "text": "dirs([corpus])\n\nReturns all top-level piece directories in corpus.\n\ndirs(dir, [corpus])\n\nReturns all direct subdirectories of dir.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.findpieces",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.findpieces",
+    "category": "function",
+    "text": "findpieces(searchstring[, corpus])\n\nSearches the corpus for pieces matching searchstring. Returns a dataframe of matching rows.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.getcorpus-Tuple{}",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.getcorpus",
+    "category": "method",
+    "text": "Get the currently set corpus. Throws an error, if the corpus is not set.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.getpiece",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.getpiece",
+    "category": "function",
+    "text": "getpiece(id, form, [corpus])\n\nLoads a piece in some representation. Piece ids are strings, but their exact format depends on the given corpus.\n\nForms are identified by keywords, e.g.\n\n:slices\n:slices_df\n:notes\n\nbut the supported keywords depend on the corpus.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.getpieces",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.getpieces",
+    "category": "function",
+    "text": "getpieces(ids, form, [datadir])\n\nLike getpiece but takes multiple ids and returns an iterator over the resulting pieces.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.ls",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.ls",
+    "category": "function",
+    "text": "ls([corpus])\n\nReturns all top-level pieces and directories in corpus at once.\n\nls(dir, [corpus])\n\nReturns all subdirectories and pieces in dir at once.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.piecepath",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.piecepath",
+    "category": "function",
+    "text": "piecepath(id, cat, ext, [corpus])\n\nReturns the full path to the file of piece id in category cat with extension ext in corpus.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.pieces",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.pieces",
+    "category": "function",
+    "text": "pieces(dir, [corpus])\n\nReturns the piece ids in dir.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.setcorpus-Tuple{DigitalMusicology.Corpora.Corpus}",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.setcorpus",
+    "category": "method",
+    "text": "Set the current corpus.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.supportedforms",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.supportedforms",
+    "category": "function",
+    "text": "supportedforms([corpus])\n\nReturns a list of symbols that can be passed to the form parameter in piece loading functions for the given corpus.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.topdir",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.topdir",
+    "category": "function",
+    "text": "topdir([corpus])\n\nReturns the main piece directory of corpus.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.unsetcorpus-Tuple{}",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.unsetcorpus",
+    "category": "method",
+    "text": "Reset the current corpus to NoCorpus().\n\n\n\n"
+},
+
+{
+    "location": "reference.html#Corpora-1",
+    "page": "Reference",
+    "title": "Corpora",
+    "category": "section",
+    "text": "Musical corpora contain pieces in various file formats and additional metadata. As different corpora have a different internal layout, DM.jl provides an interface that can be implemented for each type of corups that is used. A single piece is identified by a piece id and can be loaded in different representations that may contain different pieces of information about the piece, e.g. as a note list from MIDI files or as Metadata from JSON or CSV files. The implementation of a corpus must provide methods to list all possible piece ids. Piece ids may be organized hierarchically, e.g., in order to reflect the directory structure of the corpus.Each corpus implements its own subtype of Corpus, on which the implementation of the general interface dispatches. For convenience, a currently active corpus can be set using setcorpus. Corpus interface methods called without the corpus argument default to this currently active corpus. Each corpus implementation should provide a convenience function useX that creates a corpus object and sets it as active.Modules = [DigitalMusicology.Corpora]\nPrivate = false"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.LAC.meta",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.LAC.meta",
+    "category": "function",
+    "text": "meta([crp::LACCorpus])\n\nReturns the corpus\' meta-dataframe.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.LAC.yearbins",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.LAC.yearbins",
+    "category": "function",
+    "text": "yearbins(timespan [, reference=0 [, corpus]])\n\nReturns piece ids in a list of bins as named tuples (onset, offset, bin, ids). The bins are timespan years wide and start at reference. Only pieces with a readable composition_year metadata entry are returned. The year is read from the composition_year column by taking the first sequence of 4 digits in each row.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#Large-Archive-Corpus-1",
+    "page": "Reference",
+    "title": "Large Archive Corpus",
+    "category": "section",
+    "text": "A \"LAC\" contains an index CSV file and a set of toplevel directories according to different representations of the content of the corpus. Each of these \"type\"-directories contains the same folder hierarchy below it, including the names of the actual data files, except the file extension. The id of a piece is therefore its path in this common substructure, separated with / and ending in the filename without extension. The actual file of a certain type can then be retrieved from the id by prepending the name of the type-directory and appending the appropriate file extension.Modules = [DigitalMusicology.Corpora.LAC]\nPrivate = false"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.Kern.kerncrp-Tuple{String}",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.Kern.kerncrp",
+    "category": "method",
+    "text": "kerncrp(dir)\n\nCreates a new KernCorpus with data directory dir.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Corpora.Kern.usekern-Tuple{String}",
+    "page": "Reference",
+    "title": "DigitalMusicology.Corpora.Kern.usekern",
+    "category": "method",
+    "text": "usekern(dir)\n\nCreates a new KernCorpus and sets it as the default corpus.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#Kern-Corpus-(WIP)-1",
+    "page": "Reference",
+    "title": "Kern Corpus (WIP)",
+    "category": "section",
+    "text": "A Kern corpus provides access to the Humdrum **kern corpora provided by Craig Sapp like the Mozart Piano Sonatas. Note that running some extra commands like make midi-norep might be required first.Currently, the files can only be read from MIDI, not directly from Humdrum, but this is being worked on.Modules = [DigitalMusicology.Corpora.Kern]\nPrivate = false<!– ### Annotated Beethoven Corpus (WIP) –><!– The \"ABC\" contains harmonic annotations for the beethoven string quartets. –> <!– The format is general and can be used to create harmonic annotations for other sets of pieces. –><!– @autodocs --> <!-- Modules = [DigitalMusicology.Corpora.ABC] --> <!-- Private = false --> <!-- –>"
 },
 
 ]}
