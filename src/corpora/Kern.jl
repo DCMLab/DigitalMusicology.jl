@@ -79,4 +79,9 @@ function _getpiece(id, ::Val{:notes_wholes}, crp::KernCorpus)
     [TimedNote(n[:pitch], n[:onset_wholes], n[:offset_wholes]) for n in eachrow(df)]
 end
 
+function _getpiece(id, ::Val{:timesigs}, crp::KernCorpus)
+    fn = piecepath(id, "midi-norep", ".mid", crp)
+    midifiletimesigs(fn)
+end
+
 end # module

@@ -150,6 +150,42 @@ inbar(time::T, tsm::TimeSigMap{T}) where T =
         mod(rel, duration(content(tsev)))
     end
 
+# bbsnext:
+# used by barbeatsubb, looks at a time and returns bar, beat, and subbeat;
+# updates its input variables barsbefore and tsindex,
+# can therefore be used in a stateful context like a loop
+macro bbsnext(barsbefore, tsindex, time, tsm)
+    quote
+        begin
+            # progress to timespan
+            while $(esc(time)) >= offset($(esc(tsm))[$(esc(tsindex))]) &&
+                $(esc(tsindex)) < length($(esc(tsm)))
+                segment = $(esc(tsm))[$(esc(tsindex))]
+                $(esc(barsbefore)) += ceil(Int, duration(segment)/duration(content(segment)))
+                $(esc(tsindex)) += 1
+            end
+
+            # shortcuts, for readability
+            tsevent = $(esc(tsm))[$(esc(tsindex))]
+            tsig = content(tsevent)
+            barlen = duration(tsig)
+            beatlen = 1//denominator(tsig)
+
+            # calculate bar, beat, and subbeat
+            reltime = $(esc(time)) - onset(tsevent)
+            relbar = floor(Int, reltime/barlen)
+            inbar = mod(reltime, barlen)
+            
+            bar = relbar + $(esc(barsbefore))
+            beat = floor(Int, inbar / beatlen)
+            subb = (inbar / beatlen) % 1
+            
+            (bar, beat, subb)
+        end
+    end
+end
+
+
 """
     barbeatsubb(t, timesigmap)
 
@@ -157,32 +193,32 @@ Returns a triple `(bar, beat, subbeat)`
 that indicates bar, beat, and subbeat of `t` in the context of `timesigmap`.
 """
 function barbeatsubb(time::T, tsm::TimeSigMap{T}) where T
-    # find current TS span
-    i = max(findevent(tsm, time), 1)
+    bb = 1
+    i = 1
+    @bbsnext(bb, i, time, tsm)
+end
 
-    # count bars in previous TS spans
-    barsbefore = 1 # start numbering with 1
-    for j in 1:(i-1)
-        oldtsev = tsm[j]
-        barsbefore += ceil(Int, duration(oldtsev)/duration(content(oldtsev)))
+# barbeatsubb(time::T, tsm::TimeSigMap{T}) where T =
+#     barbeatsubb([time], tsm)[1]
+
+"""
+    barbeatsubb(ts::Vector, timesigmap)
+
+Returns a `(bar, beat, subbeat)` tuple for every time point in `ts`
+in the context of `timesigmap`.
+`ts` must be sorted in ascending order.
+"""
+function barbeatsubb(times::Vector{T}, tsm::TimeSigMap{T}) where T
+    barsbefore = 1
+    tsindex = 1
+    out = sizehint!(Tuple{Int,Int,T}[], length(times))
+    
+    for time in times
+        push!(out, @bbsnext(barsbefore, tsindex, time, tsm))
     end
 
-    tsevent = tsm[i]
-    tsig = content(tsevent)
-    barlen = duration(tsig)
-    beatlen = 1//denominator(tsig)
-    
-    reltime = time - onset(tsevent)
-    relbar = floor(Int, reltime/barlen)
-    inbar = mod(reltime, barlen)
-
-    bar = relbar + barsbefore
-    beat = floor(Int, inbar / beatlen)
-    subb = (inbar / beatlen) % 1
-
-    (bar, beat, subb)
+    out
 end
-    
 
 """
     metricweight(t, timesigmap [, meter [, beat]])
