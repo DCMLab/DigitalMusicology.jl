@@ -1,6 +1,6 @@
 module Meter
 
-using DigitalMusicology.Events
+using DigitalMusicology
 import Base: ==, hash, show, numerator, denominator
 import DigitalMusicology: duration, hasonset, hasoffset, hasduration
 
@@ -9,6 +9,7 @@ using Primes: factor
 export AbstractTimeSignature
 export TimeSignature, @time_str
 export metricweight, defaultmeter
+export TimeSigMap, inbar, barbeatsubb
 
 abstract type AbstractTimeSignature end
 
@@ -89,11 +90,6 @@ defaultmeter(ts::TimeSignature; warning=true) =
     #     [2,2]
     # elseif ts.num == 
 
-## Time Maps
-## =========
-
-const TimeMap{T} = TimePartition{T,TimeSignature}
-
 ## Meter
 ## =====
 
@@ -136,5 +132,78 @@ Otherwise identical to `metricweight(barpos, meter, beat)`.
 """
 metricweight(barpos::Rational{Int}, ts::TimeSignature) =
     metricweight(barpos, defaultmeter(ts), 1//denominator(ts))
+
+## Time Maps
+## =========
+
+const TimeSigMap{T} = TimePartition{T,TimeSignature}
+
+"""
+    inbar(t, timesigmap)
+
+Returns the time point `t` relative to the beginning of the bar it lies in.
+"""
+inbar(time::T, tsm::TimeSigMap{T}) where T =
+    let i = findevent(tsm, time),
+        tsev = tsm[max(i,1)], # upbeats don't lie in the time map, but the first TS applies
+        rel = time - onset(tsev)
+        mod(rel, duration(content(tsev)))
+    end
+
+"""
+    barbeatsubb(t, timesigmap)
+
+Returns a triple `(bar, beat, subbeat)`
+that indicates bar, beat, and subbeat of `t` in the context of `timesigmap`.
+"""
+function barbeatsubb(time::T, tsm::TimeSigMap{T}) where T
+    # find current TS span
+    i = max(findevent(tsm, time), 1)
+
+    # count bars in previous TS spans
+    barsbefore = 1 # start numbering with 1
+    for j in 1:(i-1)
+        oldtsev = tsm[j]
+        barsbefore += ceil(Int, duration(oldtsev)/duration(content(oldtsev)))
+    end
+
+    tsevent = tsm[i]
+    tsig = content(tsevent)
+    barlen = duration(tsig)
+    beatlen = 1//denominator(tsig)
+    
+    reltime = time - onset(tsevent)
+    relbar = floor(Int, reltime/barlen)
+    inbar = mod(reltime, barlen)
+
+    bar = relbar + barsbefore
+    beat = floor(Int, inbar / beatlen)
+    subb = (inbar / beatlen) % 1
+
+    (bar, beat, subb)
+end
+    
+
+"""
+    metricweight(t, timesigmap [, meter [, beat]])
+
+Returns the metric weight at time point `t` in the context of `timesigmap`.
+Optionally, `meter`, and `beat` may be supplied as in `metricweight(barpos, meter, beat)`
+to override the default values inferred from the time signature at `t`.
+"""
+function metricweight(time::T, tsm::TimeSigMap{T}, meter=nothing, beat=nothing) where T
+    i = findevent(tsm, time)
+    tsev = tsm[max(i,1)]
+    tsig = content(tsev)
+    barpos = mod(time - onset(tsev), duration(tsig))
+    if meter == nothing
+        metricweight(barpos, tsig)
+    else
+        if beat == nothing
+            beat = 1 // denominator(tsig)
+        end
+        metricweight(barpos, meter, beat)
+    end
+end
 
 end # module Meter
