@@ -267,16 +267,9 @@ function midifilenotes(file::AbstractString;
     channel = sizehint!(Int[], total)
     key_sharps = sizehint!(Int[], total)
     key_major = sizehint!(Bool[], total)
-    onset_bar = sizehint!(Int[], total)
-    onset_beat = sizehint!(Int[], total)
-    onset_subbeat = sizehint!(Rational{Int}[], total)
-    timesig = sizehint!(TimeSignature[], total)
-    # track, channel, pitch ->
-    # onset_ticks, onset_wholes, onset_secs, velocity, keysig, bar, beat, subbeat, timesig
-    OnsVal = Tuple{Int,SimpleRatio{Int},Float64,Int,KeySig,Int,Int,Rational{Int},TimeSignature}
+    OnsVal = Tuple{Int,SimpleRatio{Int},Float64,Int,KeySig}
     ons = Dict{Tuple{Int,Int,Int},
                Union{Vector{OnsVal},OnsVal}}()
-    # ons = Dict{Tuple{Int,Int,Int}, Tuple{Int,SimpleRatio{Int},Float64,Int,KeySig}}()
 
     # tempo settings
     tdiv = PulsesPerQuarter(midifile.tpq) # time division
@@ -295,41 +288,22 @@ function midifilenotes(file::AbstractString;
     # a0 = y - a1*ticks
     newcoeffs(ticks, time, ratio) = (coprime(time - ratio * ticks), ratio)
 
-    baroff = convert(Rational{Int}, upbeat)
-    barref = 1
-    barlen = 1//1
-    beatlen = 1//4
-
     # process each event. notes are added, timing events change status
     for (trackid, keysig, ev) in evs
         # current time in all units
         nowt = ev.dT
         noww = totime(wcoeffs, nowt)
         nows = totime(scoeffs, nowt)
-        relbar = (noww - baroff)
-        nowbar = barref + floor(Int, relbar / barlen)
-        inbar = mod(relbar, barlen)
-        nowbeat = floor(Int, inbar / beatlen)
-        nowsubb = (inbar / beatlen) % 1
 
         if isa(ev.ev,TempoChangeME)
             # tempo change: update conversion coefficients
             ratios = timeratios(tdiv, ev.ev.micro_per_quarter)
             wcoeffs = newcoeffs(nowt, noww, ratios[1])
             scoeffs = newcoeffs(nowt, nows, ratios[2])
-        elseif isa(ev.ev,TimeSignatureME)
-            if nowt > 0 # actually noww, but noww==0 <-> nowt==0
-                baroff = noww
-                barref = inbar == 0 ? nowbar : nowbar + 1 # allows incomplete bars
-            end
-            barlen = numerator(ev.ev.sig) // denominator(ev.ev.sig)
-            beatlen = 1 // denominator(ev.ev.sig)
-            nowtimesig = ev.ev.sig
         elseif isa(ev.ev,NoteOn)
             # note on: register in `ons`
             notek = (trackid, ev.ev.channel, ev.ev.pitch)
-            notev = (nowt, noww, nows, ev.ev.velocity, keysig,
-                     nowbar, nowbeat, nowsubb, nowtimesig)
+            notev = (nowt, noww, nows, ev.ev.velocity, keysig)
             if !haskey(ons, notek)
                 ons[notek] = notev
             elseif isa(ons[notek], Tuple)
@@ -361,10 +335,6 @@ function midifilenotes(file::AbstractString;
                 push!(channel, ev.ev.channel)
                 push!(key_sharps, on[5].sharps)
                 push!(key_major, on[5].major)
-                push!(onset_bar, on[6])
-                push!(onset_beat, on[7])
-                push!(onset_subbeat, on[8])
-                push!(timesig, on[9])
             elseif warnings
                 warn("orphan note-off: ", notek)
             end
@@ -384,10 +354,6 @@ function midifilenotes(file::AbstractString;
         channel=channel,
         key_sharps=key_sharps,
         key_major=key_major,
-        onset_bar=onset_bar,
-        onset_beat=onset_beat,
-        onset_subbeat=onset_subbeat,
-        timesig=timesig
     )
     sort!(out, [:onset_ticks, :track, :channel])
     out
