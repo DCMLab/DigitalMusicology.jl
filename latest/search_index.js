@@ -369,11 +369,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#DigitalMusicology.Meter.barbeatsubb-Union{Tuple{T,DigitalMusicology.Events.TimePartition{T,DigitalMusicology.Meter.TimeSignature}}, Tuple{T}} where T",
+    "page": "Reference",
+    "title": "DigitalMusicology.Meter.barbeatsubb",
+    "category": "method",
+    "text": "barbeatsubb(t, timesigmap)\n\nReturns a triple (bar, beat, subbeat) that indicates bar, beat, and subbeat of t in the context of timesigmap.\n\n\n\n"
+},
+
+{
     "location": "reference.html#DigitalMusicology.Meter.defaultmeter-Tuple{DigitalMusicology.Meter.TimeSignature}",
     "page": "Reference",
     "title": "DigitalMusicology.Meter.defaultmeter",
     "category": "method",
     "text": "defaultmeter(timesig [, warning=true])\n\nFor a time signature with sufficiently clear meter, returns the meter of the time signature. The meter is given as a list of group sizes in beats, i.e., only the numerator matters. For example, 2/2 -> [1], 4/4 -> [2,2], 3/4 -> [3], 3/8 -> 3, 6/8 -> [3,3], 12/8 -> [3,3,3,3].\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Meter.inbar-Union{Tuple{T,DigitalMusicology.Events.TimePartition{T,DigitalMusicology.Meter.TimeSignature}}, Tuple{T}} where T",
+    "page": "Reference",
+    "title": "DigitalMusicology.Meter.inbar",
+    "category": "method",
+    "text": "inbar(t, timesigmap)\n\nReturns the time point t relative to the beginning of the bar it lies in.\n\n\n\n"
 },
 
 {
@@ -390,6 +406,14 @@ var documenterSearchIndex = {"docs": [
     "title": "DigitalMusicology.Meter.metricweight",
     "category": "method",
     "text": "metricweight(barpos, timesig)\n\nTries to guess meter and beat from timesig. Otherwise identical to metricweight(barpos, meter, beat).\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Meter.metricweight-Union{Tuple{T,DigitalMusicology.Events.TimePartition{T,DigitalMusicology.Meter.TimeSignature},Any,Any}, Tuple{T,DigitalMusicology.Events.TimePartition{T,DigitalMusicology.Meter.TimeSignature},Any}, Tuple{T,DigitalMusicology.Events.TimePartition{T,DigitalMusicology.Meter.TimeSignature}}, Tuple{T}} where T",
+    "page": "Reference",
+    "title": "DigitalMusicology.Meter.metricweight",
+    "category": "method",
+    "text": "metricweight(t, timesigmap [, meter [, beat]])\n\nReturns the metric weight at time point t in the context of timesigmap. Optionally, meter, and beat may be supplied as in metricweight(barpos, meter, beat) to override the default values inferred from the time signature at t.\n\n\n\n"
 },
 
 {
@@ -558,6 +582,22 @@ var documenterSearchIndex = {"docs": [
     "title": "DigitalMusicology.Events.findevent",
     "category": "method",
     "text": "findevent(timepartition, time)\n\nReturns the index of the interval in timepartition that contains the timepoint time.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Events.movepoint!-Union{Tuple{C}, Tuple{DigitalMusicology.Events.TimePartition{T,C},Any,T}, Tuple{T}} where C where T",
+    "page": "Reference",
+    "title": "DigitalMusicology.Events.movepoint!",
+    "category": "method",
+    "text": "movepoint!(timepartition, index, distance)\n\nMoves the time point at index by a (positive or negative) distance, shrinkening or removing intervals that lie between the point\'s old and new position.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Events.setpoint!-Union{Tuple{C}, Tuple{DigitalMusicology.Events.TimePartition{T,C},Any,T}, Tuple{T}} where C where T",
+    "page": "Reference",
+    "title": "DigitalMusicology.Events.setpoint!",
+    "category": "method",
+    "text": "setpoint!(timepartition, index, newpos)\n\nMoves the time point at index to a new position, shrinkening or removing intervals that lie between the point\'s old and new position.\n\n\n\n"
 },
 
 {
