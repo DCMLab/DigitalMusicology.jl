@@ -369,6 +369,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "reference.html#DigitalMusicology.Meter.barbeatsubb-Union{Tuple{Array{T,1},DigitalMusicology.Events.TimePartition{T,DigitalMusicology.Meter.TimeSignature}}, Tuple{T}} where T",
+    "page": "Reference",
+    "title": "DigitalMusicology.Meter.barbeatsubb",
+    "category": "method",
+    "text": "barbeatsubb(ts::Vector, timesigmap)\n\nReturns a (bar, beat, subbeat) tuple for every time point in ts in the context of timesigmap. ts must be sorted in ascending order.\n\n\n\n"
+},
+
+{
     "location": "reference.html#DigitalMusicology.Meter.barbeatsubb-Union{Tuple{T,DigitalMusicology.Events.TimePartition{T,DigitalMusicology.Meter.TimeSignature}}, Tuple{T}} where T",
     "page": "Reference",
     "title": "DigitalMusicology.Meter.barbeatsubb",
