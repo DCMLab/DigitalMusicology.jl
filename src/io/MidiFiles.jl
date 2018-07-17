@@ -394,18 +394,26 @@ function midifilenotes(file::AbstractString;
 end
 
 """
-    midifiletimesigs(file [, unit=:wholes])
+    midifiletimesigs(file [, unit=:wholes] [, upbeat=0])
 
-Returns a `TimePartition` containing time signatures.
+Returns a `TimeSigMap`, a `TimePartition` containing time signatures.
 `unit` may be `:ticks`, `:wholes`, or `:seconds`.
+
+If `upbeat` is provided,
+the start of the first time signature is shifted by `upbeat`
+so that the first "1" coincides with the first time signature.
+All time points belonging to the upbeat (including `0`) are before the first time signature.
+For metrical analysis, the upbeat can be assumed to have the same meter as the first full bar.
 """
-function midifiletimesigs(file::AbstractString, unit=:wholes)    
+function midifiletimesigs(file::AbstractString; unit=:wholes, upbeat=0)
+    # read file and get list of (track, key, event) tuples
     midifile = readMIDIfile(file)
     evs = bigeventlist(midifile)
 
     tdiv = PulsesPerQuarter(midifile.tpq) # time division
     # TODO: check for TicksPerSecond case
 
+    # initialize coefficients for converting ticks to seconds and wholes
     ratios = timeratios(tdiv, 500_000) # default tempo: 120qpm
     wcoeffs = (SimpleRatio(0,1), ratios[1])      # whole notes
     scoeffs = (0.0, ratios[2])      # seconds
@@ -413,27 +421,30 @@ function midifiletimesigs(file::AbstractString, unit=:wholes)
     # a0 = y - a1*ticks
     newcoeffs(ticks, time, ratio) = (coprime(time - ratio * ticks), ratio)
 
+    # initialize "clocks"
     nowt = 0
     nows = 0.0
     noww = 0//1
 
+    # initialize the time signature map;
+    # gettime() returns the current time in the correct unit
     if unit == :ticks
-        timesigs = TimePartition{Int,TimeSignature}(Int[0], TimeSignature[])
+        timesigs = TimeSigMap{Int}(Int[0], TimeSignature[])
         gettime = () -> nowt
     elseif unit == :seconds
-        timesigs = TimePartition{Float64,TimeSignature}(Float64[0.0], TimeSignature[])
+        timesigs = TimeSigMap{Float64}(Float64[0.0], TimeSignature[])
         gettime = () -> nows
     elseif unit == :wholes
-        timesigs = TimePartition{Rational{Int},TimeSignature}(Rational{Int}[0//1],
-                                                             TimeSignature[])
+        timesigs = TimeSigMap{Rational{Int}}(Rational{Int}[0//1], TimeSignature[])
         gettime = () -> Rational{Int}(noww)
     else
         error("unknown unit: ", unit)
     end
-    
+
+    # start with 4/4, MIDI default
     nowtimesig = TimeSignature(4,4)
-    #timesigs = TimePartition([gettime()], TimeSignature[])
-    
+
+    # process all events
     for (trackid, keysig, ev) in evs
         nowt = ev.dT
         noww = totime(wcoeffs, nowt)
@@ -445,16 +456,23 @@ function midifiletimesigs(file::AbstractString, unit=:wholes)
             wcoeffs = newcoeffs(nowt, noww, ratios[1])
             scoeffs = newcoeffs(nowt, nows, ratios[2])
         elseif isa(ev.ev,TimeSignatureME)
-            if nowt > 0
+            # time signature change: add new interval to time signature map
+            if nowt > 0 # but only if not at beginning (first TS)
                 split!(timesigs, gettime(), nowtimesig, nowtimesig)
             end
             nowtimesig = ev.ev.sig
         end
     end
-    
+
+    # close last interval
     if gettime() > offset(timesigs)
         split!(timesigs, gettime(), nowtimesig, nowtimesig)
     end
+
+    # move the first TS to the first "1".
+    # The onset is shifted to the right by `upbeat`,
+    # so that the time point 0 is before the first time signature, marking bar 1.
+    movepoint!(timesigs, 1, upbeat)
     
     return timesigs
 end

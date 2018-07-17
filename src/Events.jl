@@ -6,7 +6,7 @@ import Base: ==, hash, show, convert,
 import DigitalMusicology: onset, offset, duration, hasonset, hasoffset, hasduration
 
 export PointEvent, IntervalEvent, content
-export TimePartition, split!, events, findevent
+export TimePartition, split!, events, findevent, setpoint!, movepoint!
 
 abstract type Event end
 
@@ -133,6 +133,43 @@ struct TimePartition{T<:Number,C}
 end
 
 """
+    makerightconsistent!(timepartition)
+
+Ensures consistency of a time partition
+by removing empty intervals, keeping the respective onset
+(which is >= the offset, if the interval is empty, hence right).
+"""
+function makerightconsistent!(tp)
+    i = 1
+    while i<=length(tp.contents)
+        if tp.breaks[i] < tp.breaks[i+1]
+            i+=1
+        else
+            deleteat!(tp.breaks, i+1)
+            deleteat!(tp.contents, i)
+        end
+    end
+    tp
+end
+
+"""
+    makeleftconsistent!(timepartition)
+
+Ensures consistency of a time partition
+by removing empty intervals, keeping the respective offset
+(which is <= the offset, if the interval is empty, hence left).
+"""
+function makeleftconsistent!(tp)
+    for i in length(tp.contents):-1:1
+        if tp.breaks[i] >= tp.breaks[i+1]
+            deleteat!(tp.breaks, i)
+            deleteat!(tp.contents, i)
+        end
+    end
+    tp
+end
+
+"""
     events(timepartition)
 
 Returns a vector of time-interval events that correspond to the
@@ -147,7 +184,7 @@ events(tp::TimePartition) =
 Returns the index of the interval in `timepartition` that contains the timepoint `time`.
 """
 findevent(tp::TimePartition{T,C}, time::T) where {T,C} =
-    searchsortedfirst(tp.breaks, time)
+    searchsortedlast(tp.breaks, time)
 
 """
     split!(timepartition, at, before, after)
@@ -155,7 +192,7 @@ findevent(tp::TimePartition{T,C}, time::T) where {T,C} =
 Splits the subinterval [ti,ti+1) of `timepartition` that contains `at`
 into [ti,`at`) with content `before` and [`at`,t2] with content `after`.
 """
-split!(tp::TimePartition{T,C}, at::T, before::C, after::C) where{T,C} =
+split!(tp::TimePartition{T,C}, at::T, before::C, after::C) where {T,C} =
     let i = findevent(tp, at)
         if i > length(tp)
             push!(tp.breaks, at)
@@ -168,6 +205,40 @@ split!(tp::TimePartition{T,C}, at::T, before::C, after::C) where{T,C} =
             end
         end
     end
+
+"""
+    setpoint!(timepartition, index, newpos)
+
+Moves the time point at `index` to a new position,
+shrinkening or removing intervals that lie between the point's old and new position.
+"""
+function setpoint!(tp::TimePartition{T,C}, index, newpos::T) where {T,C}
+    old = tp.breaks[index]
+    tp.breaks[index] = newpos
+    if at > newpos
+        makerightconsistent!(tp)
+    elseif at < newpos
+        makeleftconsistent!(tp)
+    end
+    return tp
+end
+
+"""
+    movepoint!(timepartition, index, distance)
+
+Moves the time point at `index` by a (positive or negative) `distance`,
+shrinkening or removing intervals that lie between the point's old and new position.
+"""
+function movepoint!(tp::TimePartition{T,C}, index, distance::T) where {T,C}
+    tp.breaks[index] += distance
+    if distance > 0
+        makerightconsistent!(tp)
+    elseif distance < 0
+        makeleftconsistent!(tp)
+    end
+    return tp
+end
+
 
 # base interfaces
 
