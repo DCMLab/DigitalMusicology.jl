@@ -306,9 +306,9 @@ function midifilenotes(file::AbstractString;
         nowt = ev.dT
         noww = totime(wcoeffs, nowt)
         nows = totime(scoeffs, nowt)
-        relbar = (noww - baroff) / barlen
-        nowbar = barref + floor(Int, relbar)
-        inbar = mod(relbar, 1)
+        relbar = (noww - baroff)
+        nowbar = barref + floor(Int, relbar / barlen)
+        inbar = mod(relbar, barlen)
         nowbeat = floor(Int, inbar / beatlen)
         nowsubb = (inbar / beatlen) % 1
 
