@@ -234,13 +234,8 @@ If two notes overlap on the same channel and track
 
 `orphans` determines what happens to on and off events without counterpart.
 Currently, its value is ignored and orphan events are always skipped.
-
-If the piece is known to start with an upbeat,
-`upbeat` should be set to the length of the upbeat in whole notes (as a `Rational{Int}`),
-as there is no safe way to infer upbeats from MIDI files.
 """
-function midifilenotes(file::AbstractString;
-                       warnings=false, overlaps=:queue, orphans=:skip, upbeat=0)
+function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, orphans=:skip)
     if overlaps == :queue
         takenote! = shift!
     elseif overlaps == :stack
@@ -341,6 +336,7 @@ function midifilenotes(file::AbstractString;
         end
     end
 
+    # create dataframe from individual arrays
     out = DataFrame(
         onset_ticks=onset_ticks,
         offset_ticks=offset_ticks,
