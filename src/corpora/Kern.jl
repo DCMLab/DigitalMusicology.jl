@@ -2,8 +2,10 @@ module Kern
 
 importall DigitalMusicology.Corpora
 using DigitalMusicology
+using DigitalMusicology.Helpers: getrec, parserational
 
 using DataFrames: eachrow
+import JSON
 
 export kerncrp, usekern
 
@@ -61,6 +63,12 @@ findpieces(searchstr::AbstractString, crp::KernCorpus) = findpieces(Regex(string
 
 findpieces(searchstr::Regex, crp::KernCorpus) = filter(id -> ismatch(searchstr, id), crp.ids)
 
+function hasupbeat(id, crp=getcorpus())
+    fn = piecepath(id, "kern", ".krn", crp)
+    kernstr = read(fn, String)
+    ismatch(r"=1\t", kernstr)
+end
+
 # piece accessors
 # ---------------
 
@@ -81,7 +89,18 @@ end
 
 function _getpiece(id, ::Val{:timesigs}, crp::KernCorpus)
     fn = piecepath(id, "midi-norep", ".mid", crp)
-    midifiletimesigs(fn)
+    aux = getpiece(id, :aux, crp)
+    upbeat = parserational(getrec(aux, "rhythmic", "upbeat", "0/1"))
+    midifiletimesigs(fn, upbeat=upbeat)
+end
+
+function _getpiece(id, ::Val{:aux}, crp::KernCorpus)
+    fn = piecepath(id, "aux", ".json", crp)
+    if isfile(fn)
+        JSON.parse(read(fn, String))
+    else
+        Dict{String,Any}()
+    end
 end
 
 end # module

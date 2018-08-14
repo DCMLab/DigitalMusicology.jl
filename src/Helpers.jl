@@ -4,7 +4,8 @@ import Base: iteratoreltype, start, next, done, iteratorsize, eltype, length, si
 using FunctionalCollections
 using Ratios
 
-export witheltype, takewhile, dropwhile, coprime
+export coprime, getrec, parserational
+export witheltype, takewhile, dropwhile
 
 # Misc
 # ====
@@ -15,6 +16,23 @@ function coprime(r::SimpleRatio{T}) where {T<:Integer}
 end
 
 coprime(n) = n
+
+function getrec(collection, key, default)
+    get(collection, key, default)
+end
+
+function getrec(collection, key, args...)
+    if haskey(collection, key)
+        getrec(collection[key], args...)
+    else
+        args[end]
+    end
+end
+
+function parserational(str)
+    m = match(r"(\d+)/(\d+)", str)
+    parse(m[1]) // parse(m[2])
+end
 
 # Iterators
 # =========

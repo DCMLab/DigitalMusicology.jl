@@ -10,6 +10,7 @@ export AbstractTimeSignature
 export TimeSignature, @time_str
 export metricweight, defaultmeter
 export TimeSigMap, inbar, barbeatsubb
+export parsebbs
 
 abstract type AbstractTimeSignature end
 
@@ -191,9 +192,13 @@ end
 
 Returns a triple `(bar, beat, subbeat)`
 that indicates bar, beat, and subbeat of `t` in the context of `timesigmap`.
+The first bar is `0`, the first beat in each bar is also `0`.
+Subbeats are given as fractions of a beat,
+so `0` means on the beat and `1/2` means in the middle between two beats.
+Upbeats have a negative bar (usually `-1`) but non-negative beat and subbeat.
 """
 function barbeatsubb(time::T, tsm::TimeSigMap{T}) where T
-    bb = 1
+    bb = 0
     i = 1
     @bbsnext(bb, i, time, tsm)
 end
@@ -209,7 +214,7 @@ in the context of `timesigmap`.
 `ts` must be sorted in ascending order.
 """
 function barbeatsubb(times::Vector{T}, tsm::TimeSigMap{T}) where T
-    barsbefore = 1
+    barsbefore = 0
     tsindex = 1
     out = sizehint!(Tuple{Int,Int,T}[], length(times))
     
@@ -239,6 +244,32 @@ function metricweight(time::T, tsm::TimeSigMap{T}, meter=nothing, beat=nothing) 
             beat = 1 // denominator(tsig)
         end
         metricweight(barpos, meter, beat)
+    end
+end
+
+## Utilities
+## =========
+
+"""
+    parsebbs(str [, convert=true])
+
+Parses a bar-beat-subbeat string of form `"<bar>.<beat>(.<subb>)?"`,
+where `<bar>` and `<beat>` are integers
+and `<subb>` is a fraction `n/d` or `0`.
+Returs bar, beat, and subbeat as a triple of numbers `(Int, Int, Rational{Int})`.
+
+If `convert` is `true` (default), bar and beat are decreased by `1` so that the first bar is
+represented as `1._` in the input but as `(0, ...)` in the output.
+"""
+function parsebbs(str; convert=true)
+    m = match(r"(?P<bar>\d+)\.(?P<beat>\d+)(\.(0|(?P<subb>\d+/\d+)))?", str)
+    bar = parse(m[:bar])
+    beat = parse(m[:beat])
+    subb = m[:subb] == nothing ? 0//1 : parserational(m[:subb])
+    if convert
+        (bar-1, beat-1, subb)
+    else
+        (bar, beat, subb)
     end
 end
 
