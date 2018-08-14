@@ -381,7 +381,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Reference",
     "title": "DigitalMusicology.Meter.barbeatsubb",
     "category": "method",
-    "text": "barbeatsubb(t, timesigmap)\n\nReturns a triple (bar, beat, subbeat) that indicates bar, beat, and subbeat of t in the context of timesigmap.\n\n\n\n"
+    "text": "barbeatsubb(t, timesigmap)\n\nReturns a triple (bar, beat, subbeat) that indicates bar, beat, and subbeat of t in the context of timesigmap. The first bar is 0, the first beat in each bar is also 0. Subbeats are given as fractions of a beat, so 0 means on the beat and 1/2 means in the middle between two beats. Upbeats have a negative bar (usually -1) but non-negative beat and subbeat.\n\n\n\n"
 },
 
 {
@@ -422,6 +422,14 @@ var documenterSearchIndex = {"docs": [
     "title": "DigitalMusicology.Meter.metricweight",
     "category": "method",
     "text": "metricweight(t, timesigmap [, meter [, beat]])\n\nReturns the metric weight at time point t in the context of timesigmap. Optionally, meter, and beat may be supplied as in metricweight(barpos, meter, beat) to override the default values inferred from the time signature at t.\n\n\n\n"
+},
+
+{
+    "location": "reference.html#DigitalMusicology.Meter.parsebbs-Tuple{Any}",
+    "page": "Reference",
+    "title": "DigitalMusicology.Meter.parsebbs",
+    "category": "method",
+    "text": "parsebbs(str [, convert=true])\n\nParses a bar-beat-subbeat string of form \"<bar>.<beat>(.<subb>)?\", where <bar> and <beat> are integers and <subb> is a fraction n/d or 0. Returs bar, beat, and subbeat as a triple of numbers (Int, Int, Rational{Int}).\n\nIf convert is true (default), bar and beat are decreased by 1 so that the first bar is represented as 1._ in the input but as (0, ...) in the output.\n\n\n\n"
 },
 
 {
