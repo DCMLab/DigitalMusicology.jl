@@ -183,7 +183,7 @@ collect(ps::PitchSet) = collect(ps.set)
 
 length(ps::PitchSet) = length(ps.set)
 
-map(f, ps::PitchSet) = PitchSet(map(f, ps.set))
+map(f, ps::PitchSet) = PitchSet(Set(f(x) for x = ps.set))
 
 show(io::IO, ps::PitchSet) =
     write(io, "{", join(sort(collect(ps.set)), ", "), "}")
@@ -198,7 +198,7 @@ pc(ps::PitchSet) = pcset(collect(ps))
 struct PitchClassSet{P} <: PitchCollection{P}
     set :: Set{P}
 
-    PitchClassSet(set::Set{P}) where P = new{P}(map(pc,set))
+    PitchClassSet(set::Set{P}) where P = new{P}(Set(pc(p) for p = set))
 end
 
 "Represents pitches as a set of pitch classes."
@@ -216,7 +216,7 @@ collect(pcs::PitchClassSet) = collect(pcs.set)
 
 length(pcs::PitchClassSet) = length(pcs.set)
 
-map(f, pcs::PitchClassSet) = PitchClassSet(Set(map(pc∘f, pcs.set)))
+map(f, pcs::PitchClassSet) = PitchClassSet(Set(pc(f(p)) for p = pcs.set))
 
 show(io::IO, pcs::PitchClassSet) =
     write(io, "{", join(sort(collect(pcs.set)), ", "), "}/12")

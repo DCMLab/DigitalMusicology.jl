@@ -1,5 +1,5 @@
 @testset "pitches" begin
-    @test isbits(MidiPitch)
+    @test isbitstype(MidiPitch)
     @test hash(midi(12)) == hash(midi(12))
 
     @test midi(12) + midi(3) == midi(15)

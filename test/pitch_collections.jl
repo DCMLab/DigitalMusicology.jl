@@ -1,3 +1,5 @@
+using Random
+
 @testset "Pitch Collections" begin
     pitches = map(midi, [3, -13, -1, 3, 5, 17])
     inc(x) = x+midi(1)

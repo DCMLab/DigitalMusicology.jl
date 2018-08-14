@@ -1,7 +1,7 @@
 module Events
 
 import Base: ==, hash, show, convert,
-    start, done, next, length, eltype, iteratorsize, iteratoreltype,
+    iterate, length, eltype, IteratorSize, IteratorEltype,
     getindex, setindex!, endof
 import DigitalMusicology: onset, offset, duration, hasonset, hasoffset, hasduration
 
@@ -277,17 +277,16 @@ endof(tp::TimePartition) = endof(tp.contents)
 
 #iteration
 
-start(tp::TimePartition) = 1
+iterate(tp::TimePartition, i=1) =
+    if i <= endof(tp)
+        tp[i], i+1
+    end
 
-done(tp::TimePartition, i) = i > endof(tp)
-
-next(tp::TimePartition) = tp[i], i+1
-
-iteratorsize(::Type{TimePartition}) = Base.HasLength()
+IteratorSize(::Type{TimePartition}) = Base.HasLength()
 
 length(tp::TimePartition) = endof(tp)
 
-iteratoreltype(::Type{TimePartition}) = Base.HasEltype()
+IteratorEltype(::Type{TimePartition}) = Base.HasEltype()
 
 eltype(::Type{TimePartition{T,C}}) where {T,C} = IntervalEvent{T,C}
 

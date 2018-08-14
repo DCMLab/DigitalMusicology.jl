@@ -51,7 +51,7 @@ show(io::IO, ::MIME"text/plain", hds::HumDrumString) =
 # <script src="http://www.verovio.org/javascript/midi-player/midiplayer.js"
 #         type="text/javascript"></script>
 
-scrpath = joinpath(Pkg.dir("DigitalMusicology"), "data", "")
+# scrpath = joinpath(dirname(pathof(DigitalMusicology)), "..", "data")
 
 kernhtml(cellid, content) = """
 <script id="$(cellid)-input" type="text/humdrum">
@@ -82,11 +82,11 @@ Set up display of [`HumDrumString`](@ref)s in Jupyter Notebooks.
 """
 function verovio()
     if isdefined(Main, :IJulia)
-        scrpath = joinpath(Pkg.dir("DigitalMusicology"), "data", "")
-        vero = readstring(scrpath * "verovio-toolkit.js")
-        wwm  = readstring(scrpath * "wildwebmidi.js")
-        mp   = readstring(scrpath * "midiplayer.js")
-        main = readstring(scrpath * "julia_verovio.js")
+        scrpath = joinpath(dirname(pathof("DigitalMusicology")), "data")
+        vero = readstring(joinpath(scrpath, "verovio-toolkit.js"))
+        wwm  = readstring(joinpath(scrpath, "wildwebmidi.js"))
+        mp   = readstring(joinpath(scrpath, "midiplayer.js"))
+        main = readstring(joinpath(scrpath, "julia_verovio.js"))
         map([vero, wwm, mp, main]) do js
             display(MIME"text/html"(), "<script type=\"text/javascript\">$(js)</script>")
         end

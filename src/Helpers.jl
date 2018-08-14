@@ -1,6 +1,7 @@
 module Helpers
 
-import Base: iteratoreltype, start, next, done, iteratorsize, eltype, length, size
+import Base: iterate, IteratorEltype, IteratorSize, eltype, length, size
+using IterTools: @ifsomething
 using FunctionalCollections
 using Ratios
 
@@ -46,14 +47,13 @@ end
 
 witheltype(itr::I, T::Type) where I = TypedIterator{I,T}(itr)
 
-start(itr::TypedIterator) = start(itr.inner)
-next(itr::TypedIterator, st) = next(itr.inner, st)
-done(itr::TypedIterator, st) = done(itr.inner, st)
+iterate(itr::TypedIterator) = start(itr.inner)
+iterate(itr::TypedIterator, st) = iterate(itr.inner, st)
 
-iteratoreltype(::Type{TypedIterator}) = Base.HasEltype()
+IteratorEltype(::Type{TypedIterator}) = Base.HasEltype()
 eltype(::Type{TypedIterator{I,T}}) where {I,T} = T
 
-iteratorsize(itr::Type{TypedIterator{I,T}}) where {I,T} = iteratorsize(I)
+IteratorSize(itr::Type{TypedIterator{I,T}}) where {I,T} = iteratorsize(I)
 length(itr::TypedIterator) = length(itr.inner)
 size(itr::TypedIterator) = size(itr.inner)
 size(itr::TypedIterator, dim...) = size(itr.inner, dim...)
@@ -68,20 +68,20 @@ end
 
 takewhile(f, itr) = TakeWhileItr(itr, f)
 
-start(twi::TakeWhileItr) = start(twi.itr)
+function iterate(twi::TakeWhileItr{T}, s...) where T
+    val, nxt = @ifsomething iterate(twi.itr, s...)
+    if twi.f(val)
+        val, nxt
+    end
+end
 
-next(twi::TakeWhileItr, s) = next(twi.itr, s)
-
-done(twi::TakeWhileItr, s) =
-    done(twi.itr, s) || !twi.f(next(twi.itr, s)[1])
-
-iteratoreltype(::Type{TakeWhileItr{T}}) where T = iteratoreltype(T)
+IteratorEltype(::Type{TakeWhileItr{T}}) where T = iteratoreltype(T)
 
 eltype(::Type{TakeWhileItr{T}}) where T = eltype(T)
 
-iteratorsize(::Type{TakeWhileItr{T}}) where T = Base.SizeUnknown()
+IteratorSize(::Type{TakeWhileItr{T}}) where T = Base.SizeUnknown()
 
-iteratorsize(::TakeWhileItr{T}) where T = Base.SizeUnknown()
+IteratorSize(::TakeWhileItr{T}) where T = Base.SizeUnknown()
 
 # list operations
 # ===============

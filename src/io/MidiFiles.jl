@@ -140,6 +140,7 @@ end
 function preparetrack(track::Vector{UpEvent}, tracknum::Int)
     out = Vector{Tuple{Int,KeySig,UpEvent}}(
         # as long as input but without KeySignatureME events
+        undef,
         count(ev -> !isa(ev.ev,KeySignatureME), track)
     )
     i = 1
@@ -162,7 +163,7 @@ function mergetracks(tracks::Vector{Vector{Tuple{Int,KeySig,UpEvent}}})
     # filter empty tracks
     filter!(!isempty, tracks)
     total = sum(map(length, tracks))
-    out = Vector{Tuple{Int,KeySig,UpEvent}}(total)
+    out = Vector{Tuple{Int,KeySig,UpEvent}}(undef,total)
     is = ones(Int, total)
     # tracklist = collect(enumerate(tracks))
 

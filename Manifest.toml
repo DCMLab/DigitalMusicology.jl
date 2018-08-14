@@ -136,6 +136,12 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 [[Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
+[[MIDI]]
+deps = ["InteractiveUtils", "Test"]
+git-tree-sha1 = "7eb6c1f4381a8573214f0487ebae630e35c98296"
+uuid = "f57c4921-e30c-5f49-b073-3f2f2ada663e"
+version = "0.8.1"
+
 [[MacroTools]]
 deps = ["Compat"]
 git-tree-sha1 = "c443e1c8d58a4e9f61b708ad0a88286c7042145b"

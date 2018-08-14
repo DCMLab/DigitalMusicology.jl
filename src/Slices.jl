@@ -1,6 +1,6 @@
 module Slices
 
-import Base.==, Base.hash, Base.show
+import Base: ==, hash, show
 import DigitalMusicology.Timed: onset, offset, duration, hasonset, hasoffset, hasduration
 import DigitalMusicology.PitchCollections: pitchiter
 import DigitalMusicology.Events: content

@@ -1,8 +1,8 @@
 module Corpora
 
-using IterTools: imap, chain
-using Missings: missing, skipmissing
-using Reexport.@reexport
+using Base.Iterators: flatten
+using IterTools: imap
+using Reexport: @reexport
 
 export Corpus, NoCorpus
 export getcorpus, setcorpus, unsetcorpus
@@ -116,7 +116,7 @@ function ls end
 ls() = ls(getcorpus())
 ls(dir) = ls(dir, getcorpus())
 ls(c::Corpus) = ls(topdir(c), c)
-ls(dir, c::Corpus) = collect(chain(dirs(dir, c), pieces(dir, c)))
+ls(dir, c::Corpus) = collect(flatten([dirs(dir, c), pieces(dir, c)]))
 
 """
     findpieces(searchstring[, corpus])

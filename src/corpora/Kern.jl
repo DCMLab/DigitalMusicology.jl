@@ -1,7 +1,8 @@
 module Kern
 
-importall DigitalMusicology.Corpora
+import DigitalMusicology.Corpora: supportedforms, allpieces, dirs, pieces, piecepath, findpieces, ls, topdir, _getpiece
 using DigitalMusicology
+using DigitalMusicology.Corpora: Corpus
 using DigitalMusicology.Helpers: getrec, parserational
 
 using DataFrames: eachrow

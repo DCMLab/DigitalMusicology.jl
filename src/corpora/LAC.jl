@@ -1,14 +1,15 @@
 module LAC
 
-importall DigitalMusicology.Corpora
+import DigitalMusicology.Corpora: supportedforms, allpieces, topdir, dirs, pieces, ls, findpieces, _getpiece
 using DigitalMusicology
+using DigitalMusicology.Corpora: Corpus
 
 using CSV: read
 using DataFrames: DataFrame, GroupedDataFrame, groupby, eachrow
-using IterTools: imap, chain
+using IterTools: imap
 using Base.Iterators: flatten
-using Query
-using Missings: ismissing, missing, Missing
+# using Query
+# using Missings: ismissing, missing, Missing
 
 using DigitalMusicology.Helpers: witheltype
 
@@ -58,17 +59,17 @@ allpieces(l::LACCorpus) = l.meta[:id]
 
 function allpieces(dir, l::LACCorpus)
     ds = dirs(dir)
-    isempty(ds) ? pieces(dir) : chain(pieces(dir), flatten(map(allpieces, ds)))
+    isempty(ds) ? pieces(dir) : flatten([pieces(dir), flatten(Set(allpieces(d) for d = ds))])
 end
 
 function dirs(dir, l::LACCorpus)
     pfx = dir == "./" ? "" : dir
-    map(d -> pfx * d, get(l.subdirs, dir, Set{String}()))
+    Set(pfx * d for d = get(l.subdirs, dir, Set{String}()))
 end
 
 function pieces(dir, l::LACCorpus)
     pfx = dir == "./" ? "" : dir
-    map(p -> pfx * p, get(l.dirpieces, dir, Set{String}()))
+    Set(pfx * p for p = get(l.dirpieces, dir, Set{String}()))
 end
 
 piecepath(id::String, cat::String, ext::String, crp::LACCorpus) =
@@ -76,18 +77,19 @@ piecepath(id::String, cat::String, ext::String, crp::LACCorpus) =
 
 findpieces(searchstr::AbstractString, crp::LACCorpus) = findpieces(Regex(string(searchstr), "i"), crp)
 
-findpieces(searchstr::Regex, crp::LACCorpus) =
-    @from row in meta(crp) begin
-        @where ismatch(searchstr, row[:id]) ||
-            ismatch(searchstr, row[:composer]) ||
-            ismatch(searchstr, get(row[:work_category], "")) ||
-            ismatch(searchstr, row[:work_title]) ||
-            ismatch(searchstr, get(row[:composition_year], "")) ||
-            ismatch(searchstr, get(row[:musical_key], "")) ||
-            ismatch(searchstr, get(row[:genre], ""))
-        @select row
-        @collect DataFrame
-    end
+# TODO: reenable once Query works again
+# findpieces(searchstr::Regex, crp::LACCorpus) =
+#     @from row in meta(crp) begin
+#         @where ismatch(searchstr, row[:id]) ||
+#             ismatch(searchstr, row[:composer]) ||
+#             ismatch(searchstr, get(row[:work_category], "")) ||
+#             ismatch(searchstr, row[:work_title]) ||
+#             ismatch(searchstr, get(row[:composition_year], "")) ||
+#             ismatch(searchstr, get(row[:musical_key], "")) ||
+#             ismatch(searchstr, get(row[:genre], ""))
+#         @select row
+#         @collect DataFrame
+#     end
 
 """
     meta([crp::LACCorpus])
@@ -111,35 +113,36 @@ function parseYear(str) :: Union{Missing,Int}
     end
 end
 
-"""
-    yearbins(timespan [, reference=0 [, corpus]])
+# TODO: reenable once Query is fixed
+# """
+#     yearbins(timespan [, reference=0 [, corpus]])
 
-Returns piece ids in a list of bins as named tuples
-`(onset, offset, bin, ids)`.
-The bins are `timespan` years wide and start at `reference`.
-Only pieces with a readable `composition_year` metadata entry
-are returned.
-The year is read from the `composition_year` column by taking the first
-sequence of 4 digits in each row.
-"""
-function yearbins(timespan::Int, reference::Int = 0, c::LACCorpus = getcorpus())
-    df = meta(c)
-    #miny = minimum(df[:composition_year])
-    #maxy = maximum(df[:composition_year])
-    #year_to_bin(year) = fld(year - reference, timespan)
-    bins = @from row in meta(c) begin
-        @where row.composition_year.hasvalue
-        @let year = parseYear(row.composition_year.value)
-        @where !ismissing(year)
-        @group row.id by fld(year - reference, timespan) into g
-        @select {onset=g.key * timespan + reference,
-                 offset=(g.key+1)*timespan + reference - 1,
-                 bin=g.key,
-                 ids=g}
-        @collect
-    end
-    sort(bins, by=(p -> p[3]))
-end
+# Returns piece ids in a list of bins as named tuples
+# `(onset, offset, bin, ids)`.
+# The bins are `timespan` years wide and start at `reference`.
+# Only pieces with a readable `composition_year` metadata entry
+# are returned.
+# The year is read from the `composition_year` column by taking the first
+# sequence of 4 digits in each row.
+# """
+# function yearbins(timespan::Int, reference::Int = 0, c::LACCorpus = getcorpus())
+#     df = meta(c)
+#     #miny = minimum(df[:composition_year])
+#     #maxy = maximum(df[:composition_year])
+#     #year_to_bin(year) = fld(year - reference, timespan)
+#     bins = @from row in meta(c) begin
+#         @where row.composition_year.hasvalue
+#         @let year = parseYear(row.composition_year.value)
+#         @where !ismissing(year)
+#         @group row.id by fld(year - reference, timespan) into g
+#         @select {onset=g.key * timespan + reference,
+#                  offset=(g.key+1)*timespan + reference - 1,
+#                  bin=g.key,
+#                  ids=g}
+#         @collect
+#     end
+#     sort(bins, by=(p -> p[3]))
+# end
 
 
 # helpers

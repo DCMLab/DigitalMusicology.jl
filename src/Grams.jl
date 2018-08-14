@@ -2,7 +2,7 @@ module Grams
 
 using DigitalMusicology.GatedQueues: GatedQueue, gatedq, release
 using FunctionalCollections
-using IterTools.groupby
+using IterTools: groupby, @ifsomething
 
 export grams, scapes, mapscapes
 export skipgrams, indexskipgrams
@@ -64,7 +64,7 @@ mapscapes(f::Function, arr::A) where {A <: AbstractArray} =
 
 abstract type SkipGramItr{T} end
 
-abstract type SkipGramItrState{T,I} end
+abstract type SkipGramItrState{T} end
 
 struct SkipGramFastItr{T} <: SkipGramItr{T}
     input
@@ -77,11 +77,11 @@ end
 
 const SGPrefix{T} = Tuple{Int, Float64, plist{T}}
 
-struct SkipGramFastItrState{T,I} <: SkipGramItrState{T,I}
-    instate  :: I # state of input iterator
-    prefixes :: Vector{SGPrefix{T}}    # list of prefixes
-    out      :: Vector{Vector{T}} #List{Vector{T}} # found grams
-    outstate :: Int
+struct SkipGramFastItrState{T} <: SkipGramItrState{T}
+    instate  # :: Union{I,Nothing} # state of input iterator
+    prefixes #:: Vector{SGPrefix{T}}    # list of prefixes
+    out      #:: Vector{Vector{T}} #List{Vector{T}} # found grams
+    outstate #:: Int
 end
 
 # exactly the same as SkipGramFastItr{T}
@@ -160,7 +160,7 @@ end
 ## ------------------
 
 function process_candidate(itr::SkipGramFastItr{T},
-                           st::SkipGramFastItrState{T,I}) where {T, I}
+                           st::SkipGramFastItrState{T}) where {T}
     # define helpers
     mk_prefix(x) = (itr.n-1, 0.0, plist{T}([x]))
     total_cost(pfx, x) = pfx[2] + itr.cost(first(pfx[3]), x)
@@ -169,7 +169,11 @@ function process_candidate(itr::SkipGramFastItr{T},
     prefix_to_gram(pfx::SGPrefix{T}) :: Vector{T} = reverse!(collect(pfx[3]))
 
     # 1. generate candidates
-    candidate, nextstate = next(itr.input, st.instate)
+    candidate, nextst = @ifsomething if st.instate == nothing
+        iterate(itr.input)
+    else
+        iterate(itr.input, st.instate)
+    end
 
     # 2. remove prefixes that cannot be completed anymore
     old_closed = filter(p -> total_cost(p, candidate) <= itr.k, st.prefixes)
@@ -196,52 +200,52 @@ function process_candidate(itr::SkipGramFastItr{T},
     nextpfxs = append!(old_closed, filter!(!prefix_complete, extended))
     
     #...
-    SkipGramFastItrState{T,I}(nextstate, nextpfxs, out, start(out))
+    outstart = iterate(out)
+    if outstart == nothing
+        fstout, outst = nothing, nothing
+    else
+        fstout, outst = outstart
+    end
+    fstout, SkipGramFastItrState{T}(nextst, nextpfxs, out, outst)
 end
 
-function new_grams(itr::SkipGramFastItr{T}, st::SkipGramFastItrState{T}) where T
-    while done(st.out, st.outstate)
-        if done(itr.input, st.instate)
-            return st
-        else
-            st = process_candidate(itr, st)
-        end
+function newgrams(itr::SkipGramFastItr{T}, st::SkipGramFastItrState{T}) where T
+    out = nothing
+    while out == nothing
+        out, st = @ifsomething process_candidate(itr, st)
     end
-    st
+    out, st
 end
 
 ## iterator interface
 
-function Base.start(itr::SkipGramFastItr{T}) where T
-    iout = Vector{Vector{T}}()
-    init = SkipGramFastItrState(
-        start(itr.input),
+function Base.iterate(itr::SkipGramFastItr{T}) where T
+    init = SkipGramFastItrState{T}(
+        nothing,
         Vector{SGPrefix{T}}(),
-        iout,
-        start(iout)
+        Vector{Vector{T}}(),
+        0
     )
-    new_grams(itr, init)
+    newgrams(itr, init)
 end
 
-Base.done(itr::SkipGramItr, st::SkipGramItrState) =
-    done(st.out, st.outstate)
+nextstate(st::SkipGramFastItrState{T}, rest::Int) where {T} =
+    SkipGramFastItrState{T}(st.instate, st.prefixes, st.out, rest)
 
-nextstate(st::SkipGramFastItrState{T,I}, rest::Int) where {T,I} =
-    SkipGramFastItrState{T,I}(st.instate, st.prefixes, st.out, rest)
-
-function Base.next(itr::SkipGramItr{T}, st::SkipGramItrState{T,I}) where {T, I}
-    gram, rest = next(st.out, st.outstate)
-    nextst = nextstate(st, rest)
-    if done(st.out, rest) # queue empty now? generate new grams
-        gram, new_grams(itr, nextst)
-    else # not empty? dequeue
-        gram, nextst
+function Base.iterate(itr::SkipGramItr{T}, st::SkipGramItrState{T}) where {T}
+    nxt = iterate(st.out, st.outstate)
+    if nxt != nothing
+        gram, rest = nxt
+        nxtst = nextstate(st, rest)
+        gram, nxtst
+    else
+        newgrams(itr,st)
     end
 end
 
-Base.iteratorsize(itrtype::Type{I}) where {I<:SkipGramItr} = Base.SizeUnknown()
+Base.IteratorSize(itrtype::Type{I}) where {I<:SkipGramItr} = Base.SizeUnknown()
 
-Base.iteratoreltype(itrtype::Type{I}) where {I<:SkipGramItr} = Base.HasEltype()
+Base.IteratorEltype(itrtype::Type{I}) where {I<:SkipGramItr} = Base.HasEltype()
 
 Base.eltype(itrtype::Type{SkipGramItr{T}}) where {T} = Vector{T}
 
@@ -256,8 +260,8 @@ Base.eltype(itrtype::Type{SkipGramItr{T}}) where {T} = Vector{T}
 const SGSPrefix{T} = Tuple{Int, Float64, plist{T}, Int}
 
 # like SkipGramFastItrState but with additional information
-struct SkipGramStableItrState{T,I} <: SkipGramItrState{T,I}
-    instate :: I
+struct SkipGramStableItrState{T} <: SkipGramItrState{T}
+    instate # :: Union{Nothing,I}
     prefixes :: Vector{SGSPrefix{T}}
     queue :: GatedQueue{Int, Vector{Vector{T}}}
     index :: Int
@@ -277,7 +281,7 @@ function enqueue_grams(q::GatedQueue{Int,Vector{T}}, xs::Vector) where {T}
 end
 
 function process_candidate(itr::SkipGramStableItr{T},
-                           st::SkipGramStableItrState{T,I}) where {T, I}
+                           st::SkipGramStableItrState{T}) where {T}
     # define helpers
     mk_prefix(x) = (itr.n-1, 0.0, plist{T}([x]), st.index)
     total_cost(pfx, x) = pfx[2] + itr.cost(first(pfx[3]), x)
@@ -287,7 +291,11 @@ function process_candidate(itr::SkipGramStableItr{T},
         pfx[4] => reverse!(collect(pfx[3]))
 
     # 1. generate candidates
-    candidate, nextstate = next(itr.input, st.instate)
+    candidate, nextst = @ifsomething if st.instate == nothing
+        iterate(itr.input)
+    else
+        iterate(itr.input, st.instate)
+    end
 
     # 2. remove prefixes that cannot be completed anymore
     old_closed = filter(p -> total_cost(p, candidate) <= itr.k, st.prefixes)
@@ -328,48 +336,56 @@ function process_candidate(itr::SkipGramStableItr{T},
     nextpfxs = append!(old_closed, filter!(!prefix_complete, extended))
     
     #...
-    SkipGramStableItrState{T,I}(nextstate, nextpfxs, qnew, st.index+1, out, start(out))
+    outstart = iterate(out)
+    if outstart == nothing
+        fstout, outst = nothing, nothing
+    else
+        fstout, outst = outstart
+    end
+    fstout, SkipGramStableItrState{T}(nextst, nextpfxs, qnew, st.index+1, out, outst)
 end
 
-function Base.start(itr::SkipGramStableItr{T}) where T
-    iout = Vector{Vector{T}}()
-    init = SkipGramStableItrState(
-        start(itr.input),
+function Base.iterate(itr::SkipGramStableItr{T}) where T
+    init = SkipGramStableItrState{T}(
+        nothing,
         Vector{SGSPrefix{T}}(),
         gatedq(Int, Vector{Vector{T}}),
         1,
-        iout,
-        start(iout)
+        Vector{Vector{T}}(),
+        0
     )
-    new_grams(itr, init)
+    newgrams(itr, init)
 end
 
-function new_grams(itr::SkipGramStableItr{T}, st::SkipGramStableItrState{T,I}) where {T,I}
-    while done(st.out, st.outstate)
-        if done(itr.input, st.instate)
+function newgrams(itr::SkipGramStableItr{T}, st::SkipGramStableItrState{T}) where {T}
+    out = nothing
+    while out == nothing
+        nxt = process_candidate(itr, st)
+        if nxt == nothing
             if isempty(st.queue)
-                return st
+                return nothing
             else
                 released, qnew = release(st.queue, st.index)
                 out = Iterators.flatten(released)
-                return SkipGramStableItrState{T,I}(
+                fstout, outst = iterate(out)
+                return fstout, SkipGramStableItrState{T}(
                     st.instate,
                     st.prefixes,
                     qnew,
                     st.index,
                     out,
-                    start(out)
+                    outst
                 )
             end
         else
-            st = process_candidate(itr, st)
+            out, st = nxt
         end
     end
-    st
+    out, st
 end
 
-nextstate(st::SkipGramStableItrState{T,I}, rest) where {T,I} =
-    SkipGramStableItrState{T,I}(st.instate, st.prefixes, st.queue, st.index, st.out, rest)
+nextstate(st::SkipGramStableItrState{T}, rest) where {T} =
+    SkipGramStableItrState{T}(st.instate, st.prefixes, st.queue, st.index, st.out, rest)
 
 # standard skipgrams
 # ------------------
