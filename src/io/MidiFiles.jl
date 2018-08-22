@@ -238,7 +238,7 @@ Currently, its value is ignored and orphan events are always skipped.
 """
 function midifilenotes(file::AbstractString; warnings=false, overlaps=:queue, orphans=:skip)
     if overlaps == :queue
-        takenote! = shift!
+        takenote! = popfirst!
     elseif overlaps == :stack
         takenote! = pop!
     else

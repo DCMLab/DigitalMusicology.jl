@@ -1,6 +1,6 @@
 module PitchCollections
 
-import Base: collect, map, ==, hash, start, done, next, eltype, length, show
+import Base: collect, map, ==, hash, eltype, length, show
 import DigitalMusicology.PitchOps: pc, transposeby, transposeto
 using DigitalMusicology
 

@@ -2,7 +2,7 @@ module Events
 
 import Base: ==, hash, show, convert,
     iterate, length, eltype, IteratorSize, IteratorEltype,
-    getindex, setindex!, endof
+    getindex, setindex!, firstindex, lastindex
 import DigitalMusicology: onset, offset, duration, hasonset, hasoffset, hasduration
 
 export PointEvent, IntervalEvent, content
@@ -273,18 +273,19 @@ function setindex!(tp::TimePartition{T,C}, v::C, i) where {T,C}
     tp.contents[i] = v
 end
 
-endof(tp::TimePartition) = endof(tp.contents)
+lastindex(tp::TimePartition) = lastindex(tp.contents)
+firstindex(tp::TimePartition) = 1
 
 #iteration
 
 iterate(tp::TimePartition, i=1) =
-    if i <= endof(tp)
+    if i <= lastindex(tp)
         tp[i], i+1
     end
 
 IteratorSize(::Type{TimePartition}) = Base.HasLength()
 
-length(tp::TimePartition) = endof(tp)
+length(tp::TimePartition) = lastindex(tp)
 
 IteratorEltype(::Type{TimePartition}) = Base.HasEltype()
 
