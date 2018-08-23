@@ -247,7 +247,9 @@ Base.IteratorSize(itrtype::Type{I}) where {I<:SkipGramItr} = Base.SizeUnknown()
 
 Base.IteratorEltype(itrtype::Type{I}) where {I<:SkipGramItr} = Base.HasEltype()
 
-Base.eltype(itrtype::Type{SkipGramItr{T}}) where {T} = Vector{T}
+Base.eltype(itrtype::Type{SkipGramFastItr{T}}) where {T} = Vector{T}
+Base.eltype(itrtype::Type{SkipGramStableItr{T}}) where {T} = Vector{T}
+
 
 ## stable skipgram iterator
 ## ------------------------

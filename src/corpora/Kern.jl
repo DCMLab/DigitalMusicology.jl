@@ -25,7 +25,7 @@ function kerncrp(dir::String)
     if !isdir(dir); error(string("no valid directory: ", dir)) end
     if !isdir(kerndir); error(string("no kern directory in ", dir)) end
 
-    ids = map(fn -> fn[1:end-4], filter(fn -> ismatch(r".*\.krn", fn), readdir(kerndir)))
+    ids = map(fn -> fn[1:end-4], filter(fn -> occursin(r".*\.krn", fn), readdir(kerndir)))
     KernCorpus(dir, ids)
 end
 
@@ -62,12 +62,12 @@ piecepath(id, cat, ext, crp::KernCorpus) =
 
 findpieces(searchstr::AbstractString, crp::KernCorpus) = findpieces(Regex(string(searchstr), "i"), crp)
 
-findpieces(searchstr::Regex, crp::KernCorpus) = filter(id -> ismatch(searchstr, id), crp.ids)
+findpieces(searchstr::Regex, crp::KernCorpus) = filter(id -> occursin(searchstr, id), crp.ids)
 
 function hasupbeat(id, crp=getcorpus())
     fn = piecepath(id, "kern", ".krn", crp)
     kernstr = read(fn, String)
-    ismatch(r"=1\t", kernstr)
+    occursin(r"=1\t", kernstr)
 end
 
 # piece accessors

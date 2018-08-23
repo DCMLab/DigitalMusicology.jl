@@ -32,7 +32,7 @@ end
 
 function parserational(str)
     m = match(r"(\d+)/(\d+)", str)
-    parse(m[1]) // parse(m[2])
+    Meta.parse(m[1]) // Meta.parse(m[2])
 end
 
 # Iterators

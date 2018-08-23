@@ -399,7 +399,7 @@ function midifiletimesigs(file::AbstractString; unit=:wholes, upbeat=0)
         gettime = () -> nows
     elseif unit == :wholes
         timesigs = TimeSigMap{Rational{Int}}(Rational{Int}[0//1], TimeSignature[])
-        gettime = () -> Rational{Int}(noww)
+        gettime = () -> convert(Rational{Int}, noww)
     else
         error("unknown unit: ", unit)
     end

@@ -80,13 +80,13 @@ findpieces(searchstr::AbstractString, crp::LACCorpus) = findpieces(Regex(string(
 # TODO: reenable once Query works again
 # findpieces(searchstr::Regex, crp::LACCorpus) =
 #     @from row in meta(crp) begin
-#         @where ismatch(searchstr, row[:id]) ||
-#             ismatch(searchstr, row[:composer]) ||
-#             ismatch(searchstr, get(row[:work_category], "")) ||
-#             ismatch(searchstr, row[:work_title]) ||
-#             ismatch(searchstr, get(row[:composition_year], "")) ||
-#             ismatch(searchstr, get(row[:musical_key], "")) ||
-#             ismatch(searchstr, get(row[:genre], ""))
+#         @where occursin(searchstr, row[:id]) ||
+#             occursin(searchstr, row[:composer]) ||
+#             occursin(searchstr, get(row[:work_category], "")) ||
+#             occursin(searchstr, row[:work_title]) ||
+#             occursin(searchstr, get(row[:composition_year], "")) ||
+#             occursin(searchstr, get(row[:musical_key], "")) ||
+#             occursin(searchstr, get(row[:genre], ""))
 #         @select row
 #         @collect DataFrame
 #     end
