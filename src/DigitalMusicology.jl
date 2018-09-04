@@ -40,6 +40,16 @@ include("Slices.jl")
 include("Grams.jl")
 @reexport using .Grams
 
+#extension
+include("Distributions.jl")
+@reexport using .Distributions
+
+include("MidiToolBox.jl")
+@reexport using .MidiToolBox
+
+include("Contour.jl")
+@reexport using .Contour
+
 # Input and Output
 
 include("io/MidiFiles.jl")

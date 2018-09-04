@@ -1,11 +1,16 @@
 module Notes
 
 using DigitalMusicology
+using DataFrames
+using Ratios
+using Base.Iterators
 import Base: hash, ==, show
 import DigitalMusicology.Timed: onset, offset, duration, hasonset, hasoffset, hasduration
 import DigitalMusicology.PitchCollections: pitches
+import Base: iterate, IteratorSize, IteratorEltype, length, HasLength, HasEltype
 
 export Note, TimedNote, pitch
+export Itermidi, notesequence,quantize, ismonophonic
 
 # Abstract Notes
 # ==============
@@ -61,4 +66,72 @@ hash(t::TimedNote, x::UInt) = hash(t.pitch, hash(t.onset, hash(t.offset, x)))
 show(io::IO, t::TimedNote) =
     write(io, string("Note<", t.onset, "-", t.offset, ">(", t.pitch, ")"))
 
+
+
+    """
+        Itermidi
+
+    Iteror over DataFrames representing midi files. The iterator returns a TimedNote
+    """
+    struct Itermidi
+        midiframe :: DataFrame
+        timetype :: String
+    end
+
+
+    function iterate(iter ::Itermidi, state :: Int64 = 0)
+        if state >= size(iter.midiframe,1)
+            return nothing
+        end
+        return (TimedNote(iter.midiframe[state+1,:pitch],iter.midiframe[state+1,Symbol("onset_",iter.timetype)],iter.midiframe[state+1,Symbol("offset_",iter.timetype)]),state +1)
+    end
+
+    IteratorSize(::Type{Itermidi}) = HasLength()
+    IteratorEltype(::Type{Itermidi}) = HasEltype()
+    length(iter :: Itermidi) = size(iter.midiframe,1)
+
+
+    """
+        notesequence(notes,n :: Int64)
+
+    return an iterator over all sequences of 'n' consecutive notes
+    """
+    function notesequence(notes,n :: Int64)
+        seq = []
+        for i = 1:n
+            push!(seq,drop(notes,i-1))
+        end
+        return map(e->collect(e),zip(seq...))
+    end
+
+    """
+        quantize(notes,tresh = 1//8 )
+
+    quantize the given notes on a grid which has "cells" of length 'thresh'
+    Caution : sometime the resulting onsets and offsets can have rounding problems (eg. 40.400000000006)
+    """
+    function quantize(note,tresh = 1//8 )
+
+        return TimedNote(pitch(note),round(Int64,onset(note)/tresh)*tresh,round(Int64,offset(note)/tresh)*tresh)
+    end
+
+
+    function ismonophonic(notes,overlap = 0.1)
+        if overlap < 0
+            throw(ArgumentError("overlap must be positive"))
+        end
+        ismono = true
+        i = 1
+        prev = iterate(notes)
+        next = (prev == nothing) ? nothing : iterate(notes,prev[2])
+        while ismono && next != nothing
+
+            if onset(next[1])- offset(prev[1]) < -overlap
+                ismono = false
+            end
+            prev = next
+            next = iterate(notes,prev[2])
+        end
+        return ismono
+    end
 end # module
