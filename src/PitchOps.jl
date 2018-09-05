@@ -30,7 +30,7 @@ transposeto(pitch::P, newref::P) where {P <: Pitch} = newref
 
 
 """
-    midiPitchName(p :: MidiPitch)
+    midipitchname(p :: MidiPitch)
 
 return the name of the given MidiPitch
 midi pitches must take values between 21 and 108

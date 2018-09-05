@@ -44,8 +44,8 @@ include("Grams.jl")
 include("Distributions.jl")
 @reexport using .Distributions
 
-include("MidiToolBox.jl")
-@reexport using .MidiToolBox
+include("MidiTools.jl")
+@reexport using .MidiTools
 
 include("Contour.jl")
 @reexport using .Contour

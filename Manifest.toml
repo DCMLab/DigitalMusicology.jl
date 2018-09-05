@@ -109,6 +109,12 @@ git-tree-sha1 = "7534ff3c50333a69ae0778d4d869e6f5c9ec022a"
 uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 version = "0.19.6"
 
+[[FileIO]]
+deps = ["Pkg", "Random", "Test"]
+git-tree-sha1 = "b80161b7e679a1241f9441ebfa60b62d4239cf99"
+uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
+version = "1.0.1"
+
 [[FunctionalCollections]]
 deps = ["Test"]
 git-tree-sha1 = "9fdecc849480c511d7825570c20c9b64c4e5d5ed"
@@ -121,9 +127,9 @@ uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 
 [[HDF5]]
 deps = ["BinDeps", "Blosc", "Distributed", "Homebrew", "Libdl", "LinearAlgebra", "Pkg", "Test", "WinRPM"]
-git-tree-sha1 = "2407ec97bdb872ed0d569ff8e592c7a5d60675bc"
+git-tree-sha1 = "a898e5dac9aa5824deb55aad8bd44b4574972cf8"
 uuid = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
-version = "0.10.0"
+version = "0.10.1"
 
 [[HTTPClient]]
 deps = ["Compat", "LibCURL"]
@@ -165,11 +171,23 @@ git-tree-sha1 = "5484e5ede2a4137b9643f4d646e8e7b87b794415"
 uuid = "82899510-4779-5014-852e-03e436cf321d"
 version = "0.1.1"
 
+[[JLD]]
+deps = ["Compat", "FileIO", "HDF5", "LegacyStrings"]
+git-tree-sha1 = "ceef409e4930de45022d41cc3faf0f132a9ce172"
+uuid = "4138dd39-2aa7-5051-a626-17a0bb65d9c8"
+version = "0.8.3"
+
 [[JSON]]
 deps = ["Dates", "Distributed", "Mmap", "Pkg", "Sockets", "Test", "Unicode"]
 git-tree-sha1 = "fec8e4d433072731466d37ed0061b3ba7f70eeb9"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.19.0"
+
+[[LegacyStrings]]
+deps = ["Compat"]
+git-tree-sha1 = "7cfb0bf378fab9ec57b393e3c56a419d6afab876"
+uuid = "1b4a561d-cfcb-5daf-8433-43fcf8b4bea3"
+version = "0.4.0"
 
 [[LibCURL]]
 deps = ["BinaryProvider", "Compat", "Libdl", "Pkg"]
@@ -247,9 +265,9 @@ version = "0.1.0"
 
 [[Parameters]]
 deps = ["Markdown", "OrderedCollections", "Pkg", "REPL", "Test"]
-git-tree-sha1 = "404052e5baa21d90cd1e5a68a1f6a387980562bf"
+git-tree-sha1 = "40f540ec96e50c0b2b9efdb11b5e4d0c63f90923"
 uuid = "d96e819e-fc66-5662-9728-84c9c7592b0a"
-version = "0.10.0"
+version = "0.10.1"
 
 [[Pkg]]
 deps = ["Dates", "LibGit2", "Markdown", "Printf", "REPL", "Random", "SHA", "UUIDs"]
