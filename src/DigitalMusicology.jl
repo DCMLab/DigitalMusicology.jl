@@ -62,12 +62,5 @@ include("Corpora.jl")
 include("External.jl")
 @reexport using .External
 
-#=matr = read(matopen("keysomdata.mat"),"somw")
-for i = 7:12 ,  j = 1:36 ,  k = 1:24
-    println("vsom[",i,",",j,",",k,"] = " , matr[i,j,k])
-end 
-matr = read(matopen("keysomdata.mat"),"somw")
-h5write("data.h5","datasom",matr)
-h5read("data.h5","datasom",(10,10,10))
-=#
+
 end # module
