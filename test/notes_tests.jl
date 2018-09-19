@@ -44,7 +44,7 @@ end
     end
 
     iter = Itermidi(lframe,"secs")
-    @test_throws ArgumentError ismonophonic(iter,-0.1)  #fails on negative overlap
+    @test  ismonophonic(iter,-0.1) == true
 end
 
 @testset "quantize" begin

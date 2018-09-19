@@ -4,6 +4,7 @@ module DigitalMusicology
 # Maybe this should be done selectively in some cases.
 using Reexport
 
+
 # Helpers
 
 include("Helpers.jl")
@@ -44,8 +45,8 @@ include("Grams.jl")
 include("Distributions.jl")
 @reexport using .Distributions
 
-include("MidiTools.jl")
-@reexport using .MidiTools
+include("MidiTools2.jl")
+@reexport using .MidiTools2
 
 include("Contour.jl")
 @reexport using .Contour
@@ -61,4 +62,12 @@ include("Corpora.jl")
 include("External.jl")
 @reexport using .External
 
+#=matr = read(matopen("keysomdata.mat"),"somw")
+for i = 7:12 ,  j = 1:36 ,  k = 1:24
+    println("vsom[",i,",",j,",",k,"] = " , matr[i,j,k])
+end 
+matr = read(matopen("keysomdata.mat"),"somw")
+h5write("data.h5","datasom",matr)
+h5read("data.h5","datasom",(10,10,10))
+=#
 end # module

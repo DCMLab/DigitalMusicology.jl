@@ -83,7 +83,8 @@ function iterate(iter ::Itermidi, state :: Int64 = 0)
     if state >= size(iter.midiframe,1)
         return nothing
     end
-    return (TimedNote(iter.midiframe[state+1,:pitch],iter.midiframe[state+1,Symbol("onset_",iter.timetype)],iter.midiframe[state+1,Symbol("offset_",iter.timetype)]),state +1)
+    note = TimedNote(iter.midiframe[state+1,:pitch],iter.midiframe[state+1,Symbol("onset_",iter.timetype)],iter.midiframe[state+1,Symbol("offset_",iter.timetype)])
+    return (note,state +1)
 end
 
 IteratorSize(::Type{Itermidi}) = HasLength()
@@ -101,7 +102,7 @@ function notesequence(notes,n :: Int64)
     for i = 1:n
         push!(seq,drop(notes,i-1))
     end
-    return map(e->collect(e),zip(seq...))
+    return map(collect,zip(seq...))
 end
 
 """
@@ -121,7 +122,8 @@ verify if the iterator of notes is monophonic with a tolerance given by ‘overl
 """
 function ismonophonic(notes,overlap = 0.1)
     if overlap < 0
-        throw(ArgumentError("overlap must be positive"))
+        println("WARNING : negative overlap")
+        overlap *= -1
     end
     ismono = true
     i = 1

@@ -10,7 +10,9 @@ export dist, pcdist1,pcdist2,ivdist1,ivdist2,durdist1,durdist2
 compute the distribution of the feature of a given data
 """
 function dist(data,feature = e->e,func = e -> 1, normalize :: Bool = true)
-
+    if iterate(data) == nothing
+        return Dict()
+    end
     d = Dict()
     for e in data
         f = feature(e)
@@ -21,6 +23,7 @@ function dist(data,feature = e->e,func = e -> 1, normalize :: Bool = true)
         end
     end
     sv = sum(values(d))
+    println(sv)
     if sv == 0 || !normalize
         return d
     end
