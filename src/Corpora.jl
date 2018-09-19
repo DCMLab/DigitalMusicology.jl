@@ -23,7 +23,7 @@ Throws an error, if the corpus is not set."
 function getcorpus()
     global corpus
     if isa(corpus, NoCorpus)
-        error("Please set a default corpus with setcorpus(corpus).")
+        throw(ErrorException("Please set a default corpus with setcorpus(corpus)."))
     else
         corpus
     end
@@ -168,7 +168,7 @@ getpieces(ids, form, corpus = getcorpus(); skipmissings=false) = begin
             missing
         end
     end
-    
+
     skipmissings ? skipmissing(pieces) : pieces
 end
 

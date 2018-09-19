@@ -23,7 +23,6 @@ function dist(data,feature = e->e,func = e -> 1, normalize :: Bool = true)
         end
     end
     sv = sum(values(d))
-    println(sv)
     if sv == 0 || !normalize
         return d
     end
