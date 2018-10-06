@@ -1,0 +1,6 @@
+authors = ["Toussain <toussain@toussain.com>"]
+name = "DigitalMusicology"
+uuid = "87744c2e-bc0e-11e8-0aa1-fb96d9a6b7e5"
+version = "0.1.0"
+
+[deps]

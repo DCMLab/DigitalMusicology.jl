@@ -4,6 +4,7 @@ module DigitalMusicology
 # Maybe this should be done selectively in some cases.
 using Reexport
 
+
 # Helpers
 
 include("Helpers.jl")
@@ -40,6 +41,16 @@ include("Slices.jl")
 include("Grams.jl")
 @reexport using .Grams
 
+#extension
+include("Distributions.jl")
+@reexport using .Distributions
+
+include("MidiTools2.jl")
+@reexport using .MidiTools2
+
+include("Contour.jl")
+@reexport using .Contour
+
 # Input and Output
 
 include("io/MidiFiles.jl")
@@ -50,5 +61,6 @@ include("Corpora.jl")
 
 include("External.jl")
 @reexport using .External
+
 
 end # module

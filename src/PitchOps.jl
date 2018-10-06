@@ -2,7 +2,7 @@ module PitchOps
 
 using DigitalMusicology
 
-export pc, allpcs, transposeby, transposeto
+export pc, allpcs, transposeby, transposeto, midipitchname
 
 "Turn a pitch (or pitch collection) into a pitch class (collection)"
 function pc end
@@ -28,4 +28,18 @@ function transposeto end
 
 transposeto(pitch::P, newref::P) where {P <: Pitch} = newref
 
+
+"""
+    midipitchname(p :: MidiPitch)
+
+return the name of the given MidiPitch
+midi pitches must take values between 21 and 108
+"""
+function midipitchname(p :: MidiPitch)
+  if(p.pitch < 21 || p.pitch > 108)
+    throw(ArgumentError("pitch out of bounds"))
+  end
+  miditable = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]
+  return string(miditable[mod(p.pitch,12)+1],floor(Int,(p.pitch)/12)-1)
+end
 end # module
