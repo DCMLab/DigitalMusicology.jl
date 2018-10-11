@@ -14,7 +14,7 @@ makedocs(
 deploydocs(
     repo = "github.com/DCMLab/DigitalMusicology.jl",
     target = "build",
-    julia = "1.0",
+    julia = "0.7",
     deps = nothing,
     make = nothing
 )
