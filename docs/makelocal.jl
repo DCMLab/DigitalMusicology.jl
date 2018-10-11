@@ -1,3 +1,4 @@
+import Pkg; Pkg.activate(@__DIR__);
 using Documenter, DigitalMusicology
 
 makedocs(

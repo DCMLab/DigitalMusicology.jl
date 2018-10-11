@@ -1,0 +1,3 @@
+[deps]
+DigitalMusicology = "2c2a18ac-9fc9-11e8-3acf-35f06862b736"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
