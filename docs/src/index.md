@@ -50,4 +50,7 @@ pitches, so a disambiguation rule must be provided
 
 Take a look at the [reference](reference.md).
 
+If you want to contribute to DigitalMusicology.jl, take a look at the
+[developer documentation](develop.md).
+
 Tutorials and explanations will follow.

@@ -8,6 +8,8 @@
 
 This is the Julia toolbox of the Digital and Cognitive Musicology Lab (DCML) at the [École polytechnique fédérale de Lausanne (EPFL)](https://www.epfl.ch/index.en.html). 
 
+If you want to contribute, have a look at the [developer documentation](https://dcmlab.github.io/DigitalMusicology.jl/latest/develop.html).
+
 Some ideas:
 - a common interface for loading data organized in corpora
   - identifiers (+ ability to look up / search them)
