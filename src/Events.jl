@@ -101,7 +101,7 @@ hasduration(::Type{IntervalEvent}) = true
 ### ==============
 
 """
-    TimePartition(breaks::Vector{T}, contents::Vector{C}
+    TimePartition(breaks::Vector{T}, contents::Vector{C})
 
 Partitions a time span into half-open intervals
 [t0,t1), [t1,t2), ..., [tn-1,tn), where each interval has a content.

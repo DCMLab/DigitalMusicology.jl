@@ -82,7 +82,7 @@ Set up display of [`HumDrumString`](@ref)s in Jupyter Notebooks.
 """
 function verovio()
     if isdefined(Main, :IJulia)
-        scrpath = joinpath(dirname(pathof("DigitalMusicology")), "data")
+        scrpath = joinpath(dirname(pathof("DigitalMusicology")), "..", "data")
         vero = readstring(joinpath(scrpath, "verovio-toolkit.js"))
         wwm  = readstring(joinpath(scrpath, "wildwebmidi.js"))
         mp   = readstring(joinpath(scrpath, "midiplayer.js"))
@@ -97,7 +97,7 @@ function verovio()
 end
 
 function veroviosvg(hds::HumDrumString)
-    script = joinpath(Pkg.dir("DigitalMusicology"), "data", "mksvg.js")
+    script = joinpath(Pkg.dir("DigitalMusicology"), "..", "data", "mksvg.js")
     (proc_out, proc_in, proc) = readandwrite(`$(nodejs_cmd()) $(script)`)
     write(proc_in, hds.content)
     close(proc_in)
