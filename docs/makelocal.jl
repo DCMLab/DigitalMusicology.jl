@@ -6,6 +6,7 @@ makedocs(
     sitename = "DigitalMusicology.jl",
     pages = [
         "Introduction" => "index.md",
+        "Development" => "develop.md",
         "Reference" => "reference.md"
     ]
 )

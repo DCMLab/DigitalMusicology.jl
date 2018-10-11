@@ -6,6 +6,7 @@ makedocs(
     sitename = "DigitalMusicology.jl",
     pages = [
         "Introduction" => "index.md",
+        "Development" => "develop.md",
         "Reference" => "reference.md"
     ]
 )
@@ -13,7 +14,7 @@ makedocs(
 deploydocs(
     repo = "github.com/DCMLab/DigitalMusicology.jl",
     target = "build",
-    julia = "0.6",
+    julia = "1.0",
     deps = nothing,
     make = nothing
 )
