@@ -1,9 +1,12 @@
 module Pitches
 
-import Base: show, +, -, convert, zero, isless
+import Base: show, +, -, *, convert, zero, isless
 
 export Pitch, PitchClass
 export MidiPitch, midi, midis, @midi
+export MidiPitchClass, midic, midics, @midic
+export tomidi, octave, pc, embed, isstep
+export pitchtype, pitchclasstype
 
 
 # Pitch: basic Types and Interfaces
@@ -29,20 +32,6 @@ separately for pitch classes.
 """
 abstract type PitchClass <: Pitch end
 
-# Pitch Traits:
-# additive group:
-#   +(p,p), -(_,_), -(_), zero
-# module
-#   *(p,Int), *(Int,p)
-# pitch
-#   tomidi(p), tofreq(p)?, octave(P,n), sign(p)
-# pitch class (and corresponding pitch)
-#   pc(p)::pc, embed(pc)::p, pitchtype(PC), pitchclasstype(P)
-# diatonic
-#   isstep(p)
-# optional
-#   isless(p)
-
 # interfaces
 # ----------
 
@@ -67,7 +56,7 @@ For convenience, a fallback for `octave(p::T, [n])` is provided.
 Only `octave(T)` needs to be implemented.
 """
 function octave end
-octave(T::Type{PC}) where {P<:PitchClass} = zero(T)
+octave(T::Type{PC}) where {PC<:PitchClass} = zero(T)
 octave(T, n::Int) = octave(T) * n
 octave(p::Pitch) = octave(typeof(p))
 
@@ -166,7 +155,7 @@ midis(pitches) = map(midi, pitches)
 
 Maps `midic()` over a collection of integers.
 """
-midis(pitches) = map(midic, pitches)
+midics(pitches) = map(midic, pitches)
 
 """
     @midi expr
@@ -202,6 +191,15 @@ end
 show(io::IO, p::MidiPitch) = show(io, p.pitch)
 show(io::IO, p::MidiPitchClass) = show(io, p.pc)
 
+Base.isless(p1::MidiPitch, p2::MidiPitch) = isless(p1.pitch, p2.pitch)
+Base.isless(p1::MidiPitchClass, p2::MidiPitchClass) = isless(p1.pc, p2.pc)
+
+==(p1::MidiPitch, p2::MidiPitch) = p1.pitch == p2.pitch
+==(p1::MidiPitchClass, p2::MidiPitchClass) = p1.pc == p2.pc
+
+Base.hash(p::MidiPitch, x::UInt) = hash(p.pitch, x)
+Base.hash(p::MidiPitchClass, x::UInt) = hash(p.pc, x)
+
 convert(::Type{MidiPitch}, x::N) where {N<:Number} = midi(convert(Int, x))
 convert(::Type{Pitch}, x::N) where {N<:Number} = midi(convert(Int, x))
 convert(::Type{Int}, p::MidiPitch) = p.pitch
@@ -214,14 +212,14 @@ convert(::Type{N}, p::MidiPitchClass) where {N<:Number} = convert(N, p.pc)
 
 ## midi pitch: interfaces
 
-Base.+(p1::MidiPitch, p2::MidiPitch) = midi(p1.pitch + p2.pitch)
-Base.-(p1::MidiPitch, p2::MidiPitch) = midi(p1.pitch - p2.pitch)
-Base.-(p::MidiPitch) = midi(-p.pitch)
-Base.zero(::Type{MidiPitch}) = midi(0)
-Base.zero(::MidiPitch) = midi(0)
++(p1::MidiPitch, p2::MidiPitch) = midi(p1.pitch + p2.pitch)
+-(p1::MidiPitch, p2::MidiPitch) = midi(p1.pitch - p2.pitch)
+-(p::MidiPitch) = midi(-p.pitch)
+zero(::Type{MidiPitch}) = midi(0)
+zero(::MidiPitch) = midi(0)
 
-Base.*(p::MidiPitch, n::Int) = midi(p.pitch*n)
-Base.*(n::Int, p::MidiPitch) = midi(p.pitch*n)
+*(p::MidiPitch, n::Int) = midi(p.pitch*n)
+*(n::Int, p::MidiPitch) = midi(p.pitch*n)
 
 tomidi(p::MidiPitch) = p
 octave(::Type{MidiPitch}) = midi(12)
@@ -233,18 +231,17 @@ pitchtype(::Type{MidiPitch}) = MidiPitch
 pitchclasstype(::Type{MidiPitch}) = MidiPitchClass
 
 isstep(p::MidiPitch) = abs(p) <= 2
-Base.isless(p1::MidiPitch, p2::MidiPitch) = isless(p1.pitch, p2.pitch)
 
 ## midi pitch class: interfaces
 
-Base.+(p1::MidiPitchClass, p2::MidiPitchClass) = midic(p1.pc + p2.pc)
-Base.-(p1::MidiPitchClass, p2::MidiPitchClass) = midic(p1.pc - p2.pc)
-Base.-(p::MidiPitchClass) = midic(-p.pc)
-Base.zero(::Type{MidiPitchClass}) = midic(0)
-Base.zero(::MidiPitchClass) = midic(0)
++(p1::MidiPitchClass, p2::MidiPitchClass) = midic(p1.pc + p2.pc)
+-(p1::MidiPitchClass, p2::MidiPitchClass) = midic(p1.pc - p2.pc)
+-(p::MidiPitchClass) = midic(-p.pc)
+zero(::Type{MidiPitchClass}) = midic(0)
+zero(::MidiPitchClass) = midic(0)
 
-Base.*(p::MidiPitchClass, n::Int) = midic(p.pc*n)
-Base.*(n::Int, p::MidiPitchClass) = midic(p.pc*n)
+*(p::MidiPitchClass, n::Int) = midic(p.pc*n)
+*(n::Int, p::MidiPitchClass) = midic(p.pc*n)
 
 tomidi(p::MidiPitchClass) = p
 octave(::Type{MidiPitchClass}) = midic(0)
@@ -253,9 +250,8 @@ Base.sign(p::MidiPitchClass) = p.pc == 0 ? 0 : -sign(p.pc-6)
 pc(p::MidiPitchClass) = p
 embed(p::MidiPitchClass) = midi(p.pc)
 pitchtype(::Type{MidiPitchClass}) = MidiPitch
-pitchclasstype(::Type{MidiPitch}) = MidiPitchClass
+pitchclasstype(::Type{MidiPitchClass}) = MidiPitchClass
 
 isstep(p::MidiPitchClass) = p <= 2 || p >= 10
-Base.isless(p1::MidiPitchClass, p2::MidiPitchClass) = isless(p1.pc, p2.pc)
 
 end # module
