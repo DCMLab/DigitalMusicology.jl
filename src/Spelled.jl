@@ -165,6 +165,8 @@ end
 -(i::SpelledInterval) = SpelledInterval(-i.fifths, -i.octaves)
 zero(::SpelledInterval) = SpelledInterval(0, 0)
 
+*(k::Int, i::SpelledInterval) = SpelledInterval(k*i.fifths, k*i.octaves)
+
 #######################
 ### Spelled Pitches ###
 #######################
@@ -236,6 +238,8 @@ end
 -(ic1::SpelledIC, ic2::SpelledIC) = SpelledIC(ic1.fifths - ic2.fifths)
 -(ic::SpelledIC) = SpelledIC(-ic.fifths)
 zero(::Type{SpelledIC}) = SpelledIC(0)
+
+*(k::Int, i::SpelledIC) = SpelledIC(k * i.fifths)
 
 #############################
 ### Spelled pitch classes ###
