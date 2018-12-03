@@ -10,6 +10,9 @@ include("Helpers.jl")
 
 include("GatedQueues.jl")
 
+include("ModInts.jl")
+@reexport using .ModInts
+
 # Basics
 
 include("Pitches.jl")
@@ -26,6 +29,7 @@ include("Events.jl")
 
 include("Meter.jl")
 @reexport using .Meter
+
 # Musical Structures
 
 include("PitchCollections.jl")
@@ -39,6 +43,9 @@ include("Slices.jl")
 
 include("Grams.jl")
 @reexport using .Grams
+
+include("Spelled.jl")
+@reexport using .Spelled
 
 # Input and Output
 

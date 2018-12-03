@@ -1,6 +1,8 @@
 using DigitalMusicology
 using Test
 
+include("modint_tests.jl")
+include("spelled_tests.jl")
 include("pitches_tests.jl")
 include("slices_tests.jl")
 include("pitch_collections.jl")

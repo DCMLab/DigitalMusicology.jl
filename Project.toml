@@ -15,6 +15,7 @@ Primes = "27ebfcd6-29c5-5fa9-bf4b-fb8fc14df3ae"
 Query = "1a8c2f83-1ff3-5112-b086-8aa67b057ba1"
 Ratios = "c84ed2f1-dad5-54f0-aa8e-dbefe2724439"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+Setfield = "efcf1570-3423-57d1-acb7-fd33fddbac46"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
