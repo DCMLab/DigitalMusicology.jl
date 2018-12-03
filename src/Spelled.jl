@@ -12,8 +12,8 @@ export SpelledPitch, @p_str
 export SpelledIC, @ic_str
 export SpelledPC, @pc_str
 export Mode, Major, Minor, ismajor, ics
-export SpelledKey, root, mode, pcs
-export ScaleDegree, key, modulate
+export SpelledKey, root, mode, pcs, @key_str
+export ScaleDegree, key, modulate, @sd_str
 
 ####################
 ### Accidentials ###
@@ -295,11 +295,23 @@ struct SpelledKey
     mode :: Mode
 end
 
+function SpelledKey(str::AbstractString)
+    m    = match(r"(?P<letter>[A-Ga-g])(?P<accidential>[#b]*)", str)
+    mode = all(isuppercase, m[:letter]) ? Major : Minor
+    root = SpelledPC(string(map(uppercase, m[:letter]), m[:accidential]))
+    SpelledKey(root, mode)
+end
+
+macro key_str(str)
+    k = SpelledKey(str)
+    :($k)
+end
+
 root(k::SpelledKey) = k.root
 mode(k::SpelledKey) = k.mode
 ismajor(k::SpelledKey) = ismajor(mode(k))
 
-show(io::IO, k::SpelledKey) = print(io, root(k), " ", mode(k))
+show(io::IO, k::SpelledKey) = print(io, map(ismajor(k) ? identity : lowercase, string(root(k))))
 
 ics(k::SpelledKey) = ics(mode(k))
 pcs(k::SpelledKey) = [root(k) + ic for ic in ics(k)]
@@ -330,12 +342,22 @@ key(sd::ScaleDegree) = sd.key
 (a::Acc)(sd::ScaleDegree) = @set sd.acc += a
 
 const numeral_names = split("I II III IV V VI VII")
-show(io::IO, sd::ScaleDegree) = print(io, Acc(sd), numeral_names[diatonic(sd)])
+show(io::IO, sd::ScaleDegree) = print(io, Acc(sd), numeral_names[diatonic(sd)], "_{", sd.key, "}")
 
 function ScaleDegree(str::AbstractString, k::SpelledKey)
     m = match(r"(?P<accidential>[#b]*)(?P<numeral>[IV]+)", str)
     diatonic = findfirst(isequal(m[:numeral]), numeral_names) - 1
     ScaleDegree(diatonic, Acc(m[:accidential]), k)
+end
+
+function ScaleDegree(str::AbstractString)
+    m = match(r"(?P<alterednumeral>[#b]*[IV]+)_{(?P<key>.+)}", str)
+    ScaleDegree(m[:alterednumeral], SpelledKey(m[:key]))
+end
+
+macro sd_str(str)
+    sd = ScaleDegree(str)
+    :($sd)
 end
 
 SpelledPC(sd::ScaleDegree) = Acc(sd)(pcs(key(sd))[diatonic(sd)])

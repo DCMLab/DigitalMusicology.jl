@@ -67,6 +67,10 @@
     end
 
     @testset "spelled keys" begin
+        k = key"cb"
+        @test string(k) == "cb"
+        @test mode(k) == Minor
+        @test root(k) == pc"Cb"
         @test pcs(SpelledKey(pc"Bb", Major)) == SpelledPC.(split("Bb C D Eb F G A"))
         @test pcs(SpelledKey(pc"A", Major)) == SpelledPC.(split("A B C# D E F# G#"))
         @test root(SpelledKey(pc"G", Minor) + ic"5") == pc"D"
@@ -74,6 +78,8 @@
     end
 
     @testset "scale degrees" begin
+        @test string(sd"II_{Db}") == "II_{Db}"
+
         @test key(modulate(ScaleDegree("III", SpelledKey(pc"Eb", Major)))) == SpelledKey(pc"G", Minor)
         @test key(modulate(ScaleDegree("VII", SpelledKey(pc"E", Minor)))) == SpelledKey(pc"D", Major)
 
@@ -82,7 +88,7 @@
         sd = ScaleDegree("III", k)
         @test SpelledPC(sd) == pc
         @test ScaleDegree(pc, k) == sd
-        @test string(sd) == "III"
+        @test string(sd) == "III_{f}"
         @test chromatic(sd) == ModInt{12}(8)
     end
 
