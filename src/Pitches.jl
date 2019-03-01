@@ -43,6 +43,7 @@ end
 
 show(io::IO, p::MidiPitch) = show(io, p.pitch)
 
+Base.Int64(p::MidiPitch) = p.pitch
 convert(::Type{MidiPitch}, x::N) where {N<:Number} = midi(convert(Int, x))
 convert(::Type{Pitch}, x::N) where {N<:Number} = midi(convert(Int, x))
 convert(::Type{Int}, p::MidiPitch) = p.pitch
