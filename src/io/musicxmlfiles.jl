@@ -126,8 +126,8 @@ function note!(note, notes, state)
         alt = firstint(epitch, "alter", 0)
         
         dia, chrom = notenames[firstcont(epitch, "step")]
-        dia = dia + oct * 7
-        chrom = chrom + alt + oct * 12
+        dia = dia + state.trans_dia + oct * 7
+        chrom = chrom + alt + state.trans_chrom + oct * 12
         
         # id
         attr = attributes_dict(note)
