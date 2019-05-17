@@ -6,9 +6,11 @@ version = "0.1.0"
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+EzXML = "8f5d6c58-4d21-5cfd-889c-e3ad7ee6a615"
 FunctionalCollections = "de31a74c-ac4f-5751-b3fd-e18cd04993ca"
 IterTools = "c8e1da08-722c-5040-9ed9-7db0dc04731e"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+LightXML = "9c8b4983-aa76-5018-a973-4c85ecc9e179"
 MIDI = "f57c4921-e30c-5f49-b073-3f2f2ada663e"
 NodeJS = "2bd173c7-0d6d-553b-b6af-13a54713934c"
 Primes = "27ebfcd6-29c5-5fa9-bf4b-fb8fc14df3ae"
@@ -18,6 +20,3 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]

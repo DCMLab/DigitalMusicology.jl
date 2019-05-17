@@ -45,6 +45,9 @@ include("Grams.jl")
 include("io/MidiFiles.jl")
 @reexport using .MidiFiles
 
+include("io/musicxmlfiles.jl")
+@reexport using .MusicXMLFiles
+
 include("Corpora.jl")
 @reexport using .Corpora
 

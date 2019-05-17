@@ -35,8 +35,9 @@ A simple timed note. Pitch + onset + offset.
 """
 struct TimedNote{P,T} <: Note{P,T}
     pitch :: P
-    onset::T
-    offset::T
+    onset :: T
+    offset :: T
+    id :: Union{String,Nothing}
 end
 
 pitch(n::TimedNote) = n.pitch
