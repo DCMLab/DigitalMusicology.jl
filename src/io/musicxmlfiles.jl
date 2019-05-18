@@ -3,9 +3,32 @@ module MusicXMLFiles
 using LightXML
 using DataFrames
 
-export musicxmlnotes
+export musicxmlnotes, loadwithids
 
 testfile = "/home/chfin/Uni/phd/data/csapp/mozart-piano-sonatas/musicxml/sonata03-3.xml"
+
+# Adding IDs to a MusicXML document
+###################################
+
+function loadwithids(file)
+    doc = parse_file(file)
+    addids(root(doc), 0)
+    doc
+end
+
+function addids(elem, i)
+    if name(elem) == "note" && !has_attribute(elem, "xml:id")
+        set_attribute(elem, "xml:id", "note$i")
+        i += 1
+    end
+    for child in child_elements(elem)
+        i = addids(child, i)
+    end
+    i
+end
+
+# Parsing MusicXML to note list
+###############################
 
 # TODOs:
 # - timewise parsing
