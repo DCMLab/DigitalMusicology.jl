@@ -59,6 +59,7 @@ end
 function partnotes(part)
     state = PartState()
     notes = newnotedf()
+    # go through each measure and process all important elements, collecting the notes
     for measure in part["measure"]
         for node in child_elements(measure)
             if name(node) == "attributes"
@@ -71,6 +72,10 @@ function partnotes(part)
                 backup!(node, state)
             end
         end
+    end
+    # add remaining open tied notes, just in case there are some left
+    for note in state.tied
+        push!(notes, note)
     end
     notes
 end
