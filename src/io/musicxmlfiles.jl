@@ -25,18 +25,24 @@ mutable struct PartState
 end
 PartState() = PartState(1, 0//1, 0//1, 0, 0, [])
 
-function musicxmlnotes(file)
+function musicxmlnotes(file::String)
     doc = parse_file(file)
+    try
+        musicxmlnotes(doc)
+    finally
+        free(doc)
+    end
+end
+
+function musicxmlnotes(doc::XMLDocument)
     rootelem = root(doc)
     if name(rootelem) == "score-partwise"
         notes = partwise(rootelem)
     elseif name(rootelem) == "score-timewise"
         notes = timewise(rootelem)
     else
-        free(doc)
-        error("cannot read $file")
+        error("unknown xml structure (probably not MusicXML)")
     end
-    # free(doc)
     notes
 end
 
