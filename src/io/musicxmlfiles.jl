@@ -10,19 +10,26 @@ testfile = "/home/chfin/Uni/phd/data/csapp/mozart-piano-sonatas/musicxml/sonata0
 # Adding IDs to a MusicXML document
 ###################################
 
-function loadwithids(file)
+"""
+    loadwithids(file; keep=false)
+
+Loads a MusicXML file and adds `xml:id` attributes to its note elements.
+If `keep` is `true`, then existing `xml:id` values are not replaced.
+Returns an `XMLDocument`.
+"""
+function loadwithids(file; keep=false)
     doc = parse_file(file)
-    addids(root(doc), 0)
+    addids!(root(doc), 0, keep)
     doc
 end
 
-function addids(elem, i)
-    if name(elem) == "note" && !has_attribute(elem, "xml:id")
+function addids!(elem, i, keep)
+    if name(elem) == "note" && (!keep || !has_attribute(elem, "xml:id"))
         set_attribute(elem, "xml:id", "note$i")
         i += 1
     end
     for child in child_elements(elem)
-        i = addids(child, i)
+        i = addids!(child, i, keep)
     end
     i
 end
@@ -47,6 +54,21 @@ mutable struct PartState
     tied :: Vector{NoteTuple}
 end
 PartState() = PartState(1, 0//1, 0//1, 0, 0, [])
+
+"""
+    musicxmlnotes(file)
+    musicxmlnotes(doc)
+
+Takes a MusicXML file or `XMLDocument` and returns a notelist `DataFrame`.
+The frame has 5 columns: `onset`, `offset`, `pitch_dia`, `pitch_chrom`, and `id`.
+Onset and offset are `Rational{Int}`s, diatonic and chromatic pitch are `Int`s
+representing diatonic and chromatic steps above C0, respectively.
+The ID is a `String` that corresponds to the `xml:id` of the note element.
+
+Tied notes are represented only once and take the first supplied id
+of the written notes that are part of a tied note.
+"""
+function musicxmlnotes end
 
 function musicxmlnotes(file::String)
     doc = parse_file(file)
