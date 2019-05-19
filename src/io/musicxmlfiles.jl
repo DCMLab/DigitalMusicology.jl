@@ -131,7 +131,7 @@ function partwise(score)
         push!(timesigs, t)
     end
     sort!(notes, [:onset])
-    notes, timesigs
+    (notes=notes, timesigs=timesigs)
 end
 
 function readpart(part, parti)
