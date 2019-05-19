@@ -160,34 +160,31 @@ end
 # ---------------
 
 # piece as a slice data frame
-function _getpiece(id, ::Val{:slices_df}, crp::LACCorpus)
+function _getpiece(id, ::Val{:slices_df}, ::Val{:slicetsv}, crp::LACCorpus)
     fn = piecepath(id, "slices", ".tsv", crp)
     read(fn, delim='\t', nullable=false)
 end
 
 # piece as a Slice iterator
-function _getpiece(id, ::Val{:slices}, corpus::LACCorpus)
+function _getpiece(id, ::Val{:slices}, ::Val{:slicetsv}, corpus::LACCorpus)
     df = getpiece(id, :slices_df, corpus)
     groups = groupby(df, :onset)
     groups_to_slices(groups)
 end
 
-function _getpiece(id, ::Val{:notes}, crp::LACCorpus)
+function _getpiece(id, ::Val{:notes}, ::Val{:midi}, crp::LACCorpus, type=:df)
     fn = piecepath(id, "m", ".mid", crp)
-    midifilenotes(fn)
+    df = midifilenotes(fn)
+    if type == :df
+        df
+    elseif type == :secs
+        [TimedNote(n[:pitch], n[:onset_secs], n[:offset_secs]) for n in eachrow(df)]
+    elseif type == :wholes
+        [TimedNote(n[:pitch], n[:onset_wholes], n[:offset_wholes]) for n in eachrow(df)]
+    end
 end
 
-function _getpiece(id, ::Val{:notes_secs}, crp::LACCorpus)
-    df = getpiece(id, :notes, crp)
-    [TimedNote(n[:pitch], n[:onset_secs], n[:offset_secs]) for n in eachrow(df)]
-end
-
-function _getpiece(id, ::Val{:notes_wholes}, crp::LACCorpus)
-    df = getpiece(id, :notes, crp)
-    [TimedNote(n[:pitch], n[:onset_wholes], n[:offset_wholes]) for n in eachrow(df)]
-end
-
-_getpiece(id, ::Val{:meta}, corpus::LACCorpus) =
+_getpiece(id, ::Val{:meta}, ::Val{:metafile}, corpus::LACCorpus) =
     filter(r -> r[:id] == id, corpus.meta)[1, :]
 
 end #module

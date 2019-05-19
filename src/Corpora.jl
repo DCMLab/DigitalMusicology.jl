@@ -16,12 +16,15 @@ abstract type Corpus end
 
 struct NoCorpus <: Corpus end
 
-global corpus = NoCorpus()
+corpus = NoCorpus()
 
-"Get the currently set corpus.
-Throws an error, if the corpus is not set."
+"""
+    getcorpus()
+
+Get the currently set corpus.
+Throws an error, if the corpus is not set.
+"""
 function getcorpus()
-    global corpus
     if isa(corpus, NoCorpus)
         error("Please set a default corpus with setcorpus(corpus).")
     else
@@ -29,16 +32,22 @@ function getcorpus()
     end
 end
 
-"Set the current corpus."
+"""
+    setcorpus(corpus)
+
+Set the current corpus.
+"""
 function setcorpus(crp::Corpus)
-    global corpus
-    corpus = crp
+    global corpus = crp
 end
 
-"Reset the current corpus to `NoCorpus()`."
+"""
+    unsetcorpus()
+
+Reset the current corpus to `NoCorpus()`.
+"""
 function unsetcorpus()
-    global corpus
-    corpus = NoCorpus()
+    global corpus = NoCorpus()
 end
 
 # Corpus Interface
@@ -140,30 +149,38 @@ function piecepath end
 piecepath(id, cat, ext) = piecepath(id, cat, ext, getcorpus())
 
 """
-    getpiece(id, form, [corpus])
+    getpiece(id, form, source, [corpus]; kwargs...)
 
 Loads a piece in some representation.
 Piece ids are strings, but their exact format depends on the given corpus.
 
-Forms are identified by keywords, e.g.
+Representation forms specify the desired output.
+They are identified by symbols, e.g.
 * `:slices`
-* `:slices_df`
 * `:notes`
-but the supported keywords depend on the corpus.
+but the supported symbols depend on the corpus.
+
+Sources are used to distinguish representations of the same piece in differen formats, e.g.
+* `:midi`
+* `:musicxml`
+* `:kern`.
+Again, the supported symbols depend on the corpus.
+
+Some combinations of source and form take additional keyword arguments.
 """
-getpiece(id, form::Symbol, corpus = getcorpus()) =
-    _getpiece(id, Val{form}(), corpus)
+getpiece(id, form::Symbol, source::Symbol, corpus = getcorpus(); kwargs...) =
+    _getpiece(id, Val{form}(), Val{source}(), corpus; kwargs...)
 
 """
-    getpieces(ids, form, [datadir])
+    getpieces(ids, form, source, [corpus]; kwargs...)
 
 Like `getpiece` but takes multiple ids and returns
 an iterator over the resulting pieces.
 """
-getpieces(ids, form, corpus = getcorpus(); skipmissings=false) = begin
+getpieces(ids, form, source, corpus=getcorpus(); skipmissings=false, kwargs...) = begin
     pieces = imap(ids) do id
         try
-            getpiece(id, form, corpus)
+            getpiece(id, form, source, corpus; kwargs...)
         catch
             missing
         end
@@ -173,7 +190,7 @@ getpieces(ids, form, corpus = getcorpus(); skipmissings=false) = begin
 end
 
 """
-_getpiece(id, Val{form}(), corpus)
+_getpiece(id, Val{form}(), Val{source}(), corpus; kwargs...)
 
 This function is responsible for actually loading a piece.
 New corpus implementations should implement this method instead of `getpiece`,
@@ -189,5 +206,8 @@ include("corpora/LAC.jl")
 
 include("corpora/Kern.jl")
 @reexport using .Kern
+
+include("corpora/Directory.jl")
+@reexport using .Directory
 
 end # module

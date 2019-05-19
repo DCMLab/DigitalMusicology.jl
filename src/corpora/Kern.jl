@@ -73,29 +73,26 @@ end
 # piece accessors
 # ---------------
 
-function _getpiece(id, ::Val{:notes}, crp::KernCorpus)
+function _getpiece(id, ::Val{:notes}, ::Val{:midi}, crp::KernCorpus; type=:df)
     fn = piecepath(id, "midi-norep", ".mid", crp)
-    midifilenotes(fn)
+    df = midifilenotes(fn)
+    if type == :df
+        df
+    elseif type == :secs
+        [TimedNote(n[:pitch], n[:onset_secs], n[:offset_secs]) for n in eachrow(df)]
+    elseif type == :wholes
+        [TimedNote(n[:pitch], n[:onset_wholes], n[:offset_wholes]) for n in eachrow(df)]
+    end
 end
 
-function _getpiece(id, ::Val{:notes_secs}, crp::KernCorpus)
-    df = getpiece(id, :notes, crp)
-    [TimedNote(n[:pitch], n[:onset_secs], n[:offset_secs]) for n in eachrow(df)]
-end
-
-function _getpiece(id, ::Val{:notes_wholes}, crp::KernCorpus)
-    df = getpiece(id, :notes, crp)
-    [TimedNote(n[:pitch], n[:onset_wholes], n[:offset_wholes]) for n in eachrow(df)]
-end
-
-function _getpiece(id, ::Val{:timesigs}, crp::KernCorpus)
+function _getpiece(id, ::Val{:timesigs}, ::Val{:midi}, crp::KernCorpus)
     fn = piecepath(id, "midi-norep", ".mid", crp)
     aux = getpiece(id, :aux, crp)
     upbeat = parserational(getrec(aux, "rhythmic", "upbeat", "0/1"))
     midifiletimesigs(fn, upbeat=upbeat)
 end
 
-function _getpiece(id, ::Val{:aux}, crp::KernCorpus)
+function _getpiece(id, ::Val{:meta}, ::Val{:aux}, crp::KernCorpus)
     fn = piecepath(id, "aux", ".json", crp)
     if isfile(fn)
         JSON.parse(read(fn, String))
