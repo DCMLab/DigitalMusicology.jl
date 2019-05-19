@@ -1,6 +1,6 @@
 module GatedQueues
 
-using DigitalMusicology.Helpers: takewhile, dropwhile
+using ..Helpers: takewhile, dropwhile
 using FunctionalCollections
 import Base: merge, isempty, values
 

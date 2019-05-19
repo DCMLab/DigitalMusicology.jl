@@ -1,6 +1,6 @@
 module Plotting
 
-using DigitalMusicology
+using ...DigitalMusicology
 
 export pianoroll, pianoroll!
 

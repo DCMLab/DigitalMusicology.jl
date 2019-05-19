@@ -1,6 +1,6 @@
 module PitchOps
 
-using DigitalMusicology
+using ...DigitalMusicology
 
 export pc, allpcs, transposeby, transposeto
 

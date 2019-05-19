@@ -5,8 +5,8 @@ export midifilenotes, midifiletimesigs
 using MIDI
 using DataFrames
 using Ratios
-using DigitalMusicology
-using DigitalMusicology.Helpers: coprime
+using ...DigitalMusicology
+using ..Helpers: coprime
 
 # Time Division
 # =============

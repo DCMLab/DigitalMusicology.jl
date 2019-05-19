@@ -1,9 +1,9 @@
 module Slices
 
 import Base: ==, hash, show
-import DigitalMusicology.Timed: onset, offset, duration, hasonset, hasoffset, hasduration
-import DigitalMusicology.PitchCollections: pitchiter
-import DigitalMusicology.Events: content
+import ..Timed: onset, offset, duration, hasonset, hasoffset, hasduration
+import ..PitchCollections: pitchiter
+import ..Events: content
 
 export Slice
 export setonset, setduration, setoffset, setcontent

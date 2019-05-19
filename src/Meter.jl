@@ -1,8 +1,8 @@
 module Meter
 
-using DigitalMusicology
+using ...DigitalMusicology
 import Base: ==, hash, show, numerator, denominator
-import DigitalMusicology: duration, hasonset, hasoffset, hasduration
+import ...DigitalMusicology: duration, hasonset, hasoffset, hasduration
 
 using Primes: factor
 

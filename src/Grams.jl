@@ -1,6 +1,6 @@
 module Grams
 
-using DigitalMusicology.GatedQueues: GatedQueue, gatedq, release
+using ..GatedQueues: GatedQueue, gatedq, release
 using FunctionalCollections
 using IterTools: groupby, @ifsomething
 

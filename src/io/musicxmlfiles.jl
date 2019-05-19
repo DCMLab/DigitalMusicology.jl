@@ -2,9 +2,9 @@ module MusicXMLFiles
 
 using LightXML
 using DataFrames
-using DigitalMusicology
+using ...DigitalMusicology
 
-export musicxmlnotes, loadwithids
+export readmusicxml, loadwithids
 
 testfile = "/home/chfin/Uni/phd/data/csapp/mozart-piano-sonatas/musicxml/sonata03-3.xml"
 

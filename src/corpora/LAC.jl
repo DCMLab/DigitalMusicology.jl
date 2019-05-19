@@ -1,8 +1,9 @@
 module LAC
 
-import DigitalMusicology.Corpora: supportedforms, allpieces, topdir, dirs, pieces, ls, findpieces, _getpiece
-using DigitalMusicology
-using DigitalMusicology.Corpora: Corpus
+import ...Corpora: supportedforms, allpieces, topdir, dirs, pieces, ls, findpieces, _getpiece
+using ....DigitalMusicology
+using ...Corpora: Corpus
+using ...Helpers: witheltype
 
 using CSV: read
 using DataFrames: DataFrame, GroupedDataFrame, groupby, eachrow
@@ -11,7 +12,6 @@ using Base.Iterators: flatten
 # using Query
 # using Missings: ismissing, missing, Missing
 
-using DigitalMusicology.Helpers: witheltype
 
 export lac, uselac, meta, yearbins
 

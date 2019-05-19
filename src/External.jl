@@ -1,6 +1,6 @@
 module External
 
-using DigitalMusicology
+using ...DigitalMusicology
 import Base: show
 using NodeJS: nodejs_cmd
 

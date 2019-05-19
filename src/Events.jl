@@ -3,7 +3,7 @@ module Events
 import Base: ==, hash, show, convert,
     iterate, length, eltype, IteratorSize, IteratorEltype,
     getindex, setindex!, firstindex, lastindex
-import DigitalMusicology: onset, offset, duration, hasonset, hasoffset, hasduration
+import ...DigitalMusicology: onset, offset, duration, hasonset, hasoffset, hasduration
 
 export PointEvent, IntervalEvent, content
 export TimePartition, split!, events, findevent, setpoint!, movepoint!
