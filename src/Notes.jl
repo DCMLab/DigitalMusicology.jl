@@ -39,6 +39,7 @@ struct TimedNote{P,T} <: Note{P,T}
     offset :: T
     id :: Union{String,Nothing}
 end
+TimedNote(pitch, onset, offset) = TimedNote(pitch, onset, offset, nothing)
 
 pitch(n::TimedNote) = n.pitch
 

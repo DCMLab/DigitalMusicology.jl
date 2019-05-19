@@ -2,10 +2,29 @@ module MusicXMLFiles
 
 using LightXML
 using DataFrames
+using DigitalMusicology
 
 export musicxmlnotes, loadwithids
 
 testfile = "/home/chfin/Uni/phd/data/csapp/mozart-piano-sonatas/musicxml/sonata03-3.xml"
+
+# XML Helpers
+#############
+
+haselem(node, subname) = find_element(node, subname) != nothing
+
+firstcont(node, subname) = LightXML.content(node[subname][1])
+
+firstint(node, subname, default=:error) =
+    if !haselem(node, subname)
+        if default == :error
+            error("no default for $subname in $(node)")
+        else
+            default
+        end
+    else
+        parse(Int, firstcont(node, subname))
+    end
 
 # Adding IDs to a MusicXML document
 ###################################
@@ -43,7 +62,7 @@ end
 #   - unfold and use duplicate IDs
 #   - allows grouping by id: each note has 1 on/off per repetition
 
-const NoteTuple = Tuple{Rational{Int},Rational{Int},Int,Int,Union{String,Missing}}
+const NoteTuple = Tuple{Rational{Int},Rational{Int},Int,Int,Union{String,Missing},Int}
 
 mutable struct PartState
     div :: Int
@@ -52,43 +71,46 @@ mutable struct PartState
     trans_dia :: Int
     trans_chrom :: Int
     tied :: Vector{NoteTuple}
+    timesig :: TimeSignature
 end
-PartState() = PartState(1, 0//1, 0//1, 0, 0, [])
+PartState() = PartState(1, 0//1, 0//1, 0, 0, [], TimeSignature(4,4))
 
 """
-    musicxmlnotes(file)
-    musicxmlnotes(doc)
+    readmusicxml(file)
+    readmusicxml(doc)
 
-Takes a MusicXML file or `XMLDocument` and returns a notelist `DataFrame`.
-The frame has 5 columns: `onset`, `offset`, `pitch_dia`, `pitch_chrom`, and `id`.
+Takes a MusicXML file or `XMLDocument`.
+Returns a pair consisting of a notelist `DataFrame`
+and a vector of `TimeSigMap`s, one for each part.
+The frame has 6 columns: `onset`, `offset`, `pitch_dia`, `pitch_chrom`, `id`, and `part`.
 Onset and offset are `Rational{Int}`s, diatonic and chromatic pitch are `Int`s
 representing diatonic and chromatic steps above C0, respectively.
 The ID is a `String` that corresponds to the `xml:id` of the note element.
+The note's part is indicated as an integer index.
 
 Tied notes are represented only once and take the first supplied id
 of the written notes that are part of a tied note.
 """
-function musicxmlnotes end
+function readmusicxml end
 
-function musicxmlnotes(file::String)
+function readmusicxml(file::String)
     doc = parse_file(file)
     try
-        musicxmlnotes(doc)
+        readmusicxml(doc)
     finally
         free(doc)
     end
 end
 
-function musicxmlnotes(doc::XMLDocument)
+function readmusicxml(doc::XMLDocument)
     rootelem = root(doc)
     if name(rootelem) == "score-partwise"
-        notes = partwise(rootelem)
+        partwise(rootelem)
     elseif name(rootelem) == "score-timewise"
-        notes = timewise(rootelem)
+        timewise(rootelem)
     else
         error("unknown xml structure (probably not MusicXML)")
     end
-    notes
 end
 
 function newnotedf()
@@ -96,39 +118,58 @@ function newnotedf()
               offset=Rational{Int}[],
               pitch_dia=Int[],
               pitch_chrom=Int[],
-              id=Union{String,Missing}[])
+              id=Union{String,Missing}[],
+              part=Int[])
 end
 
 function partwise(score)
     notes = newnotedf()
-    for part in score["part"]
-        append!(notes, partnotes(part))
+    timesigs = TimeSigMap{Rational{Int}}[]
+    for (i, part) in enumerate(score["part"])
+        ns, t = readpart(part, i)
+        append!(notes, ns)
+        push!(timesigs, t)
     end
     sort!(notes, [:onset])
+    notes, timesigs
 end
 
-function partnotes(part)
+function readpart(part, parti)
     state = PartState()
     notes = newnotedf()
+    timesigs = TimeSigMap{Rational{Int}}(Rational{Int}[0//1], TimeSignature[])
+
+    firstbar = true
     # go through each measure and process all important elements, collecting the notes
     for measure in part["measure"]
         for node in child_elements(measure)
             if name(node) == "attributes"
-                attribs!(node, state)
+                attribs!(node, timesigs, state)
             elseif name(node) == "note"
-                note!(node, notes, state)
+                note!(node, notes, state, parti)
             elseif name(node) == "forward"
                 forward!(node, state)
             elseif name(node) == "backup"
                 backup!(node, state)
             end
         end
+        if firstbar
+            # first bar incomplete?
+            if state.time < duration(state.timesig)
+                # move first TS to beginning of first complete bar
+                movepoint!(timesigs, 1, state.time)
+            end
+            firstbar = false
+        end
     end
     # add remaining open tied notes, just in case there are some left
     for note in state.tied
         push!(notes, note)
     end
-    notes
+    # close last time signature span
+    split!(timesigs, state.time, state.timesig, state.timesig)
+
+    notes, timesigs
 end
 
 notenames = Dict(
@@ -141,36 +182,28 @@ notenames = Dict(
     "B" => (6, 11)
 )
 
-haselem(node, subname) = find_element(node, subname) != nothing
-
-firstcont(node, subname) = content(node[subname][1])
-
-firstint(node, subname, default=:error) =
-    if !haselem(node, subname)
-        if default == :error
-            error("no default for $subname in $(node)")
-        else
-            default
-        end
-    else
-        parse(Int, firstcont(node, subname))
-    end
-
-function attribs!(attr, state)
+function attribs!(attr, timesigs, state)
     for node in child_elements(attr)
         if name(node) == "divisions"
-            state.div = parse(Int, content(node))
+            state.div = parse(Int, LightXML.content(node))
         elseif name(node) == "transpose"
             state.trans_chrom = firstint(node, "chromatic")
             state.trans_dia = firstintor(node, "diatonic", 0)
             octs = firstintor(node, "octave-change", 0)
             state.trans_dia += 7 * octs
-            state.trans_chrom += 12 * octs 
+            state.trans_chrom += 12 * octs
+        elseif name(node) == time
+            num = firstint(node, "beats")
+            denom = firstint(node, "beat-type")
+            if state.time > 0//1 # if first TS, no need to split
+                split!(timesigs, state.time, state.timesig, state.timesig)
+            end
+            state.timesig = TimeSignature(num,denom)
         end
     end
 end
 
-function note!(note, notes, state)
+function note!(note, notes, state, parti)
     # time
     duration = firstint(note, "duration", 0) // (state.div * 4) # might be grace note
     if haselem(note, "chord")
@@ -219,9 +252,9 @@ function note!(note, notes, state)
         # tie start?
         if any(t -> attribute(t, "type") == "start", note["tie"])
             # note starts tie: add to open notes
-            push!(state.tied, (onset, offset, dia, chrom, id))
+            push!(state.tied, (onset, offset, dia, chrom, id, parti))
         else # note is complete: add to output
-            push!(notes, (onset, offset, dia, chrom, id))
+            push!(notes, (onset, offset, dia, chrom, id, parti))
         end
     end
 end
