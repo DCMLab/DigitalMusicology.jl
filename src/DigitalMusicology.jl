@@ -15,9 +15,6 @@ include("GatedQueues.jl")
 include("Pitches.jl")
 @reexport using .Pitches
 
-include("PitchOps.jl")
-@reexport using .PitchOps
-
 include("Timed.jl")
 @reexport using .Timed
 

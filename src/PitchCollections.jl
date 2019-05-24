@@ -5,6 +5,7 @@ import ..PitchOps: pc, transposeby, transposeto
 using ...DigitalMusicology
 
 export PitchCollection
+export transposeby, transposeto
 export transposeequiv, refpitch, pitches, pitchiter
 
 export PitchBag, pbag
@@ -24,6 +25,16 @@ Since a pitch collection should contain only one type of pitches,
 `PitchCollection` is parametric on a subtype of `Pitch`.
 """
 abstract type PitchCollection{P<:Pitch} end
+
+"Transpose a pitch (collection) by some directed interval."
+function transposeby end
+
+transposeby(pitch::P, interval::P) where {P <: Pitch} = pitch+interval
+
+"Transpose a pitch (collection) to a new reference point."
+function transposeto end
+
+transposeto(pitch::P, newref::P) where {P <: Pitch} = newref
 
 """
     transposeequiv(pitchcoll)
