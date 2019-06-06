@@ -1,11 +1,9 @@
-module Pitches
+module Intervals
 
-import Base: show, +, -, *, convert, zero, isless
+import Base: show, +, -, *, convert, zero, isless, isequal
 
-export Pitch, PitchClass
-export MidiPitch, midi, midis, @midi
-export MidiPitchClass, midic, midics, @midic
-export tomidi, octave, pc, embed, isstep
+export Interval, IntervalClass, Pitch
+export tomidi, octave, ic, isstep, chromsemi, embed
 export pitchtype, pitchclasstype
 
 
@@ -13,24 +11,35 @@ export pitchtype, pitchclasstype
 # =================================
 
 """
-   abstract type Pitch end 
+   abstract type Interval end 
 
-Any pitch type should be a subtype of `Pitch`.
-Pitches generally encode *intervals*
-(which allows operations like addition and scalar multiplication)
-but can be interpreted as absolute pitches relative to an origin.
+Any interval type should be a subtype of `Interval`.
+Intervals should implement the following operations as far as possible:
+- `ic`
+- `tomidi`
+- `octave(T)`
+- `isstep`
+- `chromsemi(T)`
+- `intervalclasstype(T)`
+- `Base.+`
+- `Base.-` (negation and substraction)
+- `Base.*` (with integers, both sides)
+- `Base.zero(T)`
+- `Base.sign`
+Where `(T)` marks operations on the type itself.
 """
-abstract type Pitch end
+abstract type Interval end
 
 """
-    abstract type PitchClass <: Pitch end
+    abstract type IntervalClass <: Interval end
 
-Any pitch class type should be a subtype of `PitchClass`.
-Every PitchClass is also a Pitch.
-Separate pitch class types allow implementing operations
-separately for pitch classes.
+Any interval class type should be a subtype of `IntervalClass`.
+In addition to the methods on intervals, interval classes should implement:
+- `embed`
+- `intervaltype(T)`
+`intervalclasstype(T)` and `ic` should be identities.
 """
-abstract type PitchClass <: Pitch end
+abstract type IntervalClass <: Interval end
 
 # interfaces
 # ----------
@@ -38,15 +47,15 @@ abstract type PitchClass <: Pitch end
 """
     tomidi(p)
 
-Returns a MidiPitch that corresponds to or approximates `p`.
+Returns a MidiInterval that corresponds to or approximates `p`.
 """
 function tomidi end
 
 """
     octave(T, [n=1])
 
-Returns the interval corresponding to an octave for pitch type `T`.
-For pitch classes, this should return `zero(T)`
+Returns the interval corresponding to an octave for interval type `T`.
+For interval classes, this should return `zero(T)`
 (a default method is provided).
 
 If `n` is specified, the octave is multiplied by `n` first.
@@ -56,203 +65,90 @@ For convenience, a fallback for `octave(p::T, [n])` is provided.
 Only `octave(T)` needs to be implemented.
 """
 function octave end
-octave(T::Type{PC}) where {PC<:PitchClass} = zero(T)
+octave(T::Type{PC}) where {PC<:IntervalClass} = zero(T)
 octave(T, n::Int) = octave(T) * n
-octave(p::Pitch) = octave(typeof(p))
+octave(p::Interval) = octave(typeof(p))
 
 """
-    pc(p)
+    ic(i)
 
-Returns the pitch class of a pitch, removing the octave
+Returns the interval class of an interval, removing the octave
 """
-function pc end
+function ic end
 
 """
-    embed(pc, [oct=0])
+    embed(ic, [oct=0])
 
-Converts a pitch class to a pitch in the canonical octave,
-or transposed by `oct` octaves, if supplied.
+Converts an interval class to an interval in the canonical octave,
+adding `oct` octaves, if supplied.
+Also works for pitches.
 """
 function embed end
-embed(pc, oct) = embed(pc) + octave(pitchtype(pc), oct)
+embed(ic, oct) = embed(pc) + octave(intervaltype(pc), oct)
 
 """
-    pitchtype(PC::Type)
+    intervaltype(IC::Type)
 
-Returns for a pitch class type `PC` the corresponding pitch type.
-For convenience, `pitchtype(pc::PC)` is also provided.
+Returns for an interval class type `IC` the corresponding interval type.
+For convenience, `intervaltype(ic::IC)` is also provided.
 """
-function pitchtype end
-pitchtype(::Any) = nothing
-pitchtype(pc::PC) where {PC<:PitchClass} = pitchtype(P)
+function intervaltype end
+intervaltype(::Any) = nothing
+intervaltype(::IC) where {IC<:IntervalClass} = intervaltype(IC)
 
 """
-    pitchclasstype(P::Type)
+    intervalclasstype(I::Type)
 
-Returns for a pitch type `P` the corresponding pitch class type.
-For convenience, `pitchclasstype(p::P)` is also provided.
+Returns for an interval type `I` the corresponding interval class type.
+For convenience, `intervalclasstype(p::P)` is also provided.
 """
-function pitchclasstype end
-pitchclasstype(::Any) = nothing
-pitchclasstype(p::P) where {P<:Pitch} = pitchclasstype(P)
+function intervalclasstype end
+intervalclasstype(::Any) = nothing
+intervalclasstype(::I) where {I<:Interval} = intervalclasstype(I)
 
 """
     isstep(p)
 
-For diatonic pitches, indicates whether `p` is a step.
+For diatonic intervals, indicates whether `p` is a step.
 """
 function isstep end
 
-# specific pitch types
-# ====================
+"""
+    chromsemi(I::Type)
 
-# midi pitches and classes
-# ------------------------
+Returns a chromatic semitone of type `I`.
+"""
+function chromsemi end
+
+# pitches
+# =======
 
 """
-    MidiPitch <: Pitch
+    Pitch{I}
 
-Pitches represented as chromatic integers.
-`60` is Middle C.
+Represents a pitch for the interval type `I`.
+The interval is interpreted as an absolute pitch
+by assuming a reference pitch.
+The reference pitch is type dependent and known from context.
 """
-struct MidiPitch <: Pitch
-    pitch :: Int
+struct Pitch{I<:Interval}
+    pitch :: I
 end
 
-"""
-    MidiPitchClass <: PitchClass
+topitch(i::I) where {I<:Interval} = Pitch(i)
 
-Pitch classes represented as cromatic integers in Z_12, where `0` is C.
-"""
-struct MidiPitchClass <: PitchClass
-    pc :: Int
-    MidiPitchClass(pc) = new(mod(pc,12))
-end
+tointerval(p::Pitch{I}) where {I<:Interval} = p.pitch
 
-"""
-    midi(pitch)
++(p::Pitch{I}, i::I) where {I<:Interval} = Pitch(p.pitch + i)
++(i::I, p::Pitch{I}) where {I<:Interval} = Pitch(p.pitch + i)
+-(p::Pitch{I}, i::I) where {I<:Interval} = Pitch(p.pitch - i)
+pc(p::Pitch{I}) where {I<:Interval} = Pitch(ic(p.pitch))
+embed(p::Pitch{I}, octs::Int) where {I<:Interval} = Pitch(embed(p.pitch, octs))
 
-Creates a `MidiPitch` from an integer.
-"""
-midi(pitch::Int) = MidiPitch(pitch)
+# specific interval types
+# =======================
 
-"""
-    midic(pitch)
-
-Creates a MidiPitchClass from an integer
-"""
-midic(pitch::Int) = MidiPitchClass(pitch)
-
-"""
-    midis(pitches).
-
-Maps `midi()` over a collection of integers.
-"""
-midis(pitches) = map(midi, pitches)
-
-"""
-    midics(pitches).
-
-Maps `midic()` over a collection of integers.
-"""
-midics(pitches) = map(midic, pitches)
-
-"""
-    @midi expr
-
-Replaces all `Int`s in `expr` with a call to `midi(::Int)`.
-This allows the user to write integers where midi pitches are required.
-Does not work when `expr` contains integers that should not be converted.
-"""
-macro midi(expr)
-    mkmidi(x) = x
-    mkmidi(e::Expr) = Expr(e.head, map(mkmidi, e.args)...)
-    mkmidi(n::Int) = :(midi($n))
-
-    return esc(mkmidi(expr))
-end
-
-"""
-    @midic expr
-
-Replaces all `Int`s in `expr` with a call to `midi(::Int)`.
-This allows the user to write integers where midi pitches are required.
-Does not work when `expr` contains integers that should not be converted
-or pitches that are not written as literal integers.
-"""
-macro midic(expr)
-    mkmidi(x) = x
-    mkmidi(e::Expr) = Expr(e.head, map(mkmidi, e.args)...)
-    mkmidi(n::Int) = :(midic($n))
-
-    return esc(mkmidi(expr))
-end
-
-show(io::IO, p::MidiPitch) = show(io, p.pitch)
-show(io::IO, p::MidiPitchClass) = show(io, p.pc)
-
-Base.isless(p1::MidiPitch, p2::MidiPitch) = isless(p1.pitch, p2.pitch)
-Base.isless(p1::MidiPitchClass, p2::MidiPitchClass) = isless(p1.pc, p2.pc)
-
-==(p1::MidiPitch, p2::MidiPitch) = p1.pitch == p2.pitch
-==(p1::MidiPitchClass, p2::MidiPitchClass) = p1.pc == p2.pc
-
-Base.hash(p::MidiPitch, x::UInt) = hash(p.pitch, x)
-Base.hash(p::MidiPitchClass, x::UInt) = hash(p.pc, x)
-
-Base.Int64(p::MidiPitch) = p.pitch
-convert(::Type{MidiPitch}, x::N) where {N<:Number} = midi(convert(Int, x))
-convert(::Type{Pitch}, x::N) where {N<:Number} = midi(convert(Int, x))
-convert(::Type{Int}, p::MidiPitch) = p.pitch
-convert(::Type{N}, p::MidiPitch) where {N<:Number} = convert(N, p.pitch)
-
-convert(::Type{MidiPitchClass}, x::N) where {N<:Number} = midic(convert(Int, x))
-convert(::Type{PitchClass}, x::N) where {N<:Number} = midic(convert(Int, x))
-convert(::Type{Int}, p::MidiPitchClass) = p.pc
-convert(::Type{N}, p::MidiPitchClass) where {N<:Number} = convert(N, p.pc)
-
-## midi pitch: interfaces
-
-+(p1::MidiPitch, p2::MidiPitch) = midi(p1.pitch + p2.pitch)
--(p1::MidiPitch, p2::MidiPitch) = midi(p1.pitch - p2.pitch)
--(p::MidiPitch) = midi(-p.pitch)
-zero(::Type{MidiPitch}) = midi(0)
-zero(::MidiPitch) = midi(0)
-
-*(p::MidiPitch, n::Int) = midi(p.pitch*n)
-*(n::Int, p::MidiPitch) = midi(p.pitch*n)
-
-tomidi(p::MidiPitch) = p
-octave(::Type{MidiPitch}) = midi(12)
-Base.sign(p::MidiPitch) = sign(p.pitch)
-
-pc(p::MidiPitch) = midic(p.pitch)
-embed(p::MidiPitch) = p
-pitchtype(::Type{MidiPitch}) = MidiPitch
-pitchclasstype(::Type{MidiPitch}) = MidiPitchClass
-
-isstep(p::MidiPitch) = abs(p) <= 2
-
-## midi pitch class: interfaces
-
-+(p1::MidiPitchClass, p2::MidiPitchClass) = midic(p1.pc + p2.pc)
--(p1::MidiPitchClass, p2::MidiPitchClass) = midic(p1.pc - p2.pc)
--(p::MidiPitchClass) = midic(-p.pc)
-zero(::Type{MidiPitchClass}) = midic(0)
-zero(::MidiPitchClass) = midic(0)
-
-*(p::MidiPitchClass, n::Int) = midic(p.pc*n)
-*(n::Int, p::MidiPitchClass) = midic(p.pc*n)
-
-tomidi(p::MidiPitchClass) = p
-octave(::Type{MidiPitchClass}) = midic(0)
-Base.sign(p::MidiPitchClass) = p.pc == 0 ? 0 : -sign(p.pc-6)
-
-pc(p::MidiPitchClass) = p
-embed(p::MidiPitchClass) = midi(p.pc)
-pitchtype(::Type{MidiPitchClass}) = MidiPitch
-pitchclasstype(::Type{MidiPitchClass}) = MidiPitchClass
-
-isstep(p::MidiPitchClass) = p <= 2 || p >= 10
+include("pitches/midi.jl")
+include("pitches/spelled.jl")
 
 end # module

@@ -13,7 +13,7 @@ export Note, TimedNote, pitch
 """
 Notes are combinations of pitch and time information.
 """
-abstract type Note{P<:Pitch,T} end
+abstract type Note{I<:Interval,T} end
 
 """
     pitch(note)
@@ -33,8 +33,8 @@ pitches(notes::AbstractVector{N}) where {N<:Note} =
 """
 A simple timed note. Pitch + onset + offset.
 """
-struct TimedNote{P,T} <: Note{P,T}
-    pitch :: P
+struct TimedNote{I,T} <: Note{I,T}
+    pitch :: Pitch{I}
     onset :: T
     offset :: T
     id :: Union{String,Nothing}

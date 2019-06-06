@@ -13,7 +13,7 @@ include("GatedQueues.jl")
 # Basics
 
 include("Pitches.jl")
-@reexport using .Pitches
+@reexport using .Intervals
 
 include("Timed.jl")
 @reexport using .Timed
