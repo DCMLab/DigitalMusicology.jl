@@ -1,8 +1,8 @@
 # midi intervals and classes
 # ==========================
 
-export MidiInterval, midi, midis, @midi
-export MidiIC, midic, midics, @midic
+export MidiInterval, midi, midis, @midi, midip, midips, @midip
+export MidiIC, midic, midics, @midic, midipc, midipcs, @midipc
 
 """
     MidiInterval <: Interval
@@ -32,11 +32,26 @@ Creates a `MidiInterval` from an integer.
 midi(interval::Int) = MidiInterval(interval)
 
 """
+    midip(n)
+
+Creates a midi pitch (`Pitch{MidiInterval}`) from an integer.
+"""
+midip(n::Int) = Pitch(midi(n))
+
+"""
     midic(interval)
 
-Creates a MidiIC from an integer
+Creates a `MidiIC` from an integer.
 """
 midic(interval::Int) = MidiIC(interval)
+
+"""
+    midipc(n)
+
+Creates a midi pitch class (`Pitch{MidiIC}`) from an integer.
+"""
+midipc(n::Int) = pitch(midic(n))
+
 
 """
     midis(intervals).
@@ -46,6 +61,14 @@ Maps `midi()` over a collection of integers.
 midis(intervals) = map(midi, intervals)
 
 """
+    midips(ns).
+
+Maps `midip()` over a collection of integers.
+"""
+midips(ns) = map(midip, ns)
+
+
+"""
     midics(intervals).
 
 Maps `midic()` over a collection of integers.
@@ -53,11 +76,20 @@ Maps `midic()` over a collection of integers.
 midics(intervals) = map(midic, intervals)
 
 """
+    midipcs(ns).
+
+Maps `midipc()` over a collection of integers.
+"""
+midipcs(ns) = map(midipc, ns)
+
+
+"""
     @midi expr
 
 Replaces all `Int`s in `expr` with a call to `midi(::Int)`.
 This allows the user to write integers where midi intervals are required.
-Does not work when `expr` contains integers that should not be converted.
+Does not work when `expr` contains integers that should not be converted
+or intervals that are not written as literal integers.
 """
 macro midi(expr)
     mkmidi(x) = x
@@ -82,6 +114,39 @@ macro midic(expr)
 
     return esc(mkmidi(expr))
 end
+
+"""
+    @midip expr
+
+Replaces all `Int`s in `expr` with a call to `midip(::Int)`.
+This allows the user to write integers where midi intervals are required.
+Does not work when `expr` contains integers that should not be converted
+or intervals that are not written as literal integers.
+"""
+macro midip(expr)
+    mkmidi(x) = x
+    mkmidi(e::Expr) = Expr(e.head, map(mkmidi, e.args)...)
+    mkmidi(n::Int) = :(midip($n))
+
+    return esc(mkmidi(expr))
+end
+
+"""
+    @midipc expr
+
+Replaces all `Int`s in `expr` with a call to `midipc(::Int)`.
+This allows the user to write integers where midi intervals are required.
+Does not work when `expr` contains integers that should not be converted
+or intervals that are not written as literal integers.
+"""
+macro midipc(expr)
+    mkmidi(x) = x
+    mkmidi(e::Expr) = Expr(e.head, map(mkmidi, e.args)...)
+    mkmidi(n::Int) = :(midipc($n))
+
+    return esc(mkmidi(expr))
+end
+
 
 show(io::IO, p::MidiInterval) = show(io, p.interval)
 show(io::IO, p::MidiIC) = show(io, p.pc)

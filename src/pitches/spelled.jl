@@ -1,5 +1,5 @@
-export SpelledInterval, spelled
-export SpelledIC, sic
+export SpelledInterval, spelled, spelledp
+export SpelledIC, sic, spc
 
 import Base: +, -, *, ==
 
@@ -38,6 +38,13 @@ end
 Creates a spelled interval with `d` diatonic and `c` chromatic steps.
 """
 spelled(d, c) = SpelledInterval(d,c)
+
+"""
+    spelledp(d, c)
+
+Creates a spelled pitch with `d` diatonic and `c` chromatic steps.
+"""
+spelledp(d, c) = Pitch(spelled(d, c))
 
 function Base.show(io::IO, i::SpelledInterval)
     dia = mod(i.d, 7)
@@ -104,7 +111,7 @@ end
 
 """
     sic(n)
-    sic(d,c)
+    sic(d, c)
 
 Creates a spelled interval class going `n` 5ths upwards.
 If one argument is prodived, it is interpreted as the number of 5th.
@@ -116,6 +123,17 @@ function sic(dia, chrom)
     diff = chrom - diatochrom(dia)
     sic(diafifths[mod(dia, 7) + 1] + 7*diff) # 7 5ths = 1 chromatic semitone
 end
+
+"""
+    spc(n)
+    spc(d, c)
+
+Creates a spelled pitch class.
+In analogy to `sic`, this function takes either a number of 5ths
+or a number of diatonic and chromatic steps.
+"""
+spc(fs) = Pitch(sic(fs))
+spc(dia, chrom) = Pitch(sic(dia, chrom))
 
 function Base.show(io::IO, ic::SpelledIC)
     i = embed(ic)

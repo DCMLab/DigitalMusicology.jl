@@ -79,9 +79,9 @@ function _getpiece(id, ::Val{:notes}, ::Val{:midi}, crp::KernCorpus; type=:df)
     if type == :df
         df
     elseif type == :secs
-        [TimedNote(n[:pitch], n[:onset_secs], n[:offset_secs]) for n in eachrow(df)]
+        [TimedNote(midip(n[:pitch]), n[:onset_secs], n[:offset_secs]) for n in eachrow(df)]
     elseif type == :wholes
-        [TimedNote(n[:pitch], n[:onset_wholes], n[:offset_wholes]) for n in eachrow(df)]
+        [TimedNote(midip(n[:pitch]), n[:onset_wholes], n[:offset_wholes]) for n in eachrow(df)]
     end
 end
 
