@@ -63,13 +63,15 @@ end
 _getpiece(id, ::Val{:timesigs}, ::Val{:musicxml}, crp::DirCorpus) =
     getpiece(id, :all, :musicxml, crp; keepids=true).timesigs
 
-# function _getpiece(id, ::Val{notes}, ::Val{:musicxml}, crp::DirCorpus; keepids=true, type=:df)
-#     notes = getpiece(id, :all, :musicxml, crp; keepids).notes
-#     if type == :df
-#         notes
-#     elseif type == :notes
-#         [TimedNote(SpelledPitch(n[:
-# end
+function _getpiece(id, ::Val{:notes}, ::Val{:musicxml}, crp::DirCorpus; keepids=true, type=:df)
+    notes = getpiece(id, :all, :musicxml, crp; keepids=keepids).notes
+    if type == :df
+        notes
+    elseif type == :notes
+        [TimedNote(spelledp(n[:dia], n[:chrom]), n[:onset], n[:offset])
+         for n in eachrow(notes)]
+    end
+end
 
 
 end # module

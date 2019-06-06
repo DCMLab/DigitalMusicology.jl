@@ -82,7 +82,7 @@ PartState() = PartState(1, 0//1, 0//1, 0, 0, [], TimeSignature(4,4))
 Takes a MusicXML file or `XMLDocument`.
 Returns a pair consisting of a notelist `DataFrame`
 and a vector of `TimeSigMap`s, one for each part.
-The frame has 6 columns: `onset`, `offset`, `pitch_dia`, `pitch_chrom`, `id`, and `part`.
+The frame has 6 columns: `onset`, `offset`, `dia`, `chrom`, `id`, and `part`.
 Onset and offset are `Rational{Int}`s, diatonic and chromatic pitch are `Int`s
 representing diatonic and chromatic steps above C0, respectively.
 The ID is a `String` that corresponds to the `xml:id` of the note element.
@@ -116,8 +116,8 @@ end
 function newnotedf()
     DataFrame(onset=Rational{Int}[],
               offset=Rational{Int}[],
-              pitch_dia=Int[],
-              pitch_chrom=Int[],
+              dia=Int[],
+              chrom=Int[],
               id=Union{String,Missing}[],
               part=Int[])
 end
