@@ -68,7 +68,7 @@ function _getpiece(id, ::Val{:notes}, ::Val{:musicxml}, crp::DirCorpus; keepids=
     if type == :df
         notes
     elseif type == :notes
-        [TimedNote(spelledp(n[:dia], n[:chrom]), n[:onset], n[:offset])
+        [TimedNote(spelledp(n[:dia], n[:chrom]), n[:onset], n[:offset], n[:id])
          for n in eachrow(notes)]
     end
 end
