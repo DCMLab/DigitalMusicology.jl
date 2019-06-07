@@ -37,7 +37,7 @@ struct TimedNote{I,T} <: Note{I,T}
     pitch :: Pitch{I}
     onset :: T
     offset :: T
-    id :: Union{String,Nothing}
+    id :: Union{String,Nothing,Missing}
 end
 TimedNote(pitch, onset, offset) = TimedNote(pitch, onset, offset, nothing)
 
@@ -61,6 +61,8 @@ hasduration(::Type{TimedNote}) = true
 hash(t::TimedNote, x::UInt) = hash(t.pitch, hash(t.onset, hash(t.offset, x)))
 
 show(io::IO, t::TimedNote) =
-    write(io, string("Note<", t.onset, "-", t.offset, ">(", t.pitch, ")"))
+    let id = isa(t.id,String) ? "#" * t.id : ""
+        print(io, "Note$id<$(t.onset)-$(t.offset)>($(t.pitch))")
+    end
 
 end # module

@@ -20,8 +20,8 @@ end
 Interval classes represented as cromatic integers in Z_12, where `0` is C.
 """
 struct MidiIC <: IntervalClass
-    pc :: Int
-    MidiIC(pc) = new(mod(pc,12))
+    ic :: Int
+    MidiIC(ic) = new(mod(ic,12))
 end
 
 """
@@ -148,17 +148,19 @@ macro midipc(expr)
 end
 
 
-show(io::IO, p::MidiInterval) = show(io, p.interval)
-show(io::IO, p::MidiIC) = show(io, p.pc)
+show(io::IO, p::MidiInterval) = print(io, string("i", p.interval))
+show(io::IO, p::MidiIC) = print(io, string("ic", p.ic))
+show(io::IO, p::Pitch{MidiInterval}) = print(io, string("p", p.pitch.interval))
+show(io::IO, p::Pitch{MidiIC}) = print(io, string("pc", p.pitch.ic))
 
 Base.isless(p1::MidiInterval, p2::MidiInterval) = isless(p1.interval, p2.interval)
-Base.isless(p1::MidiIC, p2::MidiIC) = isless(p1.pc, p2.pc)
+Base.isless(p1::MidiIC, p2::MidiIC) = isless(p1.ic, p2.ic)
 
 Base.isequal(p1::MidiInterval, p2::MidiInterval) = p1.interval == p2.interval
-Base.isequal(p1::MidiIC, p2::MidiIC) = p1.pc == p2.pc
+Base.isequal(p1::MidiIC, p2::MidiIC) = p1.ic == p2.ic
 
 Base.hash(p::MidiInterval, x::UInt) = hash(p.interval, x)
-Base.hash(p::MidiIC, x::UInt) = hash(p.pc, x)
+Base.hash(p::MidiIC, x::UInt) = hash(p.ic, x)
 
 Base.Int64(p::MidiInterval) = p.interval
 convert(::Type{MidiInterval}, x::N) where {N<:Number} = midi(convert(Int, x))
@@ -168,8 +170,8 @@ convert(::Type{N}, p::MidiInterval) where {N<:Number} = convert(N, p.interval)
 
 convert(::Type{MidiIC}, x::N) where {N<:Number} = midic(convert(Int, x))
 convert(::Type{IntervalClass}, x::N) where {N<:Number} = midic(convert(Int, x))
-convert(::Type{Int}, p::MidiIC) = p.pc
-convert(::Type{N}, p::MidiIC) where {N<:Number} = convert(N, p.pc)
+convert(::Type{Int}, p::MidiIC) = p.ic
+convert(::Type{N}, p::MidiIC) where {N<:Number} = convert(N, p.ic)
 
 ## midi interval: interfaces
 
@@ -197,22 +199,22 @@ chromsemi(::Type{MidiInterval}) = midi(1)
 
 ## midi interval class: interfaces
 
-+(p1::MidiIC, p2::MidiIC) = midic(p1.pc + p2.pc)
--(p1::MidiIC, p2::MidiIC) = midic(p1.pc - p2.pc)
--(p::MidiIC) = midic(-p.pc)
++(p1::MidiIC, p2::MidiIC) = midic(p1.ic + p2.ic)
+-(p1::MidiIC, p2::MidiIC) = midic(p1.ic - p2.ic)
+-(p::MidiIC) = midic(-p.ic)
 zero(::Type{MidiIC}) = midic(0)
 zero(::MidiIC) = midic(0)
 
-*(p::MidiIC, n::Int) = midic(p.pc*n)
-*(n::Int, p::MidiIC) = midic(p.pc*n)
+*(p::MidiIC, n::Int) = midic(p.ic*n)
+*(n::Int, p::MidiIC) = midic(p.ic*n)
 
 tomidi(p::MidiIC) = p
 octave(::Type{MidiIC}) = midic(0)
-Base.sign(p::MidiIC) = p.pc == 0 ? 0 : -sign(p.pc-6)
+Base.sign(p::MidiIC) = p.ic == 0 ? 0 : -sign(p.ic-6)
 Base.abs(p::MidiIC) = midic(abs(p.interval))
 
 ic(p::MidiIC) = p
-embed(p::MidiIC) = midi(p.pc)
+embed(p::MidiIC) = midi(p.ic)
 intervaltype(::Type{MidiIC}) = MidiInterval
 intervalclasstype(::Type{MidiIC}) = MidiIC
 
