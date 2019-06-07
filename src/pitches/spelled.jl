@@ -153,19 +153,19 @@ function Base.show(io::IO, p::Pitch{SpelledIC})
     print(io, dianames[mod(i.d,7) + 1] * accstr(alter, '♯', '♭'))
 end
 
-Base.isless(i1::SpelledIC, i2::SpelledIC) = isless(i1.fifth,i2.fifth)
-Base.isequal(i1::SpelledIC, i2::SpelledIC) = isequal(i1.fifth,i2.fifth)
-Base.hash(i::SpelledIC, x::UInt) = hash(i.fifth, x)
+Base.isless(i1::SpelledIC, i2::SpelledIC) = isless(i1.fifths,i2.fifths)
+Base.isequal(i1::SpelledIC, i2::SpelledIC) = isequal(i1.fifths,i2.fifths)
+Base.hash(i::SpelledIC, x::UInt) = hash(i.fifths, x)
 
-+(i1::SpelledIC, i2::SpelledIC) = sic(i1.fifth + i2.fifth)
--(i1::SpelledIC, i2::SpelledIC) = sic(i1.fifth - i2.fifth)
--(i::SpelledIC) = sic(-i.fifth)
++(i1::SpelledIC, i2::SpelledIC) = sic(i1.fifths + i2.fifths)
+-(i1::SpelledIC, i2::SpelledIC) = sic(i1.fifths - i2.fifths)
+-(i::SpelledIC) = sic(-i.fifths)
 Base.zero(::Type{SpelledIC}) = sic(0)
 Base.zero(::SpelledIC) = sic(0)
-*(i::SpelledIC, n::Int) = sic(i.fifth * n)
-*(n::Int,i::SpelledIC) = sic(i.fifth * n)
+*(i::SpelledIC, n::Int) = sic(i.fifths * n)
+*(n::Int,i::SpelledIC) = sic(i.fifths * n)
 
-tomidi(i::SpelledIC) = midi(mod(i.fifth * 7, 12))
+tomidi(i::SpelledIC) = midi(mod(i.fifths * 7, 12))
 octave(::Type{SpelledIC}) = sic(0)
 Base.sign(i::SpelledIC) = if embed(i).d == 0; 0 elseif embed(i).d > 3; -1 else 1 end
 Base.abs(i::SpelledIC) = i

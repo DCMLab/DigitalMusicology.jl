@@ -3,8 +3,8 @@ module Intervals
 import Base: show, +, -, *, convert, zero, isless, isequal
 
 export Interval, IntervalClass, Pitch
-export tomidi, octave, ic, isstep, chromsemi, embed
-export pitchtype, pitchclasstype
+export tomidi, octave, ic, isstep, chromsemi, embed, pc
+export intervaltype, intervalclasstype
 
 
 # Pitch: basic Types and Interfaces
