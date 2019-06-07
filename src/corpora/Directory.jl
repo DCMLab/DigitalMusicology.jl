@@ -5,6 +5,7 @@ using ....DigitalMusicology
 using ...Corpora: Corpus
 
 using DataFrames: eachrow
+using LightXML: parse_file
 
 export dircrp, usedir
 
@@ -73,5 +74,20 @@ function _getpiece(id, ::Val{:notes}, ::Val{:musicxml}, crp::DirCorpus; keepids=
     end
 end
 
+function _getpiece(id, ::Val{:xml}, ::Val{:musicxml}, crp::DirCorpus; keepids=true, type=:object)
+    fn = getpiece(id, :file, :musicxml, crp)
+    
+    if keepids
+        xml = parse_file(fn)
+    else
+        xml = loadwithids(fn)
+    end
+
+    if type == :object
+        xml
+    elseif type == :string
+        string(xml)
+    end
+end
 
 end # module
