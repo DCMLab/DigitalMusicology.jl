@@ -5,7 +5,7 @@ import Base: hash, ==, show
 import ..Timed: onset, offset, duration, hasonset, hasoffset, hasduration
 import ..PitchCollections: pitches
 
-export Note, TimedNote, pitch
+export Note, TimedNote, pitch, id
 
 # Abstract Notes
 # ==============
@@ -21,6 +21,13 @@ abstract type Note{I<:Interval,T} end
 Returns the pitch of a note
 """
 function pitch end
+
+"""
+    id(obj)
+
+Returns the ID of `obj`.
+"""
+function id end
 
 ## implement interfaces
 
@@ -42,6 +49,8 @@ end
 TimedNote(pitch, onset, offset) = TimedNote(pitch, onset, offset, nothing)
 
 pitch(n::TimedNote) = n.pitch
+
+id(n::TimedNote) = n.id
 
 ### Timed interface
 
