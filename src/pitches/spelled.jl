@@ -1,5 +1,6 @@
 export SpelledInterval, spelled, spelledp
 export SpelledIC, sic, spc
+export parsespelled, parsespelledpitch, @i_str, @p_str
 
 import Base: +, -, *, ==
 
@@ -7,6 +8,7 @@ import Base: +, -, *, ==
 
 const diachrom = Int[0, 2, 4, 5, 7, 9, 11]
 const dianames = String["C","D", "E", "F", "G", "A", "B"]
+const dianames_lookup = Dict(l => i-1 for (i, l) in enumerate(dianames))
 # const diaints  = String["uni", "2nd", "3rd", "4th", "5th", "6th", "7th"]
 const diafifths = Int[0,2,4,-1,1,3,5]
 const perfectints = Set{Int}([0,3,4])
@@ -47,6 +49,13 @@ Creates a spelled pitch with `d` diatonic and `c` chromatic steps.
 spelledp(d, c) = Pitch(spelled(d, c))
 
 function Base.show(io::IO, i::SpelledInterval)
+    # negative? print as -abs(i)
+    if sign(i) == -1
+        print(io, "-")
+        print(io, abs(i))
+        return
+    end
+    
     dia = mod(i.d, 7)
     diff = i.c - diatochrom(i.d)
     qual = if dia ∈ perfectints
@@ -181,3 +190,100 @@ intervalclasstype(::Type{SpelledIC}) = SpelledIC
 
 isstep(i::SpelledIC) = abs(i.d) <= 1
 chromsemi(::Type{SpelledIC}) = sic(7)
+
+# parsing
+
+const rgsic = r"^(-?)(a+|d+|[MPm])([1-7])$"
+const rgspelled = r"^(-?)(a+|d+|[MPm])([1-7])(\+|-)(\d+)$"
+
+function matchinterval(modifier, num)
+    dia = parse(Int, num) - 1
+    defchrom = diachrom[dia+1]
+    perfect = dia ∈ perfectints
+    chrom = if modifier == "M" && !perfect
+        defchrom
+    elseif modifier == "m" && !perfect
+        defchrom-1
+    elseif lowercase(modifier) == "p" && perfect
+        defchrom
+    elseif occursin(r"^a+$", modifier)
+        defchrom + length(modifier)
+    elseif occursin(r"^d+$", modifier)
+        defchrom - length(modifier) - (perfect ? 0 : 1)
+    else
+        error("cannot parse interval \"$modifier$num\"")
+    end
+    spelled(dia, chrom)
+end
+
+# TODO: write tests
+function parsespelled(str)
+    m = match(rgsic, str)
+    if m != nothing
+        int = ic(matchinterval(m[2], m[3]))
+    else
+        m = match(rgspelled, str)
+        if m != nothing
+            int = matchinterval(m[2], m[3])
+            octs = parse(Int, m[4]*m[5])
+            int += octave(SpelledInterval, octs)
+        else
+            error("cannot parse interval \"$str\"")
+        end
+    end
+
+    # invert if necessary
+    if m[1] == "-"
+        -int
+    else
+        int
+    end
+end
+
+macro i_str(str)
+    parsespelled(str)
+end
+
+const rgspelledpc = r"^([a-g])(♭+|♯+|b+|#+)?$"i
+const rgspelledp = r"^([a-g])(♭+|♯+|b+|#+)?(-?\d+)$"i
+
+function matchpitch(letter, accs)
+    letter = uppercase(letter)
+    if haskey(dianames_lookup, letter)
+        dia = dianames_lookup[letter]
+    else
+        error("cannot parse pitch letter \"$letter\"")
+    end
+    
+    defchrom = diachrom[dia+1]
+    chrom = if accs == nothing || accs == ""
+        defchrom
+    elseif occursin(r"^♭+|b+$"i, accs)
+        defchrom - length(accs)
+    elseif occursin(r"^♯+|#+$"i, accs)
+        defchrom + length(accs)
+    else
+        error("cannot parse accidentals \"$accs\"")
+    end
+
+    spelledp(dia, chrom)
+end
+
+function parsespelledpitch(str)
+    m = match(rgspelledpc, str)
+    if m != nothing
+        pc(matchpitch(m[1], m[2]))
+    else
+        m = match(rgspelledp, str)
+        if m != nothing
+            octs = parse(Int, m[3])
+            matchpitch(m[1], m[2]) + octave(SpelledInterval, octs)
+        else
+            error("cannot parse pitch \"$str\"")
+        end
+    end
+end
+
+macro p_str(str)
+    parsespelledpitch(str)
+end
