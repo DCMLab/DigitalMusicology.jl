@@ -188,8 +188,8 @@ function attribs!(attr, timesigs, state)
             state.div = parse(Int, LightXML.content(node))
         elseif name(node) == "transpose"
             state.trans_chrom = firstint(node, "chromatic")
-            state.trans_dia = firstintor(node, "diatonic", 0)
-            octs = firstintor(node, "octave-change", 0)
+            state.trans_dia = firstint(node, "diatonic", 0)
+            octs = firstint(node, "octave-change", 0)
             state.trans_dia += 7 * octs
             state.trans_chrom += 12 * octs
         elseif name(node) == time
@@ -242,7 +242,7 @@ function note!(note, notes, state, parti)
             if istart != nothing
                 (ton, toff, tdia, tchrom, tid) = state.tied[istart]
                 onset = ton
-                if ismissing(tid)
+                if !ismissing(tid)
                     id = tid
                 end
                 deleteat!(state.tied, istart) # delete open note
