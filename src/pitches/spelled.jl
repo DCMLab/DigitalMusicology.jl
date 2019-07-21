@@ -188,7 +188,7 @@ end
 intervaltype(::Type{SpelledIC}) = SpelledInterval
 intervalclasstype(::Type{SpelledIC}) = SpelledIC
 
-isstep(i::SpelledIC) = abs(i.d) <= 1
+isstep(i::SpelledIC) = abs(embed(i)).d <= 1
 chromsemi(::Type{SpelledIC}) = sic(7)
 
 # parsing
