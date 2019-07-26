@@ -136,8 +136,7 @@ function unfoldflow(markers, tend)
         state.markers = state.markers[2:end]
         state.now = marker.time
         # TODO: update state.gcount
-        # TODO: timing not right here
-
+        
         if marker.command == fwrepeat
             pushrepeat!(state)
         elseif marker.command == bwrepeat
@@ -202,6 +201,7 @@ end
 
 # TODOs:
 # - timewise parsing
+# - apply unfolding to time signatures!!!
 
 const NoteTuple = Tuple{Rational{Int},Rational{Int},Int,Int,Union{String,Missing},Int}
 
@@ -225,9 +225,9 @@ pushflow!(state, cmd; only=nothing, repeats=nothing, name=nothing) =
     readmusicxml(doc; unfold=true)
 
 Takes a MusicXML file or `XMLDocument`.
-Returns a tuple `(notes, ts, fs)`, consisting of a notelist `DataFrame` `notes`,
-a vector of `TimeSigMap`s `ts`, and a vector of control flows `fs`.
-The latter (`ts` and `fs`) both contain one element per part,
+Returns a named tuple `(notes, timsigs, flows)`, consisting of a notelist `DataFrame`,
+a vector of `TimeSigMap`s, and a vector of control flows.
+The latter two (`timesigs` and `flows`) both contain one element per part,
 with indices corresponding to the `part` column in `notes`.
 
 The frame has 6 columns: `onset`, `offset`, `dia`, `chrom`, `id`, and `part`.

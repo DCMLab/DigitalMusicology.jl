@@ -52,20 +52,24 @@ function _getpiece(id, ::Val{:file}, ::Val{:musicxml}, crp::DirCorpus)
     end
 end
 
-function _getpiece(id, ::Val{:all}, ::Val{:musicxml}, crp::DirCorpus; keepids=true)
+function _getpiece(id, ::Val{:all}, ::Val{:musicxml}, crp::DirCorpus; keepids=true, unfold=true)
     fn = getpiece(id, :file, :musicxml, crp)
     if keepids
-        readmusicxml(fn)
+        readmusicxml(fn, unfold=unfold)
     else
-        readmusicxml(loadwithids(fn))
+        readmusicxml(loadwithids(fn), unfold=unfold)
     end
 end
 
-_getpiece(id, ::Val{:timesigs}, ::Val{:musicxml}, crp::DirCorpus) =
-    getpiece(id, :all, :musicxml, crp; keepids=true).timesigs
+function _getpiece(id, ::Val{:timesigs}, ::Val{:musicxml}, crp::DirCorpus; unfold=true)
+    if unfold
+        warn("unfolding for time signatures is not implemented yet!")
+    end
+    getpiece(id, :all, :musicxml, crp; keepids=true, unfold=unfold).timesigs
+end
 
-function _getpiece(id, ::Val{:notes}, ::Val{:musicxml}, crp::DirCorpus; keepids=true, type=:df)
-    notes = getpiece(id, :all, :musicxml, crp; keepids=keepids).notes
+function _getpiece(id, ::Val{:notes}, ::Val{:musicxml}, crp::DirCorpus; keepids=true, type=:df, unfold=true)
+    notes = getpiece(id, :all, :musicxml, crp; keepids=keepids, unfold=unfold).notes
     if type == :df
         notes
     elseif type == :notes
