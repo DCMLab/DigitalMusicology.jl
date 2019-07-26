@@ -15,7 +15,8 @@ struct DirCorpus <: Corpus
 end
 
 const KNOWN_EXTENSIONS = Set([
-    ".xml"
+    ".xml",
+    ".musicxml"
 ])
 
 function dircrp(dir::String)
@@ -63,7 +64,7 @@ end
 
 function _getpiece(id, ::Val{:timesigs}, ::Val{:musicxml}, crp::DirCorpus; unfold=true)
     if unfold
-        warn("unfolding for time signatures is not implemented yet!")
+        @warn "unfolding for time signatures is not implemented yet!"
     end
     getpiece(id, :all, :musicxml, crp; keepids=true, unfold=unfold).timesigs
 end
