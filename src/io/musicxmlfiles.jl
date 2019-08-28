@@ -97,11 +97,12 @@ currentrep(state) = isempty(state.stack) ? 1 : state.stack[end][2]
 
 pushrepeat!(state) = push!(state.stack, (state.now, 1, state.markers))
 
-function gorepeat!(state, allmarkers)
+function gorepeat!(state)
     if isempty(state.stack)
-        restore!(state, allmarkers, 0//1, [(0//1, 2, allmarkers)])
+        @warn "Don't know where to repeat from. Did you forget a forward repeat sign?"
+        #restore!(state, allmarkers, 0//1, [(0//1, 2, allmarkers)])
     else
-        (t, n, markers) = state.stack[end]
+        (t, n, markers) = pop!(state.stack) #[end]
         restore!(state, markers, t, push!(state.stack, (t, n+1, markers)))
     end
 end
@@ -129,8 +130,9 @@ end
 
 function unfoldflow(markers, tend)
     allmarkers = sort(markers, by=fm -> (fm.time, fm.command))
-    state = FlowState(0//1, allmarkers, Dict(), [], Dict(), [])
-
+    beginning = (0//1, 1, allmarkers) # repetition stack item for beginning of the piece
+    state = FlowState(0//1, allmarkers, Dict(), [beginning], Dict(), [])
+    
     while !isempty(state.markers)
         marker = state.markers[1]
         state.markers = state.markers[2:end]
@@ -141,7 +143,7 @@ function unfoldflow(markers, tend)
             pushrepeat!(state)
         elseif marker.command == bwrepeat
             if currentrep(state) < marker.repeats
-                gorepeat!(state, allmarkers)
+                gorepeat!(state)
             else
                 poprepeat!(state)
             end
@@ -158,7 +160,7 @@ function unfoldflow(markers, tend)
         elseif marker.command == dacapo
             times = state.gcount[(marker.command, marker.time)]
             if marker.only == nothing || times ∈ marker.only
-                restore!(state, allmarkers, 0//1, [])
+                restore!(state, allmarkers, 0//1, [beginning])
             end
         elseif marker.command == segno
             state.segnos[marker.name] = (state.markers, state.now, copy(state.stack))
@@ -259,7 +261,7 @@ function readmusicxml end
 function readmusicxml(file::String; unfold=true)
     doc = parse_file(file)
     try
-        readmusicxml(doc)
+        readmusicxml(doc, unfold=unfold)
     finally
         free(doc)
     end
@@ -338,8 +340,9 @@ function readpart(part, parti, unfold)
     # close last time signature span
     split!(timesigs, state.time, state.timesig, state.timesig)
 
+
+    sections = unfoldflow(state.flow, state.time)
     if unfold
-        sections = unfoldflow(state.flow, state.time)
         now = 0//1
         unfolded = newnotedf()
         for (t1, t2) in sections
