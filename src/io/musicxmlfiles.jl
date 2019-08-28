@@ -179,8 +179,12 @@ function unfoldflow(markers, tend)
         end
     end
 
-    if isa(state.jumps[end], Tuple)
+    if isempty(state.jumps)
         push!(state.jumps, tend)
+    else
+        if isa(state.jumps[end], Tuple)
+            push!(state.jumps, tend)
+        end
     end
 
     out = Tuple{Rational{Int}, Rational{Int}}[]
