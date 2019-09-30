@@ -6,14 +6,12 @@ using ...DigitalMusicology
 
 export readmusicxml, loadwithids
 
-testfile = "/home/chfin/Uni/phd/data/csapp/mozart-piano-sonatas/musicxml/sonata03-3.xml"
-
 # XML Helpers
 #############
 
 haselem(node, subname) = find_element(node, subname) != nothing
 
-firstcont(node, subname) = LightXML.content(node[subname][1])
+firstcont(node, subname) = strip(LightXML.content(node[subname][1]))
 
 firstint(node, subname, default=:error) =
     if !haselem(node, subname)
