@@ -404,7 +404,7 @@ function attribs!(attr, timesigs, state)
             octs = firstint(node, "octave-change", 0)
             state.trans_dia += 7 * octs
             state.trans_chrom += 12 * octs
-        elseif name(node) == time
+        elseif name(node) == "time"
             num = firstint(node, "beats")
             denom = firstint(node, "beat-type")
             if state.time > 0//1 # if first TS, no need to split
