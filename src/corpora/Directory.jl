@@ -62,8 +62,8 @@ function _getpiece(id, ::Val{:all}, ::Val{:musicxml}, crp::DirCorpus; keepids=tr
     end
 end
 
-function _getpiece(id, ::Val{:timesigs}, ::Val{:musicxml}, crp::DirCorpus; unfold=true)
-    if unfold
+function _getpiece(id, ::Val{:timesigs}, ::Val{:musicxml}, crp::DirCorpus; unfold=true, nowarn=false)
+    if unfold && !nowarn
         @warn "unfolding for time signatures is not implemented yet!"
     end
     getpiece(id, :all, :musicxml, crp; keepids=true, unfold=unfold).timesigs
