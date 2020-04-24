@@ -143,6 +143,7 @@ tointerval(p::Pitch{I}) where {I<:Interval} = p.pitch
 +(p::Pitch{I}, i::I) where {I<:Interval} = Pitch(p.pitch + i)
 +(i::I, p::Pitch{I}) where {I<:Interval} = Pitch(p.pitch + i)
 -(p::Pitch{I}, i::I) where {I<:Interval} = Pitch(p.pitch - i)
+-(p1::Pitch{I}, p2::Pitch{I}) where {I<:Interval} = p1.pitch - p2.pitch
 pc(p::Pitch{I}) where {I<:Interval} = Pitch(ic(p.pitch))
 embed(p::Pitch{I}, octs::Int) where {I<:Interval} = Pitch(embed(p.pitch, octs))
 
