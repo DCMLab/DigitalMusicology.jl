@@ -91,7 +91,8 @@ Base.zero(::SpelledInterval) = spelled(0,0)
 *(i::SpelledInterval, n::Int) = spelled(i.d*n, i.c*n)
 *(n::Int,i::SpelledInterval) = spelled(i.d*n, i.c*n)
 
-tomidi(i::SpelledInterval) = midi(i.c+12) # C4 = 48 semitones above C0 = midi(60)
+tomidi(i::SpelledInterval) = midi(i.c)
+tomidi(p::Pitch{SpelledInterval}) = midip(p.interval.c + 12)  # C4 = 48 semitones above C0 = midi(60)
 octave(::Type{SpelledInterval}) = spelled(7,12)
 Base.sign(i::SpelledInterval) = sign(i.d)
 Base.abs(i::SpelledInterval) = spelled(abs(i.d), abs(i.c))
@@ -174,7 +175,8 @@ Base.zero(::SpelledIC) = sic(0)
 *(i::SpelledIC, n::Int) = sic(i.fifths * n)
 *(n::Int,i::SpelledIC) = sic(i.fifths * n)
 
-tomidi(i::SpelledIC) = midi(mod(i.fifths * 7, 12))
+tomidi(i::SpelledIC) = midic(i.fifths * 7)
+tomidi(p::Pitch{SpelledIC}) = midipc(p.interval.fifths * 7)
 octave(::Type{SpelledIC}) = sic(0)
 Base.sign(i::SpelledIC) = if embed(i).d == 0; 0 elseif embed(i).d > 3; -1 else 1 end
 Base.abs(i::SpelledIC) = i
