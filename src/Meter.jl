@@ -76,9 +76,11 @@ defaultmeter(ts::TimeSignature; warning=true) =
         fill(3, div(ts.num, 3))
     elseif ts.num % 2 == 0
         fill(2, div(ts.num, 2))
-    elseif warning
-        warn("could not guess correct meter for time signature ", ts)
-        nothing
+    else
+        if warning
+            @warn "could not guess correct meter for time signature $ts"
+        end
+        fill(1, ts.num) # default: only single-beat groups
     end
 
     # if ts.num == 1
@@ -131,8 +133,8 @@ end
 Tries to guess meter and beat from `timesig`.
 Otherwise identical to `metricweight(barpos, meter, beat)`.
 """
-metricweight(barpos::Rational{Int}, ts::TimeSignature) =
-    metricweight(barpos, defaultmeter(ts), 1//denominator(ts))
+metricweight(barpos::Rational{Int}, ts::TimeSignature; warning=true) =
+    metricweight(barpos, defaultmeter(ts, warning=warning), 1//denominator(ts))
 
 ## Time Maps
 ## =========
@@ -232,18 +234,18 @@ Returns the metric weight at time point `t` in the context of `timesigmap`.
 Optionally, `meter`, and `beat` may be supplied as in `metricweight(barpos, meter, beat)`
 to override the default values inferred from the time signature at `t`.
 """
-function metricweight(time::T, tsm::TimeSigMap{T}, meter=nothing, beat=nothing) where T
+function metricweight(time::T, tsm::TimeSigMap{T}, meter=nothing, beat=nothing; warning=true) where T
     i = findevent(tsm, time)
     tsev = tsm[max(i,1)]
     tsig = content(tsev)
     barpos = mod(time - onset(tsev), duration(tsig))
     if meter == nothing
-        metricweight(barpos, tsig)
+        metricweight(barpos, tsig; warning=warning)
     else
         if beat == nothing
             beat = 1 // denominator(tsig)
         end
-        metricweight(barpos, meter, beat)
+        metricweight(barpos, meter, beat; warning=warning)
     end
 end
 
